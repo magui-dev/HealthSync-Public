@@ -1,7 +1,7 @@
 package com.healthsync.project.calc.service;
 
-import com.healthsync.project.calc.dto.CalcResult;
-import com.healthsync.project.calc.dto.TestUser;
+import com.healthsync.project.calc.dto.CalcProfileRequest;
+import com.healthsync.project.calc.dto.MetricsResponse;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -11,14 +11,21 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 @Service
-public class CalcService {
+public class MetricsService {
 
     /**
-     * BMI 계산 및 체중 분류, 표준체중, 하루 칼로리 계산
-     * @param user TestUser 엔티티
-     * @return BMIResult
+     * 사용자의 신체 정보를 기반으로 건강 지표를 계산하는 서비스.
+     *
+     * - BMI 계산 및 체중 분류
+     * - 표준체중 계산
+     * - 기초대사량(BMR) 계산 (미프린-세인트 조르 공식 사용)
+     * - 활동대사량 및 하루 총 소모 칼로리 계산
+     *
+     * @param user CalcProfileRequest : 키, 몸무게, 성별, 생년월일, 활동 레벨 등의 정보
+     * @return MetricsResponse : BMI, BMI 분류, 표준체중, 하루 총 소모 칼로리, BMR, 활동대사량
      */
-    public CalcResult calculateBMIForUser(TestUser user) {
+
+    public MetricsResponse calculateBMI(CalcProfileRequest user) {
         double heightM = user.getHeight() / 100; // cm → m
         double weightKg = user.getWeight();
         String gender = user.getGender();
@@ -54,7 +61,7 @@ public class CalcService {
         dailyCalories += (bmr + activityCalories) * 0.1;
         dailyCalories = getPointFromTwo(dailyCalories);
 
-        return new CalcResult(bmi, category, standardWeight, dailyCalories, bmr, activityCalories);
+        return new MetricsResponse(bmi, category, standardWeight, dailyCalories, bmr, activityCalories);
     }
 
     // BMI 분류
