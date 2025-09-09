@@ -20,10 +20,14 @@ public class NutriService {
     private static final Map<String, String> FIELD_NAME_MAP = Map.ofEntries(
             Map.entry("foodCd", "식품코드"),
             Map.entry("foodNm", "식품명"),
+            Map.entry("dataCd", "데이터구분코드"),
+            Map.entry("typeNm", "데이터구분명"),
+            Map.entry("nutConSrtrQua", "영양성분함량기준량"),
             Map.entry("enerc", "열량(kcal)"),
             Map.entry("prot", "단백질(g)"),
             Map.entry("fatce", "지방(g)"),
             Map.entry("chocdf", "탄수화물(g)"),
+            Map.entry("sugar", "당류"),
             Map.entry("nat", "나트륨(mg)"),
             Map.entry("crtYmd", "생성일자"),
             Map.entry("crtrYmd", "기준일자"),
@@ -36,7 +40,8 @@ public class NutriService {
             Map.entry("mkrNm", "제조사명"),
             Map.entry("imptrNm", "수입업체명"),
             Map.entry("rtlBzentyNm", "유통업체명"),
-            Map.entry("instt_code", "제공기관 코드")
+            Map.entry("instt_code", "제공기관코드"),
+            Map.entry("instt_nm","제공기관기관명")
     );
 
     // 응답 필드 변환
