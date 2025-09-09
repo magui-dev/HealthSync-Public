@@ -19,6 +19,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/calc/**").permitAll()
                         .requestMatchers("/nutri/**").permitAll()
                         .requestMatchers("/",
                                 "/ping",
