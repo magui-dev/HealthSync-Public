@@ -1,21 +1,19 @@
-package com.healthsync.project.calc.dto;
+package com.healthsync.project.calc.domain;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+@Entity
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity
-@Table(name = "testuser")
-
-public class TestUser {
+@AllArgsConstructor
+@Builder
+@Table(name = "Calc_Profile")
+public class CalcProfile {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
