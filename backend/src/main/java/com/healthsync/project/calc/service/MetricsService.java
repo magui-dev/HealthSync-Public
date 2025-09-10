@@ -1,7 +1,11 @@
 package com.healthsync.project.calc.service;
 
-import com.healthsync.project.calc.dto.CalcProfileRequest;
+import com.healthsync.project.calc.domain.CalcProfile;
+import com.healthsync.project.calc.domain.Metrics;
 import com.healthsync.project.calc.dto.MetricsResponse;
+import com.healthsync.project.calc.repository.CalcProfileRepository;
+import com.healthsync.project.calc.repository.MetricsRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -9,46 +13,48 @@ import java.time.Period;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.NoSuchElementException;
 
 @Service
+@RequiredArgsConstructor
 public class MetricsService {
 
+    private final CalcProfileRepository calcProfileRepository;
+    private final MetricsRepository metricsRepository;
+
     /**
-     * 사용자의 신체 정보를 기반으로 건강 지표를 계산하는 서비스.
+     * 기존 프로필을 기반으로 BMI 계산 및 Metrics 저장
      *
-     * - BMI 계산 및 체중 분류
-     * - 표준체중 계산
-     * - 기초대사량(BMR) 계산 (미프린-세인트 조르 공식 사용)
-     * - 활동대사량 및 하루 총 소모 칼로리 계산
-     *
-     * @param user CalcProfileRequest : 키, 몸무게, 성별, 생년월일, 활동 레벨 등의 정보
-     * @return MetricsResponse : BMI, BMI 분류, 표준체중, 하루 총 소모 칼로리, BMR, 활동대사량
+     * @param userEmail String
+     * @return MetricsResponse
      */
+    public MetricsResponse calculateAndSaveBMI(String userEmail) {
+        // 1. Email로 유저 프로필 조회
+        CalcProfile calcprofile = calcProfileRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new NoSuchElementException("해당 유저를 찾을 수 없습니다. userId=" + userEmail));
 
-    public MetricsResponse calculateBMI(CalcProfileRequest user) {
-        double heightM = user.getHeight() / 100; // cm → m
-        double weightKg = user.getWeight();
-        String gender = user.getGender();
-        int age = Period.between(user.getBirth(), LocalDate.now()).getYears();
+        // 2. 기본 정보 세팅
+        double heightM = calcprofile.getHeight() / 100; // cm → m
+        double weightKg = calcprofile.getWeight();
+        String gender = calcprofile.getGender();
+        int age = Period.between(calcprofile.getBirth(), LocalDate.now()).getYears();
 
-        // 1. BMI 계산
-        double bmi = getPointFromTwo(weightKg / (heightM * heightM));
+        // 3. BMI 계산
+        double bmi = round2(weightKg / (heightM * heightM));
         String category = getBMICategory(bmi);
 
-        // 2. 표준체중 계산
+        // 4. 표준체중 계산
         double standardWeight = gender.equalsIgnoreCase("male") ?
-                getPointFromTwo(heightM * heightM * 22) :
-                getPointFromTwo(heightM * heightM * 21);
+                round2(heightM * heightM * 22) :
+                round2(heightM * heightM * 21);
 
-        // 3. 기초대사량(BMR) 계산 (미프린-세인트 조르 공식 사용)
-        double bmr = getPointFromTwo(calculateBMR(weightKg, user.getHeight(), age, gender));
+        // 5. 기초대사량(BMR) 계산 (미프린-세인트 조르 공식 사용)
+        double bmr = round2(calculateBMR(weightKg, calcprofile.getHeight(), age, gender));
 
-        // 4. 활동대사량
-        int activityLevel = user.getLevel();
-        double activityMultiplier = getActivityMultiplier(activityLevel);
-        double activityCalories = getPointFromTwo(bmr * activityMultiplier);
+        // 6. 활동대사량 계산
+        double activityCalories = round2(bmr * getActivityMultiplier(calcprofile.getLevel()));
 
-        // 5. 하루 총 소화대사량
+        // 7. 하루 총 소화대사량 계산
         double dailyCalories;
         if (bmi <= 22.9) { // 표준체중 범위
             dailyCalories = standardWeight * 32; // 평균 30~35 kcal
@@ -56,12 +62,31 @@ public class MetricsService {
             double adjustedWeight = standardWeight + (weightKg - standardWeight) / 4;
             dailyCalories = adjustedWeight * 27.5; // 평균 25~30 kcal
         }
-
         // 소화대사량 포함
         dailyCalories += (bmr + activityCalories) * 0.1;
-        dailyCalories = getPointFromTwo(dailyCalories);
+        dailyCalories = round2(dailyCalories);
 
-        return new MetricsResponse(bmi, category, standardWeight, dailyCalories, bmr, activityCalories);
+        // 8. Metrics 엔티티 생성 및 DB 저장
+        Metrics metrics = Metrics.builder()
+                .bmi(bmi)
+                .category(category)
+                .standardWeight(standardWeight)
+                .bmr(bmr)
+                .activityCalories(activityCalories)
+                .dailyCalories(dailyCalories)
+                .profile(calcprofile) // profile 참조(FK)
+                .build();
+        metricsRepository.save(metrics);
+
+        // 9. DTO 반환
+        return MetricsResponse.builder()
+                .bmi(bmi)
+                .category(category)
+                .standardWeight(standardWeight)
+                .bmr(bmr)
+                .activityCalories(activityCalories)
+                .dailyCalories(dailyCalories)
+                .build();
     }
 
     // BMI 분류
@@ -94,9 +119,7 @@ public class MetricsService {
     }
 
     // 소수점 둘째짜리까지 (반올림)
-    private double getPointFromTwo(double result){
-        BigDecimal bd = new BigDecimal(result);
-        bd = bd.setScale(2, RoundingMode.HALF_UP); // 소수 둘째자리 반올림
-        return bd.doubleValue();
+    private double round2(double value){
+        return BigDecimal.valueOf(value).setScale(2, RoundingMode.HALF_UP).doubleValue();
     };
 }
