@@ -19,6 +19,9 @@ public class CalcProfile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
+    @Column(name = "email", nullable = false, unique = true)
+    private String email;
+
     @Column(name = "name", nullable = false)
     private String name;
 
@@ -34,7 +37,7 @@ public class CalcProfile {
     @Column(name = "gender")
     private String gender;
 
-    @Column(name = "level")
+    @Column(name = "level") // 활동 레벨(1~4)
     private int level;
 
     @Column(name = "created_at", nullable = false, updatable = false)
