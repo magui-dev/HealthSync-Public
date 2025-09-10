@@ -11,6 +11,7 @@ import java.time.LocalDate;
 @Builder
 public class CalcProfileRequest {
 
+    private String email;
     private String name;
     private LocalDate birth;
     private Double height;
