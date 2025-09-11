@@ -1,0 +1,361 @@
+/* Minimal, modern, responsive defaults */
+:root {
+  --bg: #0b0e14;
+  --panel: #121722;
+  --muted: #8a93a6;
+  --text: #e6e9ef;
+  --accent: #7aa2f7;
+  --accent-2: #7ad1f7;
+  --danger: #ef596f;
+  --ok: #7ce38b;
+  --warn: #f5d676;
+  color-scheme: dark light;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, Apple Color Emoji, Segoe UI Emoji;
+  background: var(--bg);
+  color: var(--text);
+}
+
+a { color: inherit; text-decoration: none; }
+button, input, select, textarea { font: inherit; }
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  backdrop-filter: saturate(1.2) blur(6px);
+  background: color-mix(in lab, var(--bg) 75%, transparent);
+  border-bottom: 1px solid color-mix(in lab, var(--text) 12%, transparent);
+  z-index: 20;
+}
+
+.header-inner {
+  display: flex; align-items: center; gap: 16px;
+  padding: 12px 16px;
+}
+
+.brand {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.nav {
+  margin-left: auto;
+  display: flex; gap: 8px; flex-wrap: wrap;
+}
+
+.nav a {
+  padding: 8px 12px;
+  border-radius: 10px;
+  color: var(--text);
+  border: 1px solid transparent;
+}
+
+.nav a[aria-current="page"] {
+  background: color-mix(in lab, var(--accent) 18%, transparent);
+  border-color: color-mix(in lab, var(--accent) 35%, transparent);
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid color-mix(in lab, var(--text) 10%, transparent);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 16px;
+}
+
+.input, .select, .textarea {
+  width: 100%;
+  border: 1px solid color-mix(in lab, var(--text) 14%, transparent);
+  background: #0f1320;
+  color: var(--text);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in lab, var(--text) 14%, transparent);
+  background: #0f1320;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.btn.primary {
+  border-color: color-mix(in lab, var(--accent) 60%, transparent);
+  background: color-mix(in lab, var(--accent) 25%, transparent);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.table th, .table td {
+  padding: 10px 12px; text-align: left;
+  border-bottom: 1px solid color-mix(in lab, var(--text) 10%, transparent);
+}
+.table th { color: var(--muted); font-weight: 600; }
+
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  border: 1px solid color-mix(in lab, var(--text) 18%, transparent);
+}
+
+.footer {
+  color: var(--muted);
+  padding: 24px 16px;
+  border-top: 1px solid color-mix(in lab, var(--text) 12%, transparent);
+  margin-top: 32px;
+}
+
+@media (prefers-color-scheme: light){
+  :root{
+    --bg: #ffffff;
+    --panel: #f8fafc;
+    --text: #111111;
+    --muted: #667085;
+    --accent: #0b57d0;
+    --accent-2: #7ad1f7;
+    --danger: #d92d20;
+    --ok: #16a34a;
+    --warn: #eab308;
+  }
+}
+
+input, select, textarea,
+.input, .select, .textarea {
+  background-color: #0f1320 !important;
+  color: var(--text) !important;
+  border: 1px solid rgba(230,233,239,0.18) !important;
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+/* 네이티브 컨트롤을 다크 스킴으로 고정 (라이트도 쓰면 주석 처리 가능) */
+input, select, textarea, button { color-scheme: dark; }
+
+/* 드롭다운 항목(Win/Chrome 포함)도 가독성 보정 */
+select option, select optgroup {
+  background-color: #0f1320 !important;
+  color: var(--text) !important;
+}
+
+/* 날짜/시간 입력 내부 텍스트까지 강제 (Chrome/Safari 웹킷) */
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"] {
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important; /* 내부 텍스트 색 */
+  background: #0f1320 !important;
+  border-color: rgba(230,233,239,0.18) !important;
+}
+
+input[type="date"]::-webkit-datetime-edit,
+input[type="date"]::-webkit-datetime-edit-text,
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-year-field,
+input[type="time"]::-webkit-datetime-edit,
+input[type="datetime-local"]::-webkit-datetime-edit,
+input[type="datetime-local"]::-webkit-datetime-edit-text,
+input[type="datetime-local"]::-webkit-datetime-edit-fields-wrapper {
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
+}
+
+/* 네이티브 컨트롤을 다크 스킴으로 고정 (라이트도 쓰면 주석 처리 가능) */
+input, select, textarea, button { color-scheme: dark; }
+
+/* 드롭다운 항목(Win/Chrome 포함)도 가독성 보정 */
+select option, select optgroup {
+  background-color: #0f1320 !important;
+  color: var(--text) !important;
+}
+
+/* 날짜/시간 입력 내부 텍스트까지 강제 (Chrome/Safari 웹킷) */
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"] {
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important; /* 내부 텍스트 색 */
+  background: #0f1320 !important;
+  border-color: rgba(230,233,239,0.18) !important;
+}
+
+input[type="date"]::-webkit-datetime-edit,
+input[type="date"]::-webkit-datetime-edit-text,
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-year-field,
+input[type="time"]::-webkit-datetime-edit,
+input[type="datetime-local"]::-webkit-datetime-edit,
+input[type="datetime-local"]::-webkit-datetime-edit-text,
+input[type="datetime-local"]::-webkit-datetime-edit-fields-wrapper {
+  color: var(--text) !important;
+  -webkit-text-fill-color: var(--text) !important;
+}
+
+/* 달력/시계 아이콘도 밝게 */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  opacity: .9;
+}
+
+/* (선택) 칩/작은 네모 박스류도 같이 쓰면 여기서 통일 */
+.badge, .chip, .pill, .tag, .date-box, .date-chip, .small-box {
+  background-color: rgba(255,255,255,0.06) !important;
+  color: var(--text) !important;
+  border: 1px solid rgba(230,233,239,0.18) !important;
+  border-radius: 8px;
+  padding: 2px 8px;
+  line-height: 1.2;
+}
+
+/* (선택) 라이트 모드도 쓰면 라이트 전용 보정 추가 */
+@media (prefers-color-scheme: light){
+  input, select, textarea, button { color-scheme: light; }
+  select option, select optgroup {
+    background-color: #ffffff !important;
+    color: #111 !important;
+  }
+  input[type="date"], input[type="time"], input[type="datetime-local"]{
+    background:#fff !important; color:#111 !important; -webkit-text-fill-color:#111 !important;
+    border-color:#e5e7eb !important;
+  }
+  .badge, .chip, .pill, .tag, .date-box, .date-chip, .small-box{
+    background:#f3f4f6 !important; color:#111 !important; border-color:#e5e7eb !important;
+  }
+}
+
+/* === FINAL FORM VISIBILITY FIX (single-source-of-truth) === */
+/* 공통 토큰 */
+:root{
+  --control-bg: #0f1320;
+  --control-fg: var(--text);
+  --control-bd: rgba(230,233,239,0.18);
+}
+
+/* 네이티브 컨트롤을 다크 스킴 기준으로 렌더 (라이트도 아래에서 처리) */
+input, select, textarea, button { color-scheme: dark; }
+
+/* 1) 입력/선택 컨트롤 (날짜/숫자/텍스트/셀렉트/텍스트에어리어) */
+input, select, textarea,
+.input, .select, .textarea {
+  background-color: var(--control-bg) !important;
+  color: var(--control-fg) !important;
+  border: 1px solid var(--control-bd) !important;
+  border-radius: 12px;
+  padding: 10px 12px;
+  -webkit-text-fill-color: var(--control-fg) !important; /* WebKit 내부 텍스트까지 */
+  caret-color: var(--control-fg);
+}
+input::placeholder, textarea::placeholder {
+  color: rgba(230,233,239,0.60) !important;
+}
+/* 셀렉트 드롭다운 항목(Win/Chrome) */
+select option, select optgroup {
+  background-color: var(--control-bg) !important;
+  color: var(--control-fg) !important;
+}
+
+/* 2) 날짜/시간 내부 서브파트 + 아이콘 (Chrome/Safari WebKit) */
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"]{
+  background: var(--control-bg) !important;
+  color: var(--control-fg) !important;
+  border-color: var(--control-bd) !important;
+  -webkit-text-fill-color: var(--control-fg) !important;
+}
+input[type="date"]::-webkit-datetime-edit,
+input[type="date"]::-webkit-datetime-edit-text,
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-year-field,
+input[type="time"]::-webkit-datetime-edit,
+input[type="datetime-local"]::-webkit-datetime-edit,
+input[type="datetime-local"]::-webkit-datetime-edit-text,
+input[type="datetime-local"]::-webkit-datetime-edit-fields-wrapper{
+  color: var(--control-fg) !important;
+  -webkit-text-fill-color: var(--control-fg) !important;
+}
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator,
+input[type="datetime-local"]::-webkit-calendar-picker-indicator{
+  filter: invert(1);
+  opacity: .9;
+}
+
+/* 3) 칩/배지/작은 네모 박스 */
+.badge, .chip, .pill, .tag, .date-box, .date-chip, .small-box, .meta-badge {
+  background-color: rgba(255,255,255,0.06) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--control-bd) !important;
+  border-radius: 8px;
+  padding: 2px 8px;
+  line-height: 1.2;
+}
+
+/* 4) 카드/타일/섹션 박스 */
+.card, .panel, .box, .tile, .section, .kpi, .stat {
+  background: var(--panel) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--control-bd) !important;
+  border-radius: 12px;
+}
+/* 박스 내부 텍스트도 전부 밝게 */
+.card *, .panel *, .box *, .tile *, .section *, .kpi *, .stat * {
+  color: var(--text) !important;
+}
+
+/* 5) 버튼 */
+button, .btn {
+  background: var(--control-bg) !important;
+  color: var(--control-fg) !important;
+  border: 1px solid var(--control-bd) !important;
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+.btn.primary{
+  background: color-mix(in lab, var(--accent) 25%, transparent) !important;
+  border-color: color-mix(in lab, var(--accent) 60%, transparent) !important;
+  color: var(--text) !important;
+}
+
+/* 6) 테이블 구분선/헤더 */
+.table th, .table td {
+  border-bottom: 1px solid rgba(230,233,239,0.12) !important;
+}
+.table th { color: var(--muted) !important; }
+
+/* 7) 라이트 모드 보정 (OS가 라이트일 때도 보기 좋게) */
+@media (prefers-color-scheme: light){
+  input, select, textarea, button { color-scheme: light; }
+  :root{ --control-bg: #ffffff; --control-fg:#111; --control-bd:#e5e7eb; }
+  .badge, .chip, .pill, .tag, .date-box, .date-chip, .small-box, .meta-badge{
+    background:#f3f4f6 !important; color:#111 !important; border-color:#e5e7eb !important;
+  }
+}

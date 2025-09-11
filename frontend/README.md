@@ -1,12 +1,34 @@
-# React + Vite
+# WinterSleeping Frontend Starter (React + Vite, JS only)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is a minimal, accessible GUI starter that recreates:
+- **Weight management**: `/weight/track`
+- **Food management**: `/food/plan`, `/food/mealprep`
 
-Currently, two official plugins are available:
+## Quick start
+```bash
+# 1) Extract the zip
+# 2) Install deps
+npm install
+# 3) Run dev server
+npm run dev
+```
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Tech
+- React 18 + Vite 5 (JS only)
+- React Router v6
+- LocalStorage persistence
+- No CSS framework; hand-rolled minimal CSS
 
-## Expanding the ESLint configuration
+## Structure
+- `src/pages/WeightTrack.jsx`: weight entries with sparkline, stats, CRUD
+- `src/pages/FoodPlan.jsx`: weekly plan editable grid
+- `src/pages/MealPrep.jsx`: prep checklist
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+All pages are keyboard-accessible and responsive.
+
+
+## Routes
+- `/weight/track` — 체중관리
+- `/food` — 식단관리 (카테고리)
+  - `/food/plan` — 식단짜기
+  - `/food/mealprep` — 밀프렙

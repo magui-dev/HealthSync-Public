@@ -9,8 +9,9 @@ public class NutriParamPolicy {
 
     // 공통
     private static final Set<String> COMMON = Set.of(
-            "foodCd","foodNm","dataCd","typeNm","nutConSrtrQua","enerc","prot","fatce","chocdf",
-            "sugar","nat","instt_code","instt_nm"
+            "pageNo","numOfRows","type",
+            "foodNm","foodLv4Nm","nutConSrtrQua","enerc","prot","fatce","chocdf",
+            "crtYmd","crtrYmd","instt_nm"
     );
 
     // 데이터셋별

@@ -14,4 +14,6 @@ public class HealthsyncApplication {
 		SpringApplication.run(HealthsyncApplication.class, args);
 	}
 
+
+
 }
