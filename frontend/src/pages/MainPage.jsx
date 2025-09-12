@@ -3,23 +3,23 @@ import centerImg from "../assets/centerbackground.png";
 import rightImg from "../assets/rightbackground.png";
 import "./MainPage.css";
 
-export default function MainPage() {
+export default function MainPage({ me, onLoginClick, onAccountClick }) {
   const go = (msg) => () => alert(msg);
 
   return (
     <div className="landing">
-      {/* 왼쪽 사이드 */}
       <aside className="side">
         <img className="bg" src={leftImg} alt="left bg" />
         <nav className="menu">
-          <button className="menuBtn" onClick={go("Login")}>Login</button>
-          <button className="menuBtn" onClick={go("AI 식단 추천")}>AI 식단 추천</button>
-          <button className="menuBtn" onClick={go("나의 리포트")}>나의 리포트</button>
-          <button className="menuBtn" onClick={go("커뮤니티")}>커뮤니티</button>
+          <button className="menuBtn ivory" onClick={me ? onAccountClick : onLoginClick}>
+            {me?.nickname ? `${me.nickname}님` : "Login"}
+          </button>
+          <button className="menuBtn sky" onClick={go("AI 식단 추천")}>AI 식단 추천</button>
+          <button className="menuBtn ivory" onClick={go("나의 리포트")}>나의 리포트</button>
+          <button className="menuBtn sky" onClick={go("커뮤니티")}>커뮤니티</button>
         </nav>
       </aside>
 
-      {/* 가운데 히어로(Health) */}
       <section className="hero">
         <img src={centerImg} alt="health" />
         <div className="overlay" />
@@ -31,7 +31,6 @@ export default function MainPage() {
         </button>
       </section>
 
-      {/* 오른쪽 히어로(Lean) */}
       <section className="hero">
         <img src={rightImg} alt="lean" />
         <div className="overlay" />
