@@ -39,11 +39,13 @@ public class SecurityConfig {
         var resolver = new CustomAuthorizationRequestResolver(clientRegistrationRepository);
 
         http
-                .securityMatcher("/oauth2/**", "/login/**", "/api/**", "/ping")
+                .securityMatcher("/oauth2/**", "/login/**", "/api/**", "/ping", "/calc/**", "/posts/**")
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/posts/**").permitAll()
+                        .requestMatchers("/calc/**").permitAll()
                         .requestMatchers("/ping").permitAll()
                         .requestMatchers("/oauth2/**", "/login/**").permitAll()
                         // ✅ 인증 필요한 엔드포인트를 먼저 명시

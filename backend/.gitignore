@@ -1,6 +1,7 @@
 # application.yaml 무시
 src/main/resources/application.yml
 src/main/resources/application.yaml
+src/main/resources/application-dev.yml
 
 # Java class files
 *.class

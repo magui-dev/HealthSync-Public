@@ -47,13 +47,13 @@ public class BookmarksController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/me/bookmarks")
-    public Page<BookmarkResponse> myBookmarks(
-            @AuthenticationPrincipal com.healthsync.project.logintest.dto.LoginUser principal,
-            Pageable pageable
-    ) {
-        if (principal == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
-        return bookmarkService.listMyBookmarksDto(principal.getId(), pageable);
-    }
+//    @GetMapping("/me/bookmarks")
+//    public Page<BookmarkResponse> myBookmarks(
+//            @AuthenticationPrincipal com.healthsync.project.logintest.dto.LoginUser principal,
+//            Pageable pageable
+//    ) {
+//        if (principal == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
+//        return bookmarkService.listMyBookmarksDto(principal.getId(), pageable);
+//    }
 
 }
