@@ -44,12 +44,24 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
-	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
-	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+	implementation 'io.jsonwebtoken:jjwt-api:0.12.5'
+	runtimeOnly  'io.jsonwebtoken:jjwt-impl:0.12.5'
+	runtimeOnly  'io.jsonwebtoken:jjwt-jackson:0.12.5' // JSON 직렬화
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
 	implementation 'com.fasterxml.jackson.core:jackson-databind'
+
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client' // ✅ 구글 OAuth 클라이언트
+
+	/** ✅ 어떤 라이브러리가 옛날 jjwt를 끌어와도 0.12.5로 통일 강제 */
+	configurations.all {
+		resolutionStrategy.eachDependency { details ->
+			if (details.requested.group == 'io.jsonwebtoken') {
+				details.useVersion '0.12.5'
+				details.because 'Avoid AbstractMethodError: mix of 0.11.x and 0.12.x'
+			}
+		}
+	}
 
 	// database
 	implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.30'
@@ -68,4 +80,9 @@ dependencies {
 }
 	tasks.named('test') {
 	useJUnitPlatform()
+}
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17) // 항상 JDK 17로 빌드
+	}
 }
