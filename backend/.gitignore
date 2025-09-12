@@ -1,45 +1,62 @@
-# =====================
-# YAML 파일 무시
-# =====================
-# application.yml / application.yaml 무시
+# application.yaml 무시
 src/main/resources/application.yml
-src/main/resources/application-dev.yml
 src/main/resources/application.yaml
-# src 전체의 yml/yaml 파일 무시 (src/main, src/test 코드 제외)
-src/**/*.yml
-src/**/*.yaml
+src/main/resources/application-dev.yml
 
-# =====================
 # Java class files
-# =====================
 *.class
 
-# =====================
-# Eclipse
-# =====================
+# Eclipse project files
 .classpath
 .project
 .settings/
 
-# =====================
-# IntelliJ IDEA
-# =====================
+# Intellij project files
 *.iml
 *.ipr
 *.iws
 .idea/
-.gradle
 
-# =====================
-# STS
-# =====================
+#Build
+/build
+/bin
+
+.DS_Store/
+/target
+
+/target
+/target/
+**/target/
+
+.DS_Store
+
+HELP.md
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**
+!**/src/test/**
+
+# src/main, src/test 코드는 추적하되, yaml 파일은 무시
+src/**/*.yml
+src/**/*.yaml
+
+### STS ###
 .apt_generated
+.classpath
+.factorypath
+.project
+.settings
 .springBeans
 .sts4-cache
 
-# =====================
-# NetBeans
-# =====================
+### IntelliJ IDEA ###
+.idea
+.gradle
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
 /nbproject/private/
 /nbbuild/
 /dist/
@@ -47,31 +64,5 @@ src/**/*.yaml
 /.nb-gradle/
 build/
 
-# =====================
-# Maven Wrapper
-# =====================
-!.mvn/wrapper/maven-wrapper.jar
-
-# =====================
-# Build / Target
-# =====================
-/build/
-/bin/
-/target/
-/target/**
-
-# =====================
-# VS Code
-# =====================
+### VS Code ###
 .vscode/
-
-# =====================
-# macOS
-# =====================
-.DS_Store
-.DS_Store/
-
-# =====================
-# 기타 문서
-# =====================
-HELP.md
