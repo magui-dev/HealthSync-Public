@@ -4,6 +4,7 @@ import com.healthsync.project.security.jwt.JwtAuthenticationFilter;
 import com.healthsync.project.security.jwt.JwtService;
 import com.healthsync.project.security.oauth.CustomAuthorizationRequestResolver;
 import com.healthsync.project.security.oauth.OAuth2SuccessHandler;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -39,13 +40,15 @@ public class SecurityConfig {
         var resolver = new CustomAuthorizationRequestResolver(clientRegistrationRepository);
 
         http
-                .securityMatcher("/oauth2/**", "/login/**", "/api/**", "/ping", "/calc/**", "/posts/**")
+                .securityMatcher("/oauth2/**", "/login/**", "/api/**", "/ping", "/calc/**", "/posts/**", "/nutri/**")
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
-                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/posts/**").permitAll()
+                        .requestMatchers("/posts/**").authenticated()
                         .requestMatchers("/calc/**").permitAll()
+                        .requestMatchers("/nutri/**").permitAll()
                         .requestMatchers("/ping").permitAll()
                         .requestMatchers("/oauth2/**", "/login/**").permitAll()
                         // ✅ 인증 필요한 엔드포인트를 먼저 명시
@@ -54,6 +57,17 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
+                // ✅ 폼로그인/베이식 인증 비활성화 (기본 /login 302 제거)
+                .formLogin(f -> f.disable())
+                .httpBasic(b -> b.disable())
+                // ✅ 인증 실패는 401, 권한 부족은 403으로
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint((req, res, e) ->
+                                res.sendError(HttpServletResponse.SC_UNAUTHORIZED))
+                        .accessDeniedHandler((req, res, e) ->
+                                res.sendError(HttpServletResponse.SC_FORBIDDEN))
+                )
+                // ✅ 소셜 로그인만 사용
                 .oauth2Login(o -> o
                         .authorizationEndpoint(a -> a.authorizationRequestResolver(resolver))
                         .successHandler(oAuth2SuccessHandler)
@@ -72,18 +86,14 @@ public class SecurityConfig {
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration cfg = new CorsConfiguration();
-        cfg.setAllowedOrigins(List.of(
-                clientUrl,                 // 예: http://localhost:3000 (yml/prop로 주입)
-                "http://localhost:5173"    // Vite 기본 포트
-        ));
-        cfg.setAllowedMethods(List.of("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
-        cfg.setAllowedHeaders(List.of("*")); // Authorization, X-Refresh-Token 포함
-        cfg.setAllowCredentials(false);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", cfg);
-        return source;
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration c = new CorsConfiguration();
+        c.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:3000")); // 실제 프런트
+        c.setAllowedMethods(List.of("GET","POST","PUT","DELETE","PATCH","OPTIONS"));
+        c.setAllowedHeaders(List.of("*"));
+        c.setAllowCredentials(true); // ★ 필수
+        UrlBasedCorsConfigurationSource src = new UrlBasedCorsConfigurationSource();
+        src.registerCorsConfiguration("/**", c);
+        return src;
     }
 }

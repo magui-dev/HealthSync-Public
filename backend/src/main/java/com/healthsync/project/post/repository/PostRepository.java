@@ -9,13 +9,18 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.Instant;
+import java.util.List;
+
 public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> findByDeletedFalseAndVisibility(Visibility visibility, Pageable pageable);
     Page<Post> findByDeletedFalseAndUser_Id(Long userId, Pageable pageable);
+
 
     @Modifying
     @Query("update Post p set p.viewsCount = p.viewsCount + 1 where p.id = :postId")
     void increaseViews(@Param("postId") Long postId);
 
-
+    // ✅ 일정 기간 지난 Soft Deleted 게시글 조회 (하드 삭제 대상)
+    List<Post> findByDeletedTrueAndDeletedAtBefore(Instant threshold);
 }

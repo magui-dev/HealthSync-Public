@@ -7,7 +7,7 @@ import MainPage from "./pages/MainPage";
 import Header from "./components/Header";
 import LoginModal from "./components/LoginModal";
 
-import { clearTokens } from "./token";
+// import { clearTokens } from "./token";
 import { apiLogout } from "./api";
 import { useMe } from "./hooks/useMe";
 
@@ -19,12 +19,17 @@ function Shell() {
   const openLogin = () => setShowLogin(true);
   const closeLogin = () => setShowLogin(false);
 
+  // const logout = async () => {
+  //   try { await apiLogout(); } finally {
+  //     clearTokens();
+  //     await refresh();
+  //   }
+  // };
+
   const logout = async () => {
-    try { await apiLogout(); } finally {
-      clearTokens();
-      await refresh();
-    }
-  };
+  await apiLogout();  // 서버가 쿠키 만료 처리
+  await refresh();    // /me 재조회
+};
 
   // 최초 로그인 시 닉네임 강제 입력
   useEffect(() => {

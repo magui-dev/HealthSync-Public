@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 @Entity
 @Getter
@@ -38,6 +39,9 @@ public class PostComment {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
+    @Column(name = "deleted_at", nullable = true)
+    private Instant deletedAt;
+
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
@@ -59,6 +63,13 @@ public class PostComment {
 
     public void softDelete() {
         this.deleted = true;
+        this.deletedAt = Instant.now();
+        this.updatedAt = Instant.now();
+    }
+
+    public boolean isHardDeletable() {
+        return deleted && deletedAt != null &&
+                deletedAt.isBefore(Instant.now().minus(10, ChronoUnit.DAYS));
     }
 
     // 필요한 경우에만 열어둔 세터
