@@ -1,5 +1,6 @@
 package com.healthsync.project.post.controller;
 
+import com.healthsync.project.account.user.repository.UserRepository;
 import com.healthsync.project.post.dto.commentdto.CommentCreateRequest;
 import com.healthsync.project.post.dto.commentdto.CommentResponse;
 import com.healthsync.project.post.dto.commentdto.CommentUpdateRequest;
@@ -11,8 +12,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,17 +23,21 @@ import org.springframework.web.bind.annotation.*;
 public class CommentController {
 
     private final CommentService commentService;
+    private final UserRepository userRepository;
 
     @PostMapping
     public ResponseEntity<CommentResponse> createComment(
-            @AuthenticationPrincipal(expression = "id") Long userId,
+            Authentication auth,
             @PathVariable Long postId,
             @Valid @RequestBody CommentCreateRequest request
     ) {
+        Long userId = getUserIdFromAuth(auth);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(commentService.createComment(userId, postId, request));
     }
 
+
+    // 댓글 조회
     @GetMapping
     public ResponseEntity<Page<CommentResponse>> getComments(
             @PathVariable Long postId,
@@ -39,23 +46,39 @@ public class CommentController {
         return ResponseEntity.ok(commentService.getComments(postId, pageable));
     }
 
+    // 댓글 수정
     @PutMapping("/{commentId}")
     public ResponseEntity<CommentResponse> updateComment(
-            @AuthenticationPrincipal(expression = "id") Long userId,
+            Authentication auth,
             @PathVariable Long postId,
             @PathVariable Long commentId,
             @Valid @RequestBody CommentUpdateRequest request
     ) {
+        Long userId = getUserIdFromAuth(auth);
         return ResponseEntity.ok(commentService.updateComment(userId, postId, commentId, request));
     }
 
+    // 댓글 삭제
     @DeleteMapping("/{commentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteComment(
-            @AuthenticationPrincipal(expression = "id") Long userId,
+            Authentication auth,
             @PathVariable Long postId,
             @PathVariable Long commentId
     ) {
+        Long userId = getUserIdFromAuth(auth);
         commentService.deleteComment(userId, postId, commentId);
     }
+
+    private Long getUserIdFromAuth(Authentication auth) {
+        if (auth == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
+        }
+        String email = auth.getName(); // JWT subject = email
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "사용자 없음"))
+                .getId();
+    }
 }
+
+

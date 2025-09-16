@@ -1,5 +1,6 @@
 package com.healthsync.project.security.oauth;
 
+import com.healthsync.project.security.jwt.CookieUtil;
 import com.healthsync.project.security.jwt.JwtService;
 import com.healthsync.project.security.jwt.RefreshTokenStore;
 import com.healthsync.project.account.user.domain.User;
@@ -9,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -25,6 +27,7 @@ public class OAuth2SuccessHandler implements org.springframework.security.web.au
     private final JwtService jwtService;
     private final RefreshTokenStore refreshStore;
     private final UserService userService; // ✅ 주입
+    private final CookieUtil cookieUtil;
 
     @Value("${client.url:http://localhost:3000}")
     private String clientUrl;
@@ -65,8 +68,14 @@ public class OAuth2SuccessHandler implements org.springframework.security.web.au
         long expAt = Instant.now().getEpochSecond() + refreshExpSeconds;
         refreshStore.save(refresh, expAt);
 
+
         String redirect = clientUrl + "/auth/success#access=" + access + "&refresh=" + refresh;
+        response.addHeader(HttpHeaders.SET_COOKIE, cookieUtil.createAccessTokenCookie(access).toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, cookieUtil.createRefreshTokenCookie(refresh).toString());
         response.sendRedirect(redirect);
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookieUtil.clearCookie("accessToken").toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, cookieUtil.clearCookie("refreshToken").toString());
     }
 
     // ... 아래 extractEmail/extractName/isSecure/addCookie 는 네 코드 그대로 유지 ...

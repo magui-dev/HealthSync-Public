@@ -28,7 +28,7 @@ public class AppConfig {
         ClientHttpRequestFactory f = new NoRedirectRequestFactory();
         if (f instanceof SimpleClientHttpRequestFactory s) {
             s.setConnectTimeout(5_000);
-            s.setReadTimeout(10_000);
+            s.setReadTimeout(20_000);
         }
         return new RestTemplate(f);
     }

@@ -69,6 +69,9 @@ public class Post {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
+    @Column(name = "deleted_at")
+    private Instant deletedAt;
+
     @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Tag> tag = new ArrayList<>();
@@ -128,7 +131,9 @@ public class Post {
         if (newTags != null) this.tag.addAll(newTags);
     }
 
-    public void softDelete() { this.deleted = true; }
+    public void softDelete() {
+        this.deleted = true;
+        this.deletedAt = Instant.now(); }
 
     public void increaseViews() { this.viewsCount++; }
 
