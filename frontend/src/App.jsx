@@ -6,6 +6,7 @@ import Me from "./pages/Me";
 import MainPage from "./pages/MainPage";
 import Header from "./components/Header";
 import LoginModal from "./components/LoginModal";
+import PostRoutes from "./features/posts/Routes";
 
 // import { clearTokens } from "./token";
 import { apiLogout } from "./api";
@@ -59,6 +60,7 @@ function Shell() {
         <Route path="/auth/success" element={<AuthSuccess onDone={refresh} />} />
         <Route path="/me" element={<Me />} />
         <Route path="/" element={<MainPage me={me} onLoginClick={openLogin} onAccountClick={onAccountClick} />} />
+        <Route path="/community/posts/*" element={<PostRoutes />} />
       </Routes>
 
       <LoginModal open={showLogin} onClose={closeLogin} />

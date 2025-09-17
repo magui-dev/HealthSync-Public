@@ -44,7 +44,6 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/posts/**").authenticated()
                         .requestMatchers("/calc/**").permitAll()
@@ -56,6 +55,13 @@ public class SecurityConfig {
                         // 그 외 /api/auth/** (로그인/리프레시/로그아웃 등)은 공개
                         .requestMatchers("/api/auth/**").permitAll()
                         .anyRequest().authenticated()
+//                            // 🔐 인증이 필요한 경로들
+//                            .requestMatchers("/posts/**", "/api/auth/me", "/api/auth/nickname").authenticated()
+//                            // 🔓 인증이 필요 없는 경로들
+//                            .requestMatchers("/calc/**", "/nutri/**", "/ping", "/oauth2/**", "/login/**", "/api/auth/**").permitAll()
+//                            // ⬆️ 위에서 명시적으로 authenticated() 처리된 /api/auth/me 등은 permitAll() 규칙보다 우선 적용됩니다.
+//                            // ❓ 그 외 모든 요청은 어떻게 할 것인가? (보통은 인증 요구)
+//                            .anyRequest().authenticated()
                 )
                 // ✅ 폼로그인/베이식 인증 비활성화 (기본 /login 302 제거)
                 .formLogin(f -> f.disable())

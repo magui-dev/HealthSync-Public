@@ -58,8 +58,12 @@ public class OAuth2SuccessHandler implements org.springframework.security.web.au
         // ✅ 유저 upsert (처음이면 자동 닉네임 생성)
         User user = userService.upsertSocial(email, name);
 
-        // ✅ subject는 email로 고정 (토큰 subject = 이메일)
-        String subject = user.getEmail();
+//        // ✅ subject는 email로 고정 (토큰 subject = 이메일)
+//        String subject = user.getEmail();
+
+        // ✅ subject는 반드시 userId로 설정해야 합니다.
+        String subject = user.getId().toString(); // 👈 수정하세요!
+
 
         // 토큰 발급
         String access  = jwtService.createAccessToken(subject, user.getName(), user.getEmail());

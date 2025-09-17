@@ -18,5 +18,8 @@ public interface PostBookmarkRepository extends JpaRepository<PostBookmark, Long
     long countByPost_Id(Long postId);
 
     Optional<PostBookmark> findByUser_IdAndPost_Id(Long userId, Long postId);
+
+
+
 }
 

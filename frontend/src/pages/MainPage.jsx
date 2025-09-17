@@ -2,10 +2,13 @@ import leftImg from "../assets/leftbackground.png";
 import centerImg from "../assets/centerbackground.png";
 import rightImg from "../assets/rightbackground.png";
 import "./MainPage.css";
+import { useNavigate } from "react-router-dom";
+
 
 export default function MainPage({ me, onLoginClick, onAccountClick }) {
   const go = (msg) => () => alert(msg);
-
+  const nav = useNavigate();
+  
   return (
     <div className="landing">
       <aside className="side">
@@ -16,7 +19,7 @@ export default function MainPage({ me, onLoginClick, onAccountClick }) {
           </button>
           <button className="menuBtn sky" onClick={go("AI 식단 추천")}>AI 식단 추천</button>
           <button className="menuBtn ivory" onClick={go("나의 리포트")}>나의 리포트</button>
-          <button className="menuBtn sky" onClick={go("커뮤니티")}>커뮤니티</button>
+          <button className="menuBtn sky" onClick={() => nav("/community/posts")}>커뮤니티</button>
         </nav>
       </aside>
 
