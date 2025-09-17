@@ -1,0 +1,187 @@
+:root {
+  --bg: #0e0f12;
+  --card: #1c1e23;
+  --muted: #9aa0a6;
+  --text: #e8eaed;
+  --accent: #e53935;    /* 레드 텍스트 */
+  --btn: #6e757d;       /* 회색 버튼 */
+  --btn-active: #aab2bd;/* 활성 버튼 */
+  --radius: 18px;
+}
+
+.plan-wrap {
+  display: grid;
+  grid-template-columns: 3fr 7fr;   /* ✅ 3:7 비율 */
+  gap: 24px;
+  height: calc(100vh - var(--header-h));     /* 헤더 아래 꽉 채우기 */
+  padding: 20px;
+  padding-top: calc(20px + var(--header-h)); /* 헤더만큼 내려앉히기 */
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Left */
+.plan-left {
+  position: relative;
+  border-radius: var(--radius);
+  overflow: hidden;
+  height: 100%;
+}
+
+.bg-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;       /* ✅ 왼쪽 3영역을 빈틈 없이 채움 */
+  object-position: center; /* 필요 시 'center left'로 바꿔 프레이밍 조정 가능 */
+  filter: grayscale(100%) contrast(1.05);
+}
+
+.overlay-title {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);  /* ✅ 중앙 */
+  text-align: center;
+  font-weight: 800;
+  font-size: 52px;
+  line-height: 0.95;
+  color: #ffffff;                    /* ✅ 흰색 */
+  text-shadow: 0 2px 10px rgba(0,0,0,0.55);
+}
+
+/* Right card */
+
+.plan-right {
+  display: flex;
+  align-items: center;  /* 우측 카드가 위로 붙지 않고 가운데 오도록 */
+  justify-content: center;
+}
+  
+  
+  
+.card {
+  width: 100%;            /* ✅ 우측 7영역을 가득 사용 */
+  background: linear-gradient(180deg, #1b1d22, #15171b);
+  border-radius: 26px;
+  padding: 28px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.05);
+  display: flex;           /* 내부를 위-아래로 꽉 차게 */
+  flex-direction: column;
+  min-height: 88%;         /* 가운데 배치 + 적당히 큰 카드 높이 */
+}
+
+.title {
+  margin-top: 10px;
+  margin-bottom: 12px;
+  font-size: 23px;
+  font-weight: 700;
+}
+
+.weeks-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px 18px;
+  margin-bottom: 18px;
+}
+.week-btn {
+  background: var(--btn);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  min-height: 56px;
+  padding: 14px 0;
+  font-size: 20px;
+  font-weight: 700;
+  transition: transform .04s ease, background .15s ease;
+  cursor: pointer;
+}
+.week-btn:hover { transform: translateY(-1px); }
+.week-btn.active { background: var(--btn-active); }
+.week-btn.accent { outline: none; }
+
+.row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  align-items: center;
+  gap: 14px;
+  margin: 14px 0;
+}
+.row.two {
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.box .label, .label {
+  font-size: 16px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.box .input, .input {
+  height: 46px;
+  width: 100%;
+  background: #0f1114;
+  color: var(--text);
+  border: 1px solid #2b3036;
+  padding: 12px 16px;
+  border-radius: 12px;
+  outline: none;
+}
+.box .input:focus, .input:focus {
+  border-color: #3f8cff;
+  box-shadow: 0 0 0 3px rgba(63,140,255,0.15);
+}
+
+/* Progress bar */
+.progress-title {
+  margin-top: 8px;
+  margin-bottom: 8px;
+  font-weight: 700;
+  font-size: 24px;
+}
+.progress-bar {
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: #2a2e34;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.progress-gradient {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, #ffe600, #9ae34a);
+}
+
+/* Chart */
+.chart-area {
+  width: 100%;
+  min-height: 200px;
+  background: #0f1114;
+  border: 1px solid #252a30;
+  border-radius: 12px;
+  padding: 8px;
+  margin-top: 6px;
+  flex: 1;                /* 남는 세로 공간을 차트가 먹어서 카드가 꽉 차 보이도록 */
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  justify-content: flex-end; /* 버튼 오른쪽 정렬 */
+  margin-top: 16px;
+}
+
+.save-btn {
+  position: static;   
+  background: #6e757d;
+  color: white;
+  border: none;
+  padding: 14px 30px;
+  font-size: 18px;
+  border-radius: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.recharts-cartesian-axis-tick tspan { font-size: 12px; }
+.save-btn:hover { filter: brightness(1.05); }
+.save-btn:disabled { opacity: .6; cursor: default; }
