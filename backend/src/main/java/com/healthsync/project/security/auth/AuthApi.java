@@ -32,6 +32,7 @@ public class AuthApi {
         String email = auth.getName();
         User u = userService.getByEmail(email);
         return Map.of(
+                "userId", u.getId(),
                 "login", "jwt",
                 "subject", email,
                 "email", u.getEmail(),
