@@ -25,17 +25,23 @@ public class UserService {
         });
     }
 
-    /** 닉네임 변경(중복 방지) */
-    public User updateNicknameByEmail(String email, String nickname) {
+    /** 닉네임 변경(중복 방지) - ID 기준 */
+    public User updateNicknameById(Long userId, String nickname) {
         if (nickname == null || nickname.isBlank()) {
-            throw new IllegalArgumentException("empty nickname");
+            throw new IllegalArgumentException("닉네임은 비어 있을 수 없습니다.");
         }
         if (userRepository.existsByNickname(nickname)) {
-            throw new IllegalArgumentException("nickname taken");
+            throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
         }
-        User u = userRepository.findByEmail(email).orElseThrow();
+        User u = getById(userId); // 아래 getById 메서드를 재사용
         u.changeNickname(nickname);
-        return userRepository.save(u);
+        return u; // @Transactional에 의해 변경 감지(dirty checking)로 자동 저장됩니다.
+    }
+
+    @Transactional(readOnly = true)
+    public User getById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("ID에 해당하는 사용자를 찾을 수 없습니다: " + userId));
     }
 
     @Transactional(readOnly = true)

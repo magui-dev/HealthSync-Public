@@ -26,6 +26,8 @@ public class PostResponse {
     private boolean blockComment;
     private int likesCount;
     private int viewsCount;
+    private boolean likedByMe;
+    private boolean bookmarkedByMe;
     private boolean deleted;
     private Long goalId;
 

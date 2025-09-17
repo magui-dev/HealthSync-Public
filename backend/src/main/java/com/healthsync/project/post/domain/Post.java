@@ -74,6 +74,10 @@ public class Post {
 
     @Builder.Default
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "post_tag",
+            joinColumns = @JoinColumn(name = "post_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private List<Tag> tag = new ArrayList<>();
 
     /* ---------- 생성/수정/행위 메서드 ---------- */
@@ -137,12 +141,6 @@ public class Post {
 
     public void increaseViews() { this.viewsCount++; }
 
-    public void decreaseLikes() {
-        this.likesCount = Math.max(0, this.likesCount - 1);
-    }
-
-    public void like() { this.likesCount++; }
-
     public void setAuthor(User author) { this.user = author; }
 
     @PrePersist
@@ -159,5 +157,16 @@ public class Post {
     @PreUpdate
     void onUpdate() {
         this.updatedAt = Instant.now();
+    }
+
+    public void increaseLikes() {
+        this.likesCount++;
+    }
+
+    public void decreaseLikes() {
+        // 좋아요가 0개 미만으로 내려가지 않도록 안전장치를 추가합니다.
+        if (this.likesCount > 0) {
+            this.likesCount--;
+        }
     }
 }

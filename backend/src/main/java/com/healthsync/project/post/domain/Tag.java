@@ -8,7 +8,8 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "tag")
+@Table(name = "tag", indexes = {
+        @Index(name = "idx_tag_name", columnList = "tag_name")})
 public class Tag {
 
     @Id
@@ -16,7 +17,7 @@ public class Tag {
     @Column(name = "tag_id")
     private long id;
 
-    @Column(name = "tag_data", length = 100, nullable = false)
+    @Column(name = "tag_name", length = 100, nullable = false)
     private String tagName;
 
     public Tag(String tagName) {

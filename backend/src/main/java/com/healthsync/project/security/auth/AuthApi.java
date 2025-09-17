@@ -21,19 +21,35 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuthApi {
     private final JwtService jwtService;
-    private final RefreshTokenStore refreshStore;
     private final UserService userService; // ✅ 주입
     private final CookieUtil cookieUtil;
 
+//    @GetMapping("/me")
+//    public Map<String, Object> me(Authentication auth) {
+//        if (auth == null) return Map.of("login", "anonymous");
+//        // subject = 이메일(위 SuccessHandler에서 보장)
+//        String email = auth.getName();
+//        User u = userService.getByEmail(email);
+//        return Map.of(
+//                "userId", u.getId(),
+//                "login", "jwt",
+//                "subject", email,
+//                "email", u.getEmail(),
+//                "name", u.getName(),
+//                "nickname", u.getNickname(),
+//                "nicknameSet", u.isNicknameSet()
+//        );
+//    }
+
     @GetMapping("/me")
     public Map<String, Object> me(Authentication auth) {
-        if (auth == null) return Map.of("login", "anonymous");
-        // subject = 이메일(위 SuccessHandler에서 보장)
-        String email = auth.getName();
-        User u = userService.getByEmail(email);
+        Long userId = getUserIdFromAuth(auth);
+        User u = userService.getById(userId);
+
         return Map.of(
+                "userId", u.getId(),
                 "login", "jwt",
-                "subject", email,
+                "subject", u.getId().toString(), // subject는 이제 userId입니다.
                 "email", u.getEmail(),
                 "name", u.getName(),
                 "nickname", u.getNickname(),
@@ -41,26 +57,13 @@ public class AuthApi {
         );
     }
 
-    /** ✅ 닉네임 변경 */
     @PatchMapping("/nickname")
     public Map<String, String> changeNickname(Authentication auth, @RequestBody Map<String, String> body) {
-        if (auth == null) throw new RuntimeException("unauthorized");
-        String email = auth.getName();
+        Long userId = getUserIdFromAuth(auth);
         String nickname = body.getOrDefault("nickname", "").trim();
-        userService.updateNicknameByEmail(email, nickname);
+        userService.updateNicknameById(userId, nickname);
         return Map.of("status", "ok");
     }
-
-//    @PostMapping("/refresh")
-//    public Map<String, String> refresh(@RequestHeader("X-Refresh-Token") String refresh) {
-//        if (!refreshStore.exists(refresh)) {
-//            throw new RuntimeException("invalid refresh");
-//        }
-//        var claims = jwtService.parseClaims(refresh);
-//        var subject = claims.getSubject();
-//        var newAccess = jwtService.createAccessToken(subject, "", "");
-//        return Map.of("access", newAccess);
-//    }
 
     @PostMapping("/refresh")
     public ResponseEntity<Void> refresh(HttpServletRequest req, HttpServletResponse res) {
@@ -85,17 +88,16 @@ public class AuthApi {
         return ResponseEntity.noContent().build();
     }
 
-//    @PostMapping("/logout")
-//    public Map<String, String> logout(HttpServletRequest request,
-//                                      HttpServletResponse response,
-//                                      @RequestHeader(value = "X-Refresh-Token", required = false) String refresh) {
-//        if (refresh != null && !refresh.isBlank()) {
-//            refreshStore.delete(refresh);
-//        }
-//        try { request.logout(); } catch (Exception ignored) {}
-//        var session = request.getSession(false);
-//        if (session != null) session.invalidate();
-//        SecurityContextHolder.clearContext();
-//        return Map.of("status", "ok");
-//    }
+    // ✅ PostController에 있던 헬퍼 메서드를 여기에도 추가해줍니다.
+    private Long getUserIdFromAuth(Authentication auth) {
+        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal() == null) {
+            throw new IllegalStateException("인증 정보를 찾을 수 없습니다.");
+        }
+        String userIdStr = auth.getName();
+        try {
+            return Long.parseLong(userIdStr);
+        } catch (NumberFormatException e) {
+            throw new IllegalStateException("인증 정보가 올바르지 않습니다 (ID가 숫자가 아님).");
+        }
+    }
 }

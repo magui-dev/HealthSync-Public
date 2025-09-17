@@ -35,4 +35,6 @@ public class GlobalExceptionHandler {
     public Map<String, String> conflict(IllegalStateException e) {
         return Map.of("message", e.getMessage());
     }
+
+
 }
