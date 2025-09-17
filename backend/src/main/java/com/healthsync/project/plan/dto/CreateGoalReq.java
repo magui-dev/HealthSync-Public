@@ -16,7 +16,7 @@ public record CreateGoalReq (
         @NotNull LocalDate startDate,   // YYYY-MM-DD
         @NotNull @DecimalMin("0.0") BigDecimal startWeightKg, //음수(-)금지
         @NotNull @DecimalMin("0.0") BigDecimal targetWeightKg
-    ){
+){
     // 2,4,6,...,16만 허용(요청단 첫 번째 방어막)
     @AssertTrue(message = "weeks must be one of {2,4,6,8,10,12,14,16}")
     public boolean isWeeksPresetAllowed() {
