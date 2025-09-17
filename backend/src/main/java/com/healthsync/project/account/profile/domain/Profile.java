@@ -3,7 +3,7 @@ package com.healthsync.project.account.profile.domain;
 import com.healthsync.project.account.profile.constant.GenderType;
 import com.healthsync.project.account.profile.dto.ProfileRequest;
 import com.healthsync.project.account.user.domain.User;
-//import com.healthsync.project.goal.domain.Goals;
+import com.healthsync.project.calc.domain.Metrics;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
@@ -34,10 +34,6 @@ public class Profile {
     @JoinColumn(name = "user_id")
     private User user;
 
-    /** Goals와 1:N 관계 */
-//    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private List<Goals> goals = new ArrayList<>();
-
     private int age;
 
     @Enumerated(EnumType.STRING)
@@ -49,7 +45,7 @@ public class Profile {
     @DecimalMax(value = "250.0", message = "키는 250cm 이하여야 합니다.")
     private BigDecimal height;
 
-    @Column(precision = 4, scale = 2)
+    @Column(precision = 5, scale = 2)
     private BigDecimal weight;
 
     /** 활동 레벨 */
@@ -64,9 +60,18 @@ public class Profile {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    /** Metrics와 1:N 관계 */
+    @OneToMany(mappedBy = "profile", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Metrics> metricsList = new ArrayList<>();
+
+    // ===== 생성 및 업데이트 =====
     @PrePersist
     void prePersist() {
         if (createdAt == null) createdAt = LocalDateTime.now();
+    }
+
+    public void touchUpdatedAt() {
+        this.updatedAt = LocalDateTime.now();
     }
 
     static public Profile createInitProfileSetting() {
@@ -84,6 +89,6 @@ public class Profile {
         this.height = profileRequest.getHeight();
         this.weight = profileRequest.getWeight();
         this.activityLevel = profileRequest.getActivityLevel();
+        touchUpdatedAt();
     }
-
 }

@@ -1,7 +1,6 @@
 package com.healthsync.project.account.profile.dto;
 
 import com.healthsync.project.account.profile.constant.GenderType;
-//import com.healthsync.project.goal.domain.Goal_type;
 import lombok.*;
 
 import java.math.BigDecimal;

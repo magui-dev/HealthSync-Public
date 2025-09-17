@@ -3,8 +3,6 @@ package com.healthsync.project.account.profile.service;
 import com.healthsync.project.account.profile.domain.Profile;
 import com.healthsync.project.account.profile.dto.ProfileRequest;
 import com.healthsync.project.account.profile.repository.ProfileRepository;
-import com.healthsync.project.account.user.domain.User;
-import com.healthsync.project.account.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProfileService {
 
     private final ProfileRepository profileRepository;
-    private final UserRepository userRepository;
 
     @Transactional
     public Profile updateProfile(Long userId, ProfileRequest dto) {

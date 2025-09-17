@@ -46,7 +46,6 @@ public class SecurityConfig {
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/posts/**").authenticated()
-                        .requestMatchers("/profile/**").authenticated()
                         .requestMatchers("/calc/**").permitAll()
                         .requestMatchers("/nutri/**").permitAll()
                         .requestMatchers("/ping").permitAll()
@@ -55,9 +54,11 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/me", "/api/auth/nickname").authenticated()
                         // 그 외 /api/auth/** (로그인/리프레시/로그아웃 등)은 공개
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/profile/**").authenticated()
                         .anyRequest().authenticated()
 
-                )
+
+                        )
                 // ✅ 폼로그인/베이식 인증 비활성화 (기본 /login 302 제거)
                 .formLogin(f -> f.disable())
                 .httpBasic(b -> b.disable())

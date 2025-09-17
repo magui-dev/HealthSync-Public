@@ -2,15 +2,13 @@ package com.healthsync.project.account.user.domain;
 
 import com.healthsync.project.account.profile.domain.Profile;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
+@Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity
 @Table(name = "users", indexes = {
         @Index(name = "ux_users_email", columnList = "email", unique = true),
         @Index(name = "ux_users_nickname", columnList = "nickname", unique = true) // ✅ 닉네임 유니크
@@ -55,8 +53,6 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Profile profile;
 
-
-
     // ===== 정적 팩토리 =====
 
     /** 로컬 가입용 (지금은 사용 안 함) */
@@ -65,6 +61,7 @@ public class User {
         u.email = email;
         u.passwordHash = encodedPw;
         u.name = name;
+        u.addProfile(Profile.createInitProfileSetting()); // 양방향 관계를 위한 편의 메서드 호출
         return u;
     }
 
@@ -76,9 +73,7 @@ public class User {
         u.name = name;
         u.nickname = nickname;     // 자동 생성 닉네임
         u.nicknameSet = false;     // 아직 사용자가 직접 설정 전
-
-        u.addProfile(Profile.createInitProfileSetting());
-
+        u.addProfile(Profile.createInitProfileSetting()); // 양방향 관계를 위한 편의 메서드 호출
         return u;
     }
 

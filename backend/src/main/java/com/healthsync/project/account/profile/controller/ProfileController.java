@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,33 +19,24 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import com.healthsync.project.security.auth.AuthApi;
 
+import java.util.NoSuchElementException;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/profile")
 public class ProfileController {
 
     private final ProfileService profileService;
-    private final UserRepository userRepository;
     private final AuthApi authApi;
 
     @PutMapping
-    public ResponseEntity<Void> updateProfile(Authentication auth, @RequestBody ProfileRequest profileRequest) {
-//        Long userId = getUserIdFromAuth(auth);
-        Long userId = authApi.getUserIdFromAuth(auth);
-        profileService.updateProfile(userId, profileRequest);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<?> updateProfile(Authentication auth, @RequestBody ProfileRequest profileRequest) {
+        try {
+            Long userId = authApi.getUserIdFromAuth(auth);
+            profileService.updateProfile(userId, profileRequest);
+            return ResponseEntity.ok("프로필이 정상 수정되었습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("프로필 수정 중 오류가 발생했습니다.");
+        }
     }
-
-//    private Long getUserIdFromAuth(Authentication auth) {
-//        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal() == null) {
-//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증 정보를 찾을 수 없습니다.");
-//        }
-//        String userIdStr = auth.getName();
-//        try {
-//            return Long.parseLong(userIdStr);
-//        } catch (NumberFormatException e) {
-//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증 정보(ID)가 올바르지 않습니다.");
-//        }
-//    }
-
 }
