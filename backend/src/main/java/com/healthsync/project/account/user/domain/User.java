@@ -1,5 +1,6 @@
 package com.healthsync.project.account.user.domain;
 
+import com.healthsync.project.account.profile.domain.Profile;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -50,6 +51,12 @@ public class User {
         if (createAt == null) createAt = LocalDateTime.now();
     }
 
+    /** User와 1:1 관계 명시 */
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private Profile profile;
+
+
+
     // ===== 정적 팩토리 =====
 
     /** 로컬 가입용 (지금은 사용 안 함) */
@@ -69,6 +76,9 @@ public class User {
         u.name = name;
         u.nickname = nickname;     // 자동 생성 닉네임
         u.nicknameSet = false;     // 아직 사용자가 직접 설정 전
+
+        u.addProfile(Profile.createInitProfileSetting());
+
         return u;
     }
 
@@ -77,5 +87,10 @@ public class User {
     public void changeNickname(String nickname) {
         this.nickname = nickname;
         this.nicknameSet = true;
+    }
+
+    public void addProfile(Profile profile) {
+        this.profile = profile; // User가 Profile 참조
+        profile.setUser(this);  // Profile이 User 참조
     }
 }

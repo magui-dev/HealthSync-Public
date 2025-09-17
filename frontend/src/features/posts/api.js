@@ -60,11 +60,9 @@ export const likePost     = (postId) => http.post(`/posts/${postId}/likes`);
 export const unlikePost   = (postId) => http.delete(`/posts/${postId}/likes`);
 export const listLikers   = (postId, { page = 0, size = 20 } = {}) =>
   http.get(`/posts/${postId}/likes?page=${page}&size=${size}`);
-export const likedByMe    = (postId) => http.get(`/posts/${postId}/mylike`);
 // '좋아요'한 글 목록을 불러오는 API 함수입니다.
-export const myLikes = ({ page = 0, size = 10, sort = "createdAt,desc" } = {}) =>
-  http.get(`/posts/me/likes?page=${page}&size=${size}&sort=${sort}`);
-
+export const myLikes = ({ page = 0, size = 10 } = {}) => // sort 파라미터 제거
+  http.get(`/posts/me/likes?page=${page}&size=${size}`); // URL에서도 sort 제거
 
 /** -------- Bookmarks -------- **/
 export const addBookmark    = (postId) => http.post(`/posts/${postId}/bookmarks`);

@@ -135,16 +135,6 @@ public class PostController {
     }
 
 
-//    /** ✅ 공통 로직: Authentication에서 이메일 → userId 변환 */
-//    private Long getUserIdFromAuth(Authentication auth) {
-//        if (auth == null) {
-//            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
-//        }
-//        String email = auth.getName(); // JWT subject = email
-//        return userRepository.findByEmail(email)
-//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "사용자 없음"))
-//                .getId();
-//    }
 public Long getUserIdFromAuth(Authentication auth) {
     // 1. auth 객체가 비어있는지 확인
     if (auth == null || !auth.isAuthenticated() || auth.getPrincipal() == null) {

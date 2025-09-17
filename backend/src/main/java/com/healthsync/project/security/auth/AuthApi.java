@@ -24,23 +24,6 @@ public class AuthApi {
     private final UserService userService; // ✅ 주입
     private final CookieUtil cookieUtil;
 
-//    @GetMapping("/me")
-//    public Map<String, Object> me(Authentication auth) {
-//        if (auth == null) return Map.of("login", "anonymous");
-//        // subject = 이메일(위 SuccessHandler에서 보장)
-//        String email = auth.getName();
-//        User u = userService.getByEmail(email);
-//        return Map.of(
-//                "userId", u.getId(),
-//                "login", "jwt",
-//                "subject", email,
-//                "email", u.getEmail(),
-//                "name", u.getName(),
-//                "nickname", u.getNickname(),
-//                "nicknameSet", u.isNicknameSet()
-//        );
-//    }
-
     @GetMapping("/me")
     public Map<String, Object> me(Authentication auth) {
         Long userId = getUserIdFromAuth(auth);
@@ -88,8 +71,7 @@ public class AuthApi {
         return ResponseEntity.noContent().build();
     }
 
-    // ✅ PostController에 있던 헬퍼 메서드를 여기에도 추가해줍니다.
-    private Long getUserIdFromAuth(Authentication auth) {
+    public Long getUserIdFromAuth(Authentication auth) {
         if (auth == null || !auth.isAuthenticated() || auth.getPrincipal() == null) {
             throw new IllegalStateException("인증 정보를 찾을 수 없습니다.");
         }

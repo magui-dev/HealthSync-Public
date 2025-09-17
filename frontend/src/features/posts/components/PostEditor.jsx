@@ -56,7 +56,7 @@ export default function PostEditor() {
   try {
     if (isEdit) {
       await updatePost(postId, payload);
-      nav(`/community/posts/${postId}`); // 수정→상세
+      nav(`/community/posts/${postId}`, { replace: true }); // 수정→상세(작성/수정 폼 히스토리 제거)
       return;
     }
 
@@ -74,12 +74,12 @@ export default function PostEditor() {
     if (visibility === "PRIVATE") {
       try {
         await getPost(createdId);          // 상세 접근 가능? (작성자라면 OK)
-        nav(`/community/posts/${createdId}`);
+        nav(`/community/posts/${createdId}`, { replace: true });
       } catch {
-        nav("/community/myposts");         // 혹시 403/401이면 내 글 목록으로
+        nav("/community/myposts", { replace: true });     // 혹시 403/401이면 내 글 목록으로
       }
     } else {
-      nav("/community/posts");             // PUBLIC은 공개 목록
+      nav("/community/posts", { replace: true });           // PUBLIC은 공개 목록
     }
   } catch (e) {
     setError(e?.response?.data?.message || e?.message || "저장에 실패했습니다");

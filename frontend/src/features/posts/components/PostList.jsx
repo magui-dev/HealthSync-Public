@@ -22,27 +22,62 @@ export default function PostList() {
 
     let apiCall;
     if (filter === "bookmarks") {
-      apiCall = myBookmarks({ page, size, sort });
+      apiCall = myBookmarks({ page, size});
     } else if (filter === "likes") {
-      apiCall = myLikes({ page, size, sort });
+      apiCall = myLikes({ page, size});
     } else {
       apiCall = listPosts({ page, size, sort });
     }
 
-    apiCall
-      .then((res) => {
-        if ((filter === 'bookmarks' || filter === 'likes') && res.content) {
-          const transformedContent = res.content.map(item => ({
-            id: item.postId,
-            title: item.postTitle,
-            authorNickname: filter === 'bookmarks' ? '북마크된 글' : '좋아요 한 글',
-            createdAt: item.createdAt,
-          }));
-          setData({ ...res, content: transformedContent });
-        } else {
-          setData(res);
-        }
-      })
+   apiCall
+   .then((res) => {
+     // Axios 응답/데이터 모두 대응
+     const pageData = res?.data ?? res;
+
+     if (filter === 'likes') {
+       // ✅ 좋아요는 이미 PostResponse 페이지 → 변환 금지, 그대로 사용
+       setData({
+         content: pageData?.content ?? [],
+         totalPages: pageData?.totalPages ?? 1,
+         totalElements: pageData?.totalElements ?? 0,
+       });
+       return;
+     }
+
+      if (filter === 'bookmarks') {
+     // ✅ 북마크는 {content: [{ post: {...}, ... }]} 형태일 가능성이 높음
+     const totalPages = pageData?.totalPages ?? 1;
+     const totalElements = pageData?.totalElements ?? 0;
+     const rows = (pageData?.content ?? [])
+       .map((item) => {
+         const post = item?.post ?? item; // post 중첩 아니면 그대로
+         const id = post?.id ?? post?.postId;
+         if (id == null) return null; // 링크/키용 id 없으면 제외
+         return {
+           // UI가 기대하는 키들 맞춰주기
+           ...post,
+           id,
+           title: post?.title ?? post?.postTitle ?? "(제목 없음)",
+           createdAt: post?.createdAt ?? item?.createdAt ?? null,
+           authorNickname:
+             post?.authorNickname ??
+             post?.author?.nickname ??
+             "북마크된 글",
+         };
+       })
+       .filter(Boolean);
+
+     setData({ content: rows, totalPages, totalElements });
+     return;
+   }
+
+   // 전체글
+   setData({
+     content: pageData?.content ?? [],
+     totalPages: pageData?.totalPages ?? 1,
+     totalElements: pageData?.totalElements ?? 0,
+   });
+   })
       .catch((e) => setErr(e?.message || "불러오기에 실패했습니다"))
       .finally(() => setLoading(false));
   }, [page, sort, filter]);
@@ -91,8 +126,13 @@ export default function PostList() {
 
       {!loading && !err && data.content.map((p) => (
         <div key={p.id} style={{border:"1px solid #e5e7eb", borderRadius:12, padding:12, marginBottom:12}}>
-          <Link to={`/community/posts/${p.id}`} style={{fontWeight:600, textDecoration:"none", color: 'inherit'}}>{p.title}</Link>
-          <div style={{fontSize:12, color:"#64748b", marginTop:6}}>
+ <Link
+   to={`/community/posts/${p.id}`}
+   state={{ from: "list" }}
+   style={{ fontWeight: 600, textDecoration: "none", color: "inherit" }}
+ >
+   {p.title}
+ </Link>          <div style={{fontSize:12, color:"#64748b", marginTop:6}}>
             {(p.authorNickname ?? p.author) || "익명"} · {new Date(p.createdAt).toLocaleString()}
           </div>
         </div>

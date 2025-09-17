@@ -69,14 +69,16 @@ public class TagController {
         return ResponseEntity.ok(tagService.popularTags(limit));
     }
 
-    /** ✅ 공통 로직: Authentication에서 이메일 → userId 변환 (PostController와 동일한 구현) */
+
     private Long getUserIdFromAuth(Authentication auth) {
-        if (auth == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
+        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal() == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증 정보를 찾을 수 없습니다.");
         }
-        String email = auth.getName(); // JWT subject = email
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "사용자 없음"))
-                .getId();
+        String userIdStr = auth.getName();
+        try {
+            return Long.parseLong(userIdStr);
+        } catch (NumberFormatException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증 정보(ID)가 올바르지 않습니다.");
+        }
     }
 }

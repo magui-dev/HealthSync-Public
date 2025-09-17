@@ -14,28 +14,21 @@ import { useMe } from "./hooks/useMe";
 
 function Shell() {
   const location = useLocation();
-  const { me, loading, refresh, changeNickname } = useMe();
+ const { me, loading, refresh, changeNickname, reset } = useMe();
   const [showLogin, setShowLogin] = useState(false);
 
   const openLogin = () => setShowLogin(true);
   const closeLogin = () => setShowLogin(false);
 
-  // const logout = async () => {
-  //   try { await apiLogout(); } finally {
-  //     clearTokens();
-  //     await refresh();
-  //   }
-  // };
-
   const logout = async () => {
   await apiLogout();  // 서버가 쿠키 만료 처리
-  await refresh();    // /me 재조회
+ reset(); // ← 요청 자체를 안 보냄 → 네트워크 탭에 빨간 줄 없음
 };
 
   // 최초 로그인 시 닉네임 강제 입력
   useEffect(() => {
     if (loading) return;
-    if (me && me.nickname && me.nicknameSet === false) {
+    if (me && !me.profileCompleted) {
       const next = window.prompt("표시할 닉네임을 입력하세요", me.nickname);
       if (next && next.trim()) changeNickname(next.trim());
     }

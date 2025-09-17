@@ -68,15 +68,17 @@ public class BookmarksController {
     }
 
     private Long getUserIdFromAuth(Authentication auth) {
-        if (auth == null || !auth.isAuthenticated()) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "로그인이 필요합니다.");
+        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal() == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증 정보를 찾을 수 없습니다.");
         }
+        // Principal을 문자열로 가져온다 (auth.getName()이 subject를 반환합니다)
+        String userIdStr = auth.getName();
 
-        // ✅ JwtAuthenticationFilter가 Principal을 무엇으로 넣든지 간에 일관 동작
-        String email = auth.getName(); // subject=email 로 세팅되어 있음
-
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "사용자 없음"))
-                .getId();
+        // 문자열을 Long으로 파싱한다
+        try {
+            return Long.parseLong(userIdStr);
+        } catch (NumberFormatException e) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "인증 정보가 올바르지 않습니다 (ID가 숫자가 아님).");
+        }
     }
 }

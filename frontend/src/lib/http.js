@@ -16,8 +16,22 @@ async function request(path, { method = "GET", headers = {}, body, retry = true 
     } catch (e) {}
   }
   if (!res.ok) {
-    const msg = await res.text().catch(()=>res.statusText);
-    throw new Error(msg || res.statusText);
+     // ✅ 상태코드·본문까지 담아 던지기
+   const ct = res.headers.get("content-type") || "";
+   let payload;
+   try {
+     payload = ct.includes("application/json") ? await res.json() : await res.text();
+   } catch (_) {
+     payload = res.statusText || "";
+   }
+   const err = new Error(
+     typeof payload === "string" ? payload : (payload?.message || res.statusText || "Request failed")
+   );
+   // 표준화된 필드 부여
+   err.status = res.status;
+   err.data = payload;
+   err.path = path;
+   throw err;
   }
   const ct = res.headers.get("content-type") || "";
   return ct.includes("application/json") ? res.json() : res.text();
