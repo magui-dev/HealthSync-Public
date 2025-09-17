@@ -1,5 +1,7 @@
+import React from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
+import PlanSetup from "./pages/PlanSetup";
 
 import AuthSuccess from "./pages/AuthSuccess";
 import Me from "./pages/Me";
@@ -14,18 +16,17 @@ import { useMe } from "./hooks/useMe";
 
 function Shell() {
   const location = useLocation();
- const { me, loading, refresh, changeNickname, reset } = useMe();
+  const { me, loading, refresh, changeNickname, reset } = useMe();
   const [showLogin, setShowLogin] = useState(false);
 
   const openLogin = () => setShowLogin(true);
   const closeLogin = () => setShowLogin(false);
 
   const logout = async () => {
-  await apiLogout();  // 서버가 쿠키 만료 처리
- reset(); // ← 요청 자체를 안 보냄 → 네트워크 탭에 빨간 줄 없음
-};
+    await apiLogout();  // 서버가 쿠키 만료 처리
+    reset();            // 요청 자체를 안 보냄 → 네트워크 탭에 빨간 줄 없음
+  };
 
-  // 최초 로그인 시 닉네임 강제 입력
   useEffect(() => {
     if (loading) return;
     if (me && !me.profileCompleted) {
@@ -52,7 +53,10 @@ function Shell() {
       <Routes>
         <Route path="/auth/success" element={<AuthSuccess onDone={refresh} />} />
         <Route path="/me" element={<Me />} />
-        <Route path="/" element={<MainPage me={me} onLoginClick={openLogin} onAccountClick={onAccountClick} />} />
+        <Route
+          path="/"
+          element={<MainPage me={me} onLoginClick={openLogin} onAccountClick={onAccountClick} />}
+        />
         <Route path="/community/posts/*" element={<PostRoutes />} />
       </Routes>
 
