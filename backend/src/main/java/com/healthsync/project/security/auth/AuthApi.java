@@ -89,7 +89,7 @@ public class AuthApi {
     }
 
     // ✅ PostController에 있던 헬퍼 메서드를 여기에도 추가해줍니다.
-    private Long getUserIdFromAuth(Authentication auth) {
+    public Long getUserIdFromAuth(Authentication auth) {
         if (auth == null || !auth.isAuthenticated() || auth.getPrincipal() == null) {
             throw new IllegalStateException("인증 정보를 찾을 수 없습니다.");
         }
