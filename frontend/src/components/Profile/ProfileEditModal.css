@@ -1,0 +1,71 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.modalContent {
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  width: 400px;
+  max-width: 90%;
+}
+
+label {
+  display: block;
+  margin: 12px 0;
+}
+
+.hint {
+  font-size: 12px;
+  color: #666;
+  margin-top: -8px;
+  margin-bottom: 8px;
+}
+
+.activityLevel button {
+  display: block;
+  width: 100%;
+  margin: 4px 0;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #f9f9f9;
+  cursor: pointer;
+}
+
+.activityLevel button.active {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.modalActions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.modalActions button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.modalActions button:first-child {
+  background: #c7c7c7;
+  color: white;
+}
+
+.modalActions button:hover{
+ background-color: #0056b3;
+}
