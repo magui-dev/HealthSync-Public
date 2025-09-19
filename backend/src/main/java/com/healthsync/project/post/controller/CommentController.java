@@ -40,11 +40,17 @@ public class CommentController {
     // 댓글 조회
     @GetMapping
     public ResponseEntity<Page<CommentResponse>> getComments(
+            Authentication auth,
             @PathVariable Long postId,
             @PageableDefault(size = 10) Pageable pageable
     ) {
-        return ResponseEntity.ok(commentService.getComments(postId, pageable));
+        Long viewerId = null;
+        if (auth != null && auth.isAuthenticated() && auth.getPrincipal() != null) {
+            try { viewerId = Long.parseLong(auth.getName()); } catch (NumberFormatException ignored) {}
+        }
+        return ResponseEntity.ok(commentService.getComments(postId, pageable, viewerId));
     }
+
 
     // 댓글 수정
     @PutMapping("/{commentId}")

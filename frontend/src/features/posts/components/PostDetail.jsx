@@ -106,25 +106,39 @@ export default function PostDetail() {
     }
   };
 
-const onDelete = async () => {
-   if (!confirm("삭제할까요?")) return;
-   try {
-     await deletePost(postId);
-     alert("게시글이 삭제되었습니다.");
-     // ✅ 목록/내글에서 왔으면 히스토리 보존(뒤로가기 자연스러움)
-     // ✅ 직접 진입 등은 삭제된 상세로 돌아가지 않도록 replace 이동
-     if (cameFromList) {
-       nav(-1);
-     } else {
-       nav("/community/posts", { replace: true });
-     }
-   } catch (e) {
-     alert(e?.message || "삭제 실패");
-   }
- };
+  const onDelete = async () => {
+    if (!confirm("삭제할까요?")) return;
+    try {
+      await deletePost(postId);
+      alert("게시글이 삭제되었습니다.");
+      // ✅ 목록/내글에서 왔으면 히스토리 보존(뒤로가기 자연스러움)
+      // ✅ 직접 진입 등은 삭제된 상세로 돌아가지 않도록 replace 이동
+      if (cameFromList) {
+        nav(-1);
+      } else {
+        nav("/community/posts", { replace: true });
+      }
+    } catch (e) {
+      alert(e?.message || "삭제 실패");
+    }
+  };
+
+  // 댓글 작성 가능 여부 (프런트 UX용 가드, 최종 권한은 백엔드가 판단)
+  const canWriteComment = useMemo(() => {
+    if (!post) return false;
+    // 댓글 차단이면 불가
+    if (post.blockComment === true) return false;
+    // 비공개 글이면 작성자만 — 백엔드가 최종 체크하지만 UX 힌트 제공
+    if (post.visibility === "PRIVATE" && !isMine(post)) return false;
+    return true;
+  }, [post]);
 
   const onAddComment = async (e) => {
     e.preventDefault();
+    if (!canWriteComment) {
+      alert("이 게시글은 댓글이 차단되었습니다.");
+      return;
+    }
     const text = new FormData(e.currentTarget).get("text")?.toString().trim();
     if (!text) return;
     const optimistic = {
@@ -149,7 +163,13 @@ const onDelete = async () => {
         reloadComments();
       }
     } catch (err) {
-      alert(err?.message || "등록 실패");
+      // 백엔드가 403을 던지면 사용자에게 명확히 보여주고, 낙관적 아이템 롤백
+      const status = err?.response?.status ?? err?.status;
+      if (status === 403) {
+        alert("이 게시글은 댓글이 차단되었습니다.");
+      } else {
+        alert(err?.message || "등록 실패");
+      }
       setComments((prev) => prev.filter((c) => c.id !== optimistic.id));
     }
   };
@@ -229,6 +249,7 @@ const onDelete = async () => {
   if (!post) return <div>게시글이 없습니다.</div>;
 
   const canEditPost = isMine(post);
+  const isBlocked = post?.blockComment === true;
 
   return (
     <div style={{ maxWidth: 920, margin: "24px auto", padding: 16 }}>
@@ -326,6 +347,12 @@ const onDelete = async () => {
 
       {/* 댓글 UI (모두 복구) */}
       <h2 style={{ marginTop: 24, marginBottom: 8 }}>댓글</h2>
+      {isBlocked && (
+        <div style={{ marginBottom: 8, color: "#b91c1c", fontSize: 14 }}>
+          이 게시글은 작성자가 댓글을 차단했습니다.
+        </div>
+      )}
+
       <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
         {comments.map((c) => (
           <li
@@ -338,9 +365,8 @@ const onDelete = async () => {
               opacity: c.__optimistic ? 0.7 : 1,
             }}
           >
-            <div style={{ fontSize: 12, color: "#64748b" }}>
-              {(c.authorNickname ?? c.author) || "익명"} ·{" "}
-              {new Date(c.createdAt).toLocaleString()}
+            <div style={{ fontSize: 13, color: "#64748b", marginBottom: 16 }}>
+               {post.authorNickname ?? "익명"} · {new Date(c.createdAt).toLocaleString()}
             </div>
             <div style={{ whiteSpace: "pre-wrap" }}>{c.content}</div>
             {isMine(c) && (
@@ -355,19 +381,34 @@ const onDelete = async () => {
             )}
           </li>
         ))}
-        {comments.length === 0 && <li>첫 댓글을 남겨보세요.</li>}
+         {/* 빈 목록 안내는 '작성 가능'할 때만 노출 */}
+   {comments.length === 0 && canWriteComment && (
+     <li>첫 댓글을 남겨보세요.</li>
+   )}
       </ul>
-      <form
-        onSubmit={onAddComment}
-        style={{ display: "flex", gap: 8, marginTop: 12 }}
-      >
-        <input
-          name="text"
-          placeholder="댓글 달기..."
-          style={{ flex: 1, padding: 8 }}
-        />
-        <button>등록</button>
-      </form>
+
+      {canWriteComment ? (
+        <form
+          onSubmit={onAddComment}
+          style={{ display: "flex", gap: 8, marginTop: 12 }}
+        >
+          <input
+            name="text"
+            placeholder="댓글 달기..."
+            style={{ flex: 1, padding: 8 }}
+          />
+          <button>등록</button>
+        </form>
+      ) : (
+        /* 차단 배너는 위에 이미 보여주므로, 차단일 땐 아래 안내 중복 표시 X */
+   !isBlocked && (
+     <div style={{ marginTop: 12, color: "#64748b", fontSize: 14 }}>
+       {post.visibility === "PRIVATE" && !isMine(post)
+         ? "비공개 게시글은 작성자만 댓글을 남길 수 있어요."
+         : "댓글 작성이 차단되었습니다."}
+     </div>
+   )
+      )}
     </div>
   );
 }

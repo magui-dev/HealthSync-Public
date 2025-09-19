@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final PostCommentRepository postCommentRepository;
     private final TagRepository tagRepository;
     private final UserRepository userRepository;
     private final PostLikeRepository likeRepository;
@@ -57,22 +58,6 @@ public class PostService {
         return toResponse(saved, 0L);
     }
 
-//    @Transactional(readOnly = true)
-//    public PostResponse getPost(Long postId, boolean increaseView) {
-//        Post post = postRepository.findById(postId)
-//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."));
-//        // PRIVATE이면 비소유자는 차단 (userId 없이 온 경우 → 무조건 차단)
-//        if (post.getVisibility() == Visibility.PRIVATE) {
-//            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "비공개 게시글입니다.");
-//        }
-//        if (post.isDeleted()) {
-//            throw new ResponseStatusException(HttpStatus.GONE, "삭제된 게시글입니다.");
-//        }
-//        if (increaseView) {
-//            post.increaseViews();
-//        }
-//        return toResponse(post, 0L);
-//    }
 
     @Transactional(readOnly = true)
 // ✅ 1. 메서드 시그니처에 Long currentUserId 파라미터를 추가합니다.
@@ -154,6 +139,9 @@ public class PostService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."));
         assertOwnerOrThrow(post, userId);
+
+        // 1) 댓글 하드 삭제 (FK 안전)
+        postCommentRepository.hardDeleteByPostId(postId);
         post.softDelete();
     }
 
@@ -261,13 +249,24 @@ public class PostService {
             isLiked = likeRepository.existsByUser_IdAndPost_Id(currentUserId, p.getId());
             isBookmarked = bookmarkRepository.existsByUser_IdAndPost_Id(currentUserId, p.getId());
         }
+
+        String nickname = null;
+        if (p.getUser() != null) {
+            nickname = p.getUser().getNickname();
+            if (nickname == null || nickname.isBlank()) {
+                nickname = p.getUser().getName(); // 또는 "익명"
+            }
+        }
+
         return PostResponse.builder()
                 .id(p.getId())
                 .userId(p.getUser() != null ? p.getUser().getId() : null)
+                .authorNickname(nickname)
                 .visibility(p.getVisibility())
                 .title(p.getTitle())
                 .contentTxt(p.getContentTxt())
                 .contentJson(p.getContentJson())
+                .blockComment(p.isBlockComment())
                 .likesCount(p.getLikesCount())
                 .viewsCount(p.getViewsCount())
                 .deleted(p.isDeleted())

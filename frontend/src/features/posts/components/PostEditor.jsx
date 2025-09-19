@@ -27,7 +27,7 @@ export default function PostEditor() {
         // 서버에서 혹시 UNLISTED가 와도 사용 안 하므로 PUBLIC로 보정
         const rawVis = p?.visibility;
         const vis = rawVis === VIS.PRIVATE ? VIS.PRIVATE : VIS.PUBLIC;
-        const block = !!p?.blockComment;
+        const block = p?.blockComment === true; // undefined면 false로 간주
 
         setForm({ title, content });
         setVisibility(vis);

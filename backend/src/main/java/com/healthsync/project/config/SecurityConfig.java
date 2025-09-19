@@ -40,13 +40,14 @@ public class SecurityConfig {
         var resolver = new CustomAuthorizationRequestResolver(clientRegistrationRepository);
 
         http
-                .securityMatcher("/oauth2/**", "/login/**", "/api/**", "/ping", "/calc/**", "/posts/**", "/nutri/**", "/profile/**")
+                .securityMatcher("/oauth2/**", "/login/**", "/api/**", "/ping", "/calc/**", "/posts/**", "/nutri/**", "/profile/**", "/api/chat/**")
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/posts/**").authenticated()
                         .requestMatchers("/calc/**").permitAll()
+                        .requestMatchers("/api/chat/**").permitAll()
                         .requestMatchers("/nutri/**").permitAll()
                         .requestMatchers("/ping").permitAll()
                         .requestMatchers("/oauth2/**", "/login/**").permitAll()

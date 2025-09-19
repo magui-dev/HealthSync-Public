@@ -19,6 +19,7 @@ public class PostResponse {
 
     private Long id;
     private Long userId;
+    private String authorNickname;
     private String title;
     private String contentTxt;
     private String contentJson;

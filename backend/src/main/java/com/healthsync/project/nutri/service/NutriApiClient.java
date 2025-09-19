@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.healthsync.project.nutri.config.DataGoKrProps;
 import com.healthsync.project.nutri.dto.NutriParamPolicy;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
@@ -22,6 +23,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class NutriApiClient {
 
+    @Qualifier("restTemplateNoRedirect")
     private final RestTemplate rt;
     private final DataGoKrProps props;
     private final NutriParamPolicy policy;

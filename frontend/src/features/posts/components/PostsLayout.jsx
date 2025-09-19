@@ -14,7 +14,8 @@ export default function PostsLayout({ fallback = 72 }) {
     if (h) {
       const rect = h.getBoundingClientRect();
       // 숫자(px)로 저장하면 React가 px 단위로 렌더함
-      if (rect.height && Number.isFinite(rect.height)) setPad(Math.ceil(rect.height));
+      if (rect.height && Number.isFinite(rect.height))
+        setPad(Math.ceil(rect.height));
     }
   }, []);
 

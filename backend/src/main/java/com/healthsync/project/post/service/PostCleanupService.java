@@ -13,24 +13,21 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
+
+// 게시글 삭제 후 DB에서 설정한 시간 뒤에 완전 삭제
 @Service
 @RequiredArgsConstructor
 public class PostCleanupService {
     private final PostRepository postRepository;
     private final PostCommentRepository postCommentRepository;
 
-    @Scheduled(cron = "0 0 3 * * *") // 매일 새벽 3시
+    @Scheduled(cron = "0 * * * * *") //
     @Transactional
     public void purgeDeletedEntities() {
-        Instant postThreshold = Instant.now().minus(10, ChronoUnit.DAYS);
-        Instant commentThreshold = Instant.now().minus(10, ChronoUnit.DAYS);
+        Instant cutoff = Instant.now().minus(10, ChronoUnit.MINUTES);
 
-        // ✅ 10일 지난 삭제된 게시글 하드 삭제
-        List<Post> oldDeletedPosts = postRepository.findByDeletedTrueAndDeletedAtBefore(postThreshold);
+        // 10분 지난 소프트삭제 게시글만 하드 삭제
+        List<Post> oldDeletedPosts = postRepository.findByDeletedTrueAndDeletedAtBefore(cutoff);
         postRepository.deleteAll(oldDeletedPosts);
-
-        // ✅ 10일 지난 삭제된 댓글 하드 삭제
-        List<PostComment> oldDeletedComments = postCommentRepository.findByDeletedTrueAndDeletedAtBefore(commentThreshold);
-        postCommentRepository.deleteAll(oldDeletedComments);
     }
 }

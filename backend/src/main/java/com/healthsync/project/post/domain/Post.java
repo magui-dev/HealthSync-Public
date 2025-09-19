@@ -82,6 +82,10 @@ public class Post {
 
     /* ---------- 생성/수정/행위 메서드 ---------- */
 
+    public boolean isBlockComment() {
+        return blockComment;
+    }
+
     public static Post create(
             User author,
             String title,
