@@ -47,7 +47,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/posts/**").authenticated()
                         .requestMatchers("/calc/**").permitAll()
-                        .requestMatchers("/api/chat/**").permitAll()
+                        .requestMatchers("/api/chat/**").authenticated()
                         .requestMatchers("/nutri/**").permitAll()
                         .requestMatchers("/ping").permitAll()
                         .requestMatchers("/oauth2/**", "/login/**").permitAll()

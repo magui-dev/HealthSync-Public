@@ -31,8 +31,7 @@ public class PostController {
 
     // 게시판 작성
     @PostMapping
-    public ResponseEntity<PostResponse> createPost(
-            Authentication auth,
+    public ResponseEntity<PostResponse> createPost(Authentication auth,
             @Valid @RequestBody PostCreateRequest request) {
         Long userId = getUserIdFromAuth(auth);
         return ResponseEntity.ok(postService.createPost(userId, request));
@@ -99,8 +98,7 @@ public class PostController {
     @GetMapping("/mypost")
     public ResponseEntity<Page<PostResponse>> getMyPosts(
             Authentication auth,
-            @PageableDefault(size = 10) Pageable pageable
-    ) {
+            @PageableDefault(size = 10) Pageable pageable) {
         Long userId = getUserIdFromAuth(auth);
         return ResponseEntity.ok(postService.getMyPosts(userId, pageable));
     }
@@ -109,8 +107,7 @@ public class PostController {
     @GetMapping("/me/likes")
     public ResponseEntity<Page<PostResponse>> getMyLikedPosts(
             Authentication auth,
-            @PageableDefault(size = 10) Pageable pageable
-    ) {
+            @PageableDefault(size = 10) Pageable pageable) {
         Long userId = getUserIdFromAuth(auth);
         return ResponseEntity.ok(postService.getMyLikedPosts(userId, pageable));
     }
@@ -120,8 +117,7 @@ public class PostController {
     public ResponseEntity<PostResponse> updatePost(
             Authentication auth,
             @PathVariable Long postId,
-            @Valid @RequestBody PostUpdateRequest request
-    ) {
+            @Valid @RequestBody PostUpdateRequest request) {
         Long userId = getUserIdFromAuth(auth);
         return ResponseEntity.ok(postService.updatePost(userId, postId, request));
     }

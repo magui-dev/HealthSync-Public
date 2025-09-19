@@ -1,19 +1,30 @@
 package com.healthsync.project.openai.service;
 
+import com.healthsync.project.account.user.domain.User;
+import com.healthsync.project.account.user.repository.UserRepository;
 import com.healthsync.project.openai.dto.OpenAiResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatService {
 
     private final OpenAiClient openAiClient;
+    private final UserRepository userRepository;
 
     /**
      * 클라이언트 질문을 받아 OpenAI 응답 텍스트 반환
      */
-    public String getAnswer(String question) {
+    public String getAnswer(Long userId, String question) {
+
+//        User author = userRepository.getReferenceById(userId);
+//
+//        // 어떤 사용자가 어떤 질문을 했는지 로그를 남겨서 나중에 사용 패턴을 분석하거나 디버깅할 수 있습니다.
+//        log.info("Request from User: {} (ID: {}), Question: {}", author.getNickname(), userId, question);
+
         // step 1. OpenAiClient를 통해 질문을 OpenAI에 전달
         OpenAiResponse openAiResponse = openAiClient.getChatCompletion(question);
 

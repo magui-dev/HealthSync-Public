@@ -3,9 +3,11 @@ package com.healthsync.project.openai.controller;
 import com.healthsync.project.openai.dto.ChatRequest;
 import com.healthsync.project.openai.dto.ChatResponse;
 import com.healthsync.project.openai.service.ChatService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -19,20 +21,25 @@ public class ChatController {
     private final ChatService chatService;
 
     @PostMapping
-    public ResponseEntity<ChatResponse> chat(@RequestBody ChatRequest chatRequest) {
-        String answer = chatService.getAnswer(chatRequest.getMessage());
-
+    public ResponseEntity<ChatResponse> chat(
+            Authentication auth,
+            @Valid @RequestBody ChatRequest chatRequest) {
+        Long userId = getUserIdFromAuth(auth);
+        String answer = chatService.getAnswer(userId, chatRequest.getMessage());
         return ResponseEntity.ok(ChatResponse.of(answer));
     }
 
-    @PostMapping("/_ping")
-    public ResponseEntity<ChatResponse> ping() {
-        String must = "정확히 이 문자열만 출력: PING-12345";
-        String answer = chatService.getAnswer(must);
-        return ResponseEntity.ok(ChatResponse.of(answer));
+    public Long getUserIdFromAuth(Authentication auth) {
+        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal() == null) {
+            throw new IllegalStateException("인증 정보를 찾을 수 없습니다.");
+        }
+        String userIdStr = auth.getName();
+        try {
+            return Long.parseLong(userIdStr);
+        } catch (NumberFormatException e) {
+            throw new IllegalStateException("인증 정보가 올바르지 않습니다 (ID가 숫자가 아님).");
+        }
     }
-
-
 }
 
 

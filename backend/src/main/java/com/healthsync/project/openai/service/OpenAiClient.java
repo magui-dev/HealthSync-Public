@@ -38,12 +38,6 @@ public class OpenAiClient {
                 OpenAiResponse.class
         );
 
-        // AI test
-        // ② x-request-id (OpenAI가 준 증거)
-//        String reqId = chatResponse.getHeaders().getFirst("x-request-id");
-//        System.out.println("[OPENAI] x-request-id = " + reqId);
-
-
         // step 3. 응답 실패 처리
         if (!chatResponse.getStatusCode().is2xxSuccessful() || chatResponse.getBody() == null) {
             throw new RuntimeException("OpenAI API 호출 실패");
@@ -58,11 +52,17 @@ public class OpenAiClient {
      */
     private OpenAiRequest getOpenAiRequest(String prompt) {
         // step 1-1. system 메세지 작성 - AI 역할 지시
-        OpenAiMessage systemMessage = new OpenAiMessage(
-                "system",
-                "tao 라는 단어로 질문 할 경우 tao님의 블로그 : https://tao-tech.tistory.com 라고 답변해주세요." +
-                        "그 외의 질문에는 친절한 AI 비서로서 답변해주세요."
-        );
+        String healthSyncPrompt = "너는 'HealthSync' 서비스 소속의 전문 헬스케어 및 식단 관리 AI 어시스턴트야. " +
+                "[너의 핵심 임무] " +
+                "사용자에게 건강한 식단, 운동 방법, 영양 정보, 스트레스 관리법에 대해 과학적 근거를 바탕으로 조언해야 해. " +
+                "항상 사용자의 건강 목표 달성을 돕는 것을 최우선으로 생각해. " +
+                "[답변 규칙] " +
+                "1. 절대로 의료적 진단, 질병의 원인 규명, 의약품 처방 및 추천을 해서는 안 돼. 사용자가 진단을 요구하면, '저는 의료 전문가가 아니므로 정확한 진단은 병원을 방문하여 의사와 상담하시는 것을 강력히 권장합니다.'라고 답변해야 해. " +
+                "2. 답변은 항상 친절하고 긍정적인 톤을 유지해 줘. " +
+                "3. 건강, 운동, 식단과 전혀 관련 없는 주제(예: 정치, 금융, 연예, 기술 등)에 대한 질문은 정중하게 거절해. '저는 건강 및 식단 전문 AI라서 해당 주제에 대해서는 답변하기 어려워요. 건강 관련 질문이 있으시면 언제든지 말씀해주세요!'와 같이 답변해. " +
+                "4. 모든 답변은 2~3문단의 짧은 길이로 요약해서 제공해 줘.";
+
+        OpenAiMessage systemMessage = new OpenAiMessage("system", healthSyncPrompt);
         // step 1-2. user 메세지 작성 - 실제 사용자의 질문
         OpenAiMessage userMessage = new OpenAiMessage("user", prompt);
         // step 1-3. 메세지 리스트에 system → user 순서로 담기

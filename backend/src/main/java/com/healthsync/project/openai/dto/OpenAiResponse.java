@@ -16,22 +16,12 @@ public class OpenAiResponse {
     // GPT가 생성한 응답 선택지 리스트
     private List<Choice> choices;
 
-    private Usage usage;              // ← 추가
-
     @Getter
     public static class Choice {
         // 생성된 메세지 정보
         private OpenAiMessage message;
     }
 
-    @Getter
-    public static class Usage {       // ← 추가
-        private int prompt_tokens;
-        private int completion_tokens;
-        private int total_tokens;
-
-        public int getTotalTokens() { return total_tokens; } // 편의용
-    }
 
 }
 /**
