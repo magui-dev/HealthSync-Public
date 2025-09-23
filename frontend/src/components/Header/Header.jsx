@@ -8,7 +8,7 @@ export default function Header({ me, onLoginClick, onLogoutClick, onAccountClick
   const label = me?.nickname ? `${me.nickname}님` : "Login";
   const click = me ? onAccountClick : onLoginClick;
 
-  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const dropdownRef = useRef(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
@@ -44,7 +44,7 @@ export default function Header({ me, onLoginClick, onLogoutClick, onAccountClick
               <button onClick={handleProfileClick} style={styles.btnLink}>{label}</button>
               {isDropdownVisible && (
                 <div id="dropdownMenu">
-                  <Link onClick={() => { click(); setIsDropdownVisible(false); }} className="dropdownItem">닉네임 편집</Link>
+                  {/* <Link onClick={() => { click(); setIsDropdownVisible(false); }} className="dropdownItem">닉네임 편집</Link>
                   <Link
                     onClick={() => {
                       setIsProfileModalOpen(true); // 모달 열기
@@ -53,7 +53,8 @@ export default function Header({ me, onLoginClick, onLogoutClick, onAccountClick
                     className="dropdownItem"
                   >
                     프로필 편집
-                  </Link>
+                  </Link> */}
+                  <Link to="/profile" className="dropdownItem" onClick={() => setIsDropdownVisible(false)}>프로필 설정</Link>
                   <Link onClick={() => { onLogoutClick(); setIsDropdownVisible(false); }} className="dropdownItem">로그아웃</Link>
                 </div>
               )}
