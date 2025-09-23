@@ -10,8 +10,15 @@ import Header from "./components/Header/Header";
 import LoginModal from "./components/LoginModal";
 import PostRoutes from "./features/posts/Routes";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
+<<<<<<< HEAD
 import MyReportPage from "./myreport/pages/MyReportPage";
 import ProfileEditModal from "./components/Profile/ProfileEditModal";
+=======
+//목표설정 임포트
+import FoodSelectionPage from "./pages/FoodSelectionPage";
+import PlanReport from "./pages/PlanReport/PlanReport";
+
+>>>>>>> b3299f3 (feat|plan&nutri|로직추가 삭제 등 프론트 추가)
 // import { clearTokens } from "./token";
 import { apiLogout } from "./api";
 import { useMe } from "./hooks/useMe";
@@ -69,7 +76,17 @@ function Shell() {
             <Route path="/me" element={<Me />} />
             <Route path='profile' element={<ProfilePage/>}/>
             <Route path="/community/posts/*" element={<PostRoutes />} />
+<<<<<<< HEAD
             <Route path="/my-report" element={<MyReportPage />} />
+=======
+            
+            {/* 목표설정 구간 */}
+            <Route path="/" element={<MainPage me={me} onLoginClick={openLogin} onAccountClick={onAccountClick} />} />
+            <Route path="/plan" element={<PlanSetup />} />
+            <Route path="/plan/foods" element={<FoodSelectionPage />} /> 
+            <Route path="/plan/report" element={<PlanReport />} />
+            
+>>>>>>> b3299f3 (feat|plan&nutri|로직추가 삭제 등 프론트 추가)
           </Routes>
         </div>
       </>

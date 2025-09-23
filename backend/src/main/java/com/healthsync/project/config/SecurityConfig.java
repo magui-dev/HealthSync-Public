@@ -40,7 +40,7 @@ public class SecurityConfig {
         var resolver = new CustomAuthorizationRequestResolver(clientRegistrationRepository);
 
         http
-                .securityMatcher("/oauth2/**", "/login/**", "/api/**", "/ping", "/calc/**", "/posts/**", "/nutri/**", "/profile/**", "/api/chat/**")
+                .securityMatcher("/oauth2/**","/api/nutri/**", "/login/**", "/api/**", "/ping", "/calc/**", "/posts/**", "/nutri/**", "/profile/**", "/api/chat/**")
                 .csrf(csrf -> csrf.disable())
                 .cors(Customizer.withDefaults())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -49,6 +49,8 @@ public class SecurityConfig {
                         .requestMatchers("/calc/**").permitAll()
                         .requestMatchers("/api/chat/**").authenticated()
                         .requestMatchers("/nutri/**").permitAll()
+                        .requestMatchers("/api/nutri/**").permitAll()   // ← 추가!
+                        .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll() // CORS preflight 안전
                         .requestMatchers("/ping").permitAll()
                         .requestMatchers("/oauth2/**", "/login/**").permitAll()
                         // ✅ 인증 필요한 엔드포인트를 먼저 명시
@@ -59,7 +61,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
 
 
-                        )
+                )
                 // ✅ 폼로그인/베이식 인증 비활성화 (기본 /login 302 제거)
                 .formLogin(f -> f.disable())
                 .httpBasic(b -> b.disable())
@@ -92,7 +94,7 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration c = new CorsConfiguration();
         c.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:3000")); // 실제 프런트
-        c.setAllowedMethods(List.of("GET","POST","PUT","DELETE","PATCH","OPTIONS"));
+        c.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         c.setAllowedHeaders(List.of("*"));
         c.setAllowCredentials(true); // ★ 필수
         UrlBasedCorsConfigurationSource src = new UrlBasedCorsConfigurationSource();

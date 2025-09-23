@@ -97,6 +97,12 @@ public class Goal {
         }
     }
 
+    public void overwriteSameSlot(GoalType type, BigDecimal startWeightKg, BigDecimal targetWeightKg) {
+        this.type = type;
+        this.startWeightKg = startWeightKg;
+        this.targetWeightKg = targetWeightKg;
+    }
+
     //--변경 메서드
     public void changeStartDate(LocalDate startDate) {
         this.startDate = startDate;
