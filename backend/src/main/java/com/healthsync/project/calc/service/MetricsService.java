@@ -103,8 +103,10 @@ public class MetricsService {
         return "2단계 비만";
     }
 
-    /** BMR 계산 (미프린-세인트 조르 공식) */
-    private BigDecimal calculateBMR(BigDecimal weightKg, BigDecimal heightCm, int age, GenderType gender) {
+    /**
+      BMR 계산 (미프린-세인트 조르 공식).0922 public 수정
+     */
+    public BigDecimal calculateBMR(BigDecimal weightKg, BigDecimal heightCm, int age, GenderType gender) {
         // (10 * weightKg + 6.25 * heightCm - 5 * age + 5) : (10 * weightKg + 6.25 * heightCm - 5 * age - 161)
         BigDecimal result = BigDecimal.valueOf(10).multiply(weightKg)
                 .add(BigDecimal.valueOf(6.25).multiply(heightCm))

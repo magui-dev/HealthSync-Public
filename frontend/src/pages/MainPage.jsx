@@ -17,7 +17,7 @@ export default function MainPage({ me, onLoginClick, onAccountClick }) {
             {me?.nickname ? `${me.nickname}님` : "Login"}
           </button>
           <button className="menuBtn sky" onClick={go("AI 식단 추천")}>AI 식단 추천</button>
-          <button className="menuBtn ivory" onClick={go("나의 리포트")}>나의 리포트</button>
+          <button className="menuBtn ivory" onClick={() => nav("/my-report")}>나의 리포트</button>
           <button className="menuBtn sky" onClick={() => nav("/community/posts")}>커뮤니티</button>
         </nav>
       </aside>

@@ -1,6 +1,8 @@
 package com.healthsync.project.account.profile.controller;
 
+import com.healthsync.project.account.profile.domain.Profile;
 import com.healthsync.project.account.profile.dto.ProfileRequest;
+import com.healthsync.project.account.profile.dto.ProfileResponse;
 import com.healthsync.project.account.profile.service.ProfileService;
 import com.healthsync.project.account.user.domain.User;
 import com.healthsync.project.account.user.repository.UserRepository;
@@ -39,4 +41,21 @@ public class ProfileController {
             return ResponseEntity.badRequest().body("프로필 수정 중 오류가 발생했습니다.");
         }
     }
+
+    /**
+     프로필 정보 조회.0922추가
+     */
+    @GetMapping
+    public ResponseEntity<?> getProfile(Authentication auth) {
+        try {
+            Long userId = authApi.getUserIdFromAuth(auth);
+            // DTO를 반환하는 서비스 메서드 호출
+            ProfileResponse profileResponse = profileService.getProfileDtoByUserId(userId);
+            return ResponseEntity.ok(profileResponse); // DTO를 클라이언트에 반환
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("프로필 조회 중 오류가 발생했습니다.");
+        }
+    }
+
+
 }

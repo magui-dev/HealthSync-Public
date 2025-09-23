@@ -1,0 +1,175 @@
+/* 전체 컨테이너 */
+.container {
+  max-width: 750px;
+  margin: 24px auto;
+  padding: 16px;
+  font-family: sans-serif;
+}
+
+/* 헤더: 제목과 액션 버튼 */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.title {
+  margin: 0;
+  font-size: 24px;
+}
+
+.actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.actionLink {
+  text-decoration: none;
+  color: #475569;
+  font-weight: 500;
+}
+.actionLink:hover {
+  color: #1e293b;
+}
+
+.newPostButton {
+  text-decoration: none;
+  background-color: #f1f5f9;
+  color: #334155;
+  border: 1px solid #e5e7eb;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+.newPostButton:hover {
+   background-color: #e2e8f0; 
+}
+
+/* 컨트롤: 필터와 정렬 */
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.filterGroup {
+  display: flex;
+  gap: 8px;
+}
+
+/* 필터 버튼 (기본, 활성 상태) */
+.filterButton {
+  background-color: #f1f5f9;
+  color: #334155;
+  border: 1px solid #e5e7eb;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+.filterButton:hover {
+  background-color: #e2e8f0;
+  border-color: #cbd5e1;
+}
+.filterButton.active {
+  background-color: #334155;
+  color: white;
+  border-color: #334155;
+}
+
+.secondaryButton {
+  background-color: #f1f5f9;
+  color: #334155;
+  border: 1px solid #e5e7eb;
+  padding: 8px 16px; /* 필터 버튼(8px 12px)보다 좌우로 조금 더 넓게 */
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+  text-decoration: none; /* Link 태그는 밑줄이 생길 수 있어 추가 */
+}
+.secondaryButton:hover {
+  background-color: #e2e8f0; /* 배경색을 살짝 어둡게 변경 */
+}
+
+.sortSelect {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+/* 게시글 목록 */
+.postItem {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  transition: background-color 0.2s, box-shadow 0.2s;
+}
+.postItem:hover {
+  background-color: #f8fafc;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.postLink {
+  font-weight: 600;
+  font-size: 18px;
+  text-decoration: none;
+  color: inherit;
+}
+.postLink:hover {
+  text-decoration: underline;
+}
+
+.postMeta {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 8px;
+}
+
+/* 페이지네이션 */
+.pagination {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 24px;
+}
+.pagination button {
+  padding: 6px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background-color: white;
+  cursor: pointer;
+}
+.pagination button:hover:not(:disabled) {
+  background-color: #f8fafc;
+}
+.pagination button:disabled {
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* 에러 및 빈 상태 메시지 */
+.error {
+  color: crimson;
+  padding: 16px;
+  border: 1px solid crimson;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+.empty {
+  padding: 48px 16px;
+  text-align: center;
+  color: #64748b;
+  border: 1px dashed #e5e7eb;
+  border-radius: 12px;
+}

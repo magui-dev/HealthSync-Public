@@ -1,0 +1,190 @@
+/* --- 기본 레이아웃 --- */
+.post-editor-container {
+  max-width: 750px;
+  margin: 24px auto;
+  padding: 16px;
+  font-family: sans-serif;
+}
+
+.editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.back-button {
+  width: 60px;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 8px 0;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.editor-title {
+  margin: 0;
+  font-size: 22px;
+}
+
+.header-placeholder {
+  width: 60px;
+}
+
+.error-message {
+  color: crimson;
+  margin-bottom: 12px;
+  background-color: #fff1f1;
+  border: 1px solid crimson;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+/* --- 폼 스타일 --- */
+.editor-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-input {
+  padding: 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 16px;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+}
+
+.content-textarea {
+  resize: vertical;
+  min-height: 200px;
+}
+
+/* --- 옵션: 공개 범위 & 댓글 --- */
+.options-fieldset {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 4px;
+}
+
+.options-legend {
+  padding: 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.options-description {
+  margin: 4px 0 12px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.visibility-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.visibility-option {
+  display: flex;
+  gap: 12px;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px;
+  cursor: pointer;
+  align-items: flex-start;
+  transition: border-color 0.2s;
+}
+
+.visibility-option.active {
+  border-color: #111827;
+}
+
+.option-radio {
+  margin-top: 4px;
+  width: 16px;
+  height: 16px;
+}
+
+.option-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: #111827;
+}
+
+.option-description {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.comment-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.comment-toggle-label {
+  user-select: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.comment-toggle-checkbox {
+  width: 20px;
+  height: 20px;
+}
+
+/* --- 폼 액션 버튼 --- */
+.form-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.submit-button,
+.cancel-button {
+  flex: 1;
+  padding: 12px 0;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.submit-button {
+  background-color: #1f2937;
+  color: white;
+}
+.submit-button:hover:not(:disabled) {
+  background-color: #374151;
+}
+
+.cancel-button {
+  background-color: #f3f4f6;
+  border-color: #d1d5db;
+  color: #374151;
+}
+.cancel-button:hover:not(:disabled) {
+  background-color: #e5e7eb;
+}
+
+.submit-button:disabled,
+.cancel-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

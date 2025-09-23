@@ -10,7 +10,7 @@ import Header from "./components/Header/Header";
 import LoginModal from "./components/LoginModal";
 import PostRoutes from "./features/posts/Routes";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
-
+import MyReportPage from "./myreport/pages/MyReportPage";
 // import { clearTokens } from "./token";
 import { apiLogout } from "./api";
 import { useMe } from "./hooks/useMe";
@@ -66,6 +66,7 @@ function Shell() {
             <Route path="/me" element={<Me />} />
             <Route path='profile' element={<ProfilePage/>}/>
             <Route path="/community/posts/*" element={<PostRoutes />} />
+            <Route path="/my-report" element={<MyReportPage />} />
           </Routes>
         </div>
       </>
