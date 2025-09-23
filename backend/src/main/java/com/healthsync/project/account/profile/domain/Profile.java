@@ -54,6 +54,9 @@ public class Profile {
     @Max(value = 4, message = "활동 레벨은 4 이하여야 합니다.")
     private int activityLevel;
 
+    /** 프로필 image */
+    private String profileImageUrl;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -89,6 +92,7 @@ public class Profile {
         this.height = profileRequest.getHeight();
         this.weight = profileRequest.getWeight();
         this.activityLevel = profileRequest.getActivityLevel();
+        this.profileImageUrl = profileRequest.getProfileImageUrl();
         touchUpdatedAt();
     }
 }

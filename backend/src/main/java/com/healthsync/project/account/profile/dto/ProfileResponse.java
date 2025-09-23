@@ -2,26 +2,36 @@ package com.healthsync.project.account.profile.dto;
 
 import com.healthsync.project.account.profile.constant.GenderType;
 import com.healthsync.project.account.profile.domain.Profile;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
-// 정보 조회용 Response.0922추가
 @Getter
-@NoArgsConstructor
+@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@Builder
 public class ProfileResponse {
-    private Long userId;
     private int age;
     private GenderType gender;
     private BigDecimal height;
     private BigDecimal weight;
     private int activityLevel;
-    private String nickname; // User 엔티티에서 가져올 닉네임 추가
-    // bmi,bmr 정보 필요시
-//    private BigDecimal bmi;
-//    private double basalMetabolism;
+    private LocalDateTime updateAt;
+    private String profileImageUrl;
+
+    /** 프로필 불러오기 */
+    public static ProfileResponse createProfileResponse(Profile profile) {
+        return ProfileResponse.builder()
+                .age(profile.getAge())
+                .gender(profile.getGender())
+                .height(profile.getHeight())
+                .weight(profile.getWeight())
+                .activityLevel(profile.getActivityLevel())
+                .updateAt(profile.getUpdatedAt())
+                .profileImageUrl(profile.getProfileImageUrl())
+                .build();
+    }
 
 }

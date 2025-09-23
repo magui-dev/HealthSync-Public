@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import PlanSetup from "./pages/PlanSetup";
 
@@ -11,17 +11,28 @@ import LoginModal from "./components/LoginModal";
 import PostRoutes from "./features/posts/Routes";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
 import MyReportPage from "./myreport/pages/MyReportPage";
+import ProfileEditModal from "./components/Profile/ProfileEditModal";
 // import { clearTokens } from "./token";
 import { apiLogout } from "./api";
 import { useMe } from "./hooks/useMe";
 
 function Shell() {
   const location = useLocation();
+  const nav = useNavigate();
+  const isRootPath = location.pathname === "/";
   const { me, loading, refresh, changeNickname, reset } = useMe();
   const [showLogin, setShowLogin] = useState(false);
 
-  const openLogin = () => setShowLogin(true);
-  const closeLogin = () => setShowLogin(false);
+  // const openLogin = () => setShowLogin(true);
+  // const closeLogin = () => setShowLogin(false);
+  const onLoginClick = () => setShowLogin(true);
+  const onAccountClick = () => {
+    if (!me) return setShowLogin(true);  
+    nav("/profile");
+    // setShowProfile(true); // ✅ 로그인 시 프로필 모달 열기
+    // const next = window.prompt("새 닉네임을 입력하세요", me.nickname ?? "");
+    // if (next && next.trim()) changeNickname(next.trim());
+  };
 
   const logout = async () => {
     await apiLogout();  // 서버가 쿠키 만료 처리
@@ -36,25 +47,17 @@ function Shell() {
     }
   }, [me, loading, changeNickname]);
 
-  const onAccountClick = () => {
-    if (!me) return openLogin();
-    const next = window.prompt("새 닉네임을 입력하세요", me.nickname ?? "");
-    if (next && next.trim()) changeNickname(next.trim());
-  };
-
-    const isRootPath = location.pathname === "/";
-
   return (
     <>
       {isRootPath ? (
         /* 메인 페이지 */
-        <MainPage me={me} onLoginClick={openLogin} onAccountClick={onAccountClick} />
+        <MainPage me={me} onLoginClick={onLoginClick} onAccountClick={onAccountClick} />
       ) : (
       <>
         {/* 헤더 영역 (고정) */}
         <Header
           me={me}
-          onLoginClick={openLogin}
+          onLoginClick={onLoginClick}
           onLogoutClick={logout}
           onAccountClick={onAccountClick}
         />
@@ -72,7 +75,11 @@ function Shell() {
       </>
       )}
 
-      <LoginModal open={showLogin} onClose={closeLogin} />
+      {/* 로그인 모달 */}
+      <LoginModal open={showLogin} onClose={() => setShowLogin(false)} />
+            
+      {/* 프로필 편집 모달 */}
+      {/* <ProfileEditModal open={showProfile} onClose={() => setShowProfile(false)}/> */}
     </>
   );
 }
