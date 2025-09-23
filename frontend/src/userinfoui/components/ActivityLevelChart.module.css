@@ -1,0 +1,138 @@
+.activityChartContainer {
+  width: 100%;
+  margin-top: 24px;
+  position: relative;
+}
+
+/* 리본 파라미터 */
+.v_chevron {
+  --notch: 18px;          /* ▶ 꼬리/캡 길이 (16~20px 추천) */
+  --radius: 12px;         /* 시작쪽 둥근 정도 */
+  --canvas: #ffffff;      /* 바깥 배경색(첫 캡 잘라내기용). 페이지 배경이 회색이면 바꾸세요. */
+}
+
+/* 바 전체 */
+.v_chevron .activityBar {
+  display: flex;
+  /* ✅ 끝을 > 로 내보내려면 자식이 밖으로 튀어나오게 해야 함 */
+  overflow: visible;                       /* <-- 핵심 */
+  /* 둥근 모서리는 첫 칸에만 적용할 거라 부모에 radius는 굳이 없어도 됨 */
+  box-shadow: 0 0 0 1px rgba(0,0,0,.06) inset;
+}
+
+/* 각 세그먼트: 직사각형(clip-path 쓰지 않음) */
+.v_chevron .activitySegment {
+  position: relative;
+  flex: 1 1 0;
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1f2937;
+  text-align: center;
+  transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+  box-shadow: none;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  z-index: 1; /* 기본 레이어 */
+}
+
+/* ▶ 중간 경계: 오른쪽 꼬리(오버레이) — 모든 마지막 제외 칸에 생성 */
+.v_chevron .activitySegment:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: calc(-1 * var(--notch) + 1px);   /* +1px로 헤어라인 방지 */
+  width: var(--notch);
+  height: 100%;
+  background: inherit;                    /* 현재 세그먼트 색 */
+  pointer-events: none;
+  clip-path: polygon(0 0, 100% 50%, 0 100%); /* 오른쪽을 향한 삼각형 ▶ */
+  transform: translateZ(0);
+  z-index: 2; /* 본체 위, 텍스트 아래 */
+}
+
+/* ▶ 시작 캡: 왼쪽을 사선으로 잘라 > 느낌 주기(밖으로 못 내보내도 OK) */
+.v_chevron .activitySegment:first-child {
+  border-top-left-radius: var(--radius);
+  border-bottom-left-radius: var(--radius);
+}
+.v_chevron .activitySegment:first-child::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;                     /* 왼쪽에서 안쪽으로 잘라냄 */
+  width: var(--notch);
+  height: 100%;
+  background: var(--canvas);   /* 바깥 배경색으로 '깎기' */
+  pointer-events: none;
+  clip-path: polygon(0 0, 0 100%, 100% 50%); /* ◀ 모양의 '캔버스 칼'로 잘라 >처럼 보이게 */
+  z-index: 2;
+}
+
+/* ▶ 끝 캡(핵심): 마지막 칸 오른쪽으로 '튀어나오는' 삼각형 추가 → > 모양 */
+.v_chevron .activitySegment:last-child {
+  /* 오른쪽 둥근 모서리는 제거(뾰족을 내보낼 거라 불필요) */
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.v_chevron .activitySegment:last-child::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: calc(-1 * var(--notch));         /* 컨테이너 밖으로 내보냄 */
+  width: var(--notch);
+  height: 100%;
+  background: inherit;                    /* 마지막 칸 색상 그대로 */
+  pointer-events: none;
+  clip-path: polygon(0 0, 100% 50%, 0 100%); /* ▶ (오른쪽 향) */
+  z-index: 2;
+}
+
+/* 텍스트는 항상 최상위 */
+.v_chevron .activitySegmentInner {
+  position: relative;
+  z-index: 3;
+}
+
+/* 왼쪽일수록 더 위로 오게: 꼬리가 오른쪽 칸을 덮도록 */
+.v_chevron .activitySegment:nth-child(1) { z-index: 4; }
+.v_chevron .activitySegment:nth-child(2) { z-index: 3; }
+.v_chevron .activitySegment:nth-child(3) { z-index: 2; }
+.v_chevron .activitySegment:nth-child(4) { z-index: 1; }
+
+/* 내용물 */
+.activitySegmentInner { display: flex; flex-direction: column; gap: 4px; padding: 6px 8px; }
+.activityLabel { font-size: 12px; font-weight: 700; }
+.activitySub   { font-size: 11px; opacity: .9; }
+
+/* 강조/호버 */
+.v_chevron .active {
+  transform: translateY(-2px) scale(1.02);
+  filter: saturate(1.05) contrast(1.04);
+  box-shadow: 0 8px 18px rgba(0,0,0,.12);
+  z-index: 5;
+}
+.v_chevron .activitySegment:not(.active):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,.10);
+}
+
+/* 포인터 오버레이 */
+.activityPointerWrap {
+  position: absolute;
+  top: -72px;                 /* 포인터 이미지 높이에 맞게 조절 */
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  pointer-events: none;
+  z-index: 20;                /* 리본 위로 */
+}
+.activityPointerIcon {
+  width: 50px;                /* 보유한 이미지 크기에 맞게 */
+  height: 90px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,.15));
+}

@@ -1,122 +1,108 @@
-import React, { useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useMe } from '../../hooks/useMe';
-import styles from './MyReportPage.module.css';
-import UserInfo from '../components/UserInfo';
-import BmiChart from '../components/BmiChart';
-import { getBMICategory } from "../hooks/bmi.js";
+import { useMe } from '../../hooks/useMe'; 
 
-// ====== 계산 유틸 ======
-function calcBMI(weightKg, heightCm) {
-  if (!weightKg || !heightCm) return null;
-  const h = heightCm / 100;
-  return Number((weightKg / (h * h)).toFixed(2));
-}
+import GoalList from '../components/GoalList';
+import ReportHeader from '../components/ReportHeader';
+import ProgressBar from '../components/ProgressBar';
+import BmiDisplay from '../components/BmiDisplay';
+import CalorieReport from '../components/CalorieReport';
+import '../myreport.css';
 
-function calcBMR(weightKg, heightCm, age, gender) {
-  if (!weightKg || !heightCm || !age || !gender) return null;
-  const base = 10 * weightKg + 6.25 * heightCm - 5 * age;
-  return gender === 'MALE'
-    ? Number((base + 5).toFixed(2))
-    : Number((base - 161).toFixed(2));
-}
-
-export default function MyReportPage() {
+const MyReportPage = () => {
   const { me, loading: meLoading } = useMe();
-  const [profile, setProfile] = useState(null);
-  const [pageLoading, setPageLoading] = useState(true);
+  const [reportData, setReportData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!meLoading && me) {
-      (async () => {
+      const fetchReportData = async () => {
         try {
-          const res = await axios.get('http://localhost:8080/profile', {
-            withCredentials: true,
-          });
-          setProfile(res.data);
-        } catch (err) {
-          console.error('프로필 불러오기 실패', err);
+          // 1. 실제로 존재하는 /profile API만 호출합니다.
+          const profileRes = await axios.get("http://localhost:8080/profile", { withCredentials: true });
+          const profile = profileRes.data;
+
+          // 2. 아직 백엔드에 없는 리포트 상세 정보는 임시 데이터(mock)로 만듭니다.
+          //    나중에 실제 API가 생기면 이 부분을 API 호출로 바꾸면 됩니다.
+          const mockReportDetails = {
+            goals: [
+              { id: 1, text: '지난 목표 ∙ 이미 종료된 목표', isCurrent: false },
+              { id: 2, text: '지난 목표 ∙ 이미 종료된 목표', isCurrent: false },
+              { id: 3, text: '현재 진행 중인 목표', isCurrent: true },
+            ],
+            startDate: '2025.08.30',
+            endDate: '2025.09.26',
+            targetWeight: 88,
+            dailyCalories: 1580,
+            mealCalories: 526,
+            mealPlan: {
+              carbs: { name: '쌀밥', amount: '120g', kcal: 156 },
+              protein: { name: '닭가슴살', amount: '160g', kcal: 264 },
+              fat: { name: '올리브오일', amount: '2 tsp (10ml)', kcal: 80 },
+              vegetables: { name: '야채', amount: '100g', kcal: 25 },
+              totalKcal: 525,
+            },
+          };
+          
+          // 3. 실제 데이터(profile)와 임시 데이터(mock)를 합쳐서 최종 데이터를 만듭니다.
+          const combinedData = {
+            goals: mockReportDetails.goals,
+            goalPeriod: { start: mockReportDetails.startDate, end: mockReportDetails.endDate },
+            weights: { start: profile.weight, target: mockReportDetails.targetWeight },
+            user: { height: profile.height, gender: profile.gender?.toUpperCase() },
+            dailyCalories: mockReportDetails.dailyCalories,
+            mealCalories: mockReportDetails.mealCalories,
+            mealPlan: mockReportDetails.mealPlan,
+          };
+          
+          setReportData(combinedData);
+
+        } catch (error) {
+          console.error("프로필 데이터를 불러오는 데 실패했습니다.", error);
         } finally {
-          setPageLoading(false);
+          setLoading(false);
         }
-      })();
+      };
+
+      fetchReportData();
     } else if (!meLoading && !me) {
-      setPageLoading(false);
+      setLoading(false);
     }
   }, [me, meLoading]);
 
-  if (pageLoading) return <div className={styles.container}>로딩 중...</div>;
-  if (!me || !profile) {
-    return <div className={styles.container}>로그인이 필요하거나 프로필 정보를 불러올 수 없습니다.</div>;
+  // --- 렌더링 로직 (이전과 동일) ---
+
+  if (loading) {
+    return <div className="report-loading">리포트 데이터를 불러오는 중입니다...</div>;
   }
 
-  // 성별 통일
-  const genderEnum =
-    profile.gender?.trim?.().toUpperCase() === 'MALE'
-      ? 'MALE'
-      : profile.gender?.trim?.().toUpperCase() === 'FEMALE'
-      ? 'FEMALE'
-      : null;
+  if (!reportData) {
+    return <div className="report-error">리포트 데이터가 없거나 불러올 수 없습니다.</div>;
+  }
 
-  // 계산 (백엔드 값 있으면 우선 사용, 없으면 계산)
-   const bmi =
-    (profile && Number.isFinite(Number(profile.bmi)))
-      ? Number(profile.bmi)
-      : calcBMI(profile?.weight, profile?.height);
-
-  const bmr =
-    (profile && Number.isFinite(Number(profile.basalMetabolism)))
-      ? Number(profile.basalMetabolism)
-      : calcBMR(profile?.weight, profile?.height, profile?.age, genderEnum);
-
-  const displayData = {
-    nickname: me.nickname,
-    height: profile.height,
-    weight: profile.weight,
-    gender: genderEnum === 'MALE' ? '남성' : genderEnum === 'FEMALE' ? '여성' : '미지정',
-    age: profile.age,
-    activityLevel: profile.activityLevel,
-    bmi: bmi,
-    basalMetabolism: bmr,
-    bmiCategory: getBMICategory(bmi),
-    targetPeriod: '4주 (2025.09.22 ~ 2025.10.19)',
-  };
+  const heightInMeters = reportData.user.height / 100;
+  const bmiValue = (reportData.weights.start / (heightInMeters * heightInMeters)).toFixed(1);
 
   return (
-    <div className={styles.background}>
-      <div className={styles.container}>
-        <UserInfo user={displayData} />
-
-        <div className={styles.section}>
-          <p>
-            이 프로그램에서는 <strong>미플린–세인트 조르 공식</strong>을 사용해 BMR을 계산합니다.
-          </p>
+    <div className="my-report-container">
+      <GoalList goals={reportData.goals} />
+      <main className="report-content">
+        <ReportHeader period={reportData.goalPeriod} weights={reportData.weights} />
+        <div className="report-section progress-bmi-section">
+          <ProgressBar startDate={reportData.goalPeriod.start} endDate={reportData.goalPeriod.end} />
+          <BmiDisplay 
+            bmiValue={bmiValue} 
+            gender={reportData.user.gender === 'FEMALE' ? 'female' : 'man'}
+          />
         </div>
-
-        <BmiChart bmi={displayData.bmi} />
-
-        <div className={styles.section}>
-          <h3>활동 지수 {displayData.activityLevel}</h3>
-          <ol className={styles.activityList}>
-            <li>사무직 (운동 거의 없음) = × 0.2</li>
-            <li>가벼운 운동 주 2회 = × 0.3</li>
-            <li>중간 강도 운동 주 3~5일 = × 0.5</li>
-            <li>고강도 운동 주 6~7일 = × 0.7</li>
-          </ol>
-        </div>
-
-        <div className={styles.section}>
-          <h3>계산 결과</h3>
-          <ul>
-            <li>BMI: {displayData.bmi} ({displayData.bmiCategory})</li>
-            <li>BMR(기초대사량): {Math.round(displayData.basalMetabolism)} kcal</li>
-          </ul>
-        </div>
-
-        <div className={styles.targetPeriod}>
-          목표 기간 : {displayData.targetPeriod}
-        </div>
-      </div>
+        <CalorieReport
+          dailyCalories={reportData.dailyCalories}
+          mealCalories={reportData.mealCalories}
+          mealPlan={reportData.mealPlan}
+        />
+      </main>
     </div>
   );
-}
+};
+
+export default MyReportPage;

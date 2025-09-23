@@ -159,21 +159,24 @@ export default function PostList() {
       <div>
         {!loading &&
           !err &&
-          data.content.map((p) => (
-            <div key={p.id} className={styles.postItem}>
-              <Link
-                to={`/community/posts/${p.id}`}
-                state={{ from: "list" }}
-                className={styles.postLink}
-              >
-                {p.title}
-              </Link>
-              <div className={styles.postMeta}>
-                {p.authorNickname ?? "익명"} ·{" "}
-                {new Date(p.createdAt).toLocaleString()}
-              </div>
-            </div>
-          ))}
+         data.content.map((p) => (
+  <Link
+    key={p.id} // key는 가장 바깥 요소인 Link로 이동합니다.
+    to={`/community/posts/${p.id}`}
+    state={{ from: "list" }}
+    className={styles.postItem} // div의 클래스를 Link로 옮깁니다.
+  >
+    {/* 이제 div는 Link 안쪽에 위치합니다. */}
+    <div>
+      <div className={styles.postTitle}>{p.title}</div>
+      <div className={styles.postMeta}>
+        {p.authorNickname ?? "익명"} ·{" "}
+        {new Date(p.createdAt).toLocaleString()}
+      </div>
+    </div>
+  </Link>
+))
+          }
       </div>
 
       {!loading && data.totalPages > 1 && (

@@ -13,19 +13,31 @@ export default function MainPage({ me, onLoginClick, onAccountClick }) {
       <aside className="side">
         <img className="bg" src={leftImg} alt="left bg" />
         <nav className="menu">
-          <button className="menuBtn ivory" onClick={me ? onAccountClick : onLoginClick}>
+          <button
+            className="menuBtn ivory"
+            onClick={me ? onAccountClick : onLoginClick}
+          >
             {me?.nickname ? `${me.nickname}님` : "Login"}
           </button>
-          <button className="menuBtn sky" onClick={go("AI 식단 추천")}>AI 식단 추천</button>
-          <button className="menuBtn ivory" onClick={() => nav("/my-report")}>나의 리포트</button>
-          <button className="menuBtn sky" onClick={() => nav("/community/posts")}>커뮤니티</button>
+<button className="menuBtn sky" onClick={() => nav("/ai-with-report")}>
+            AI 식단 추천
+          </button>{" "}
+          <button className="menuBtn ivory" onClick={() => nav("/my-report")}>
+            나의 리포트
+          </button>
+          <button
+            className="menuBtn sky"
+            onClick={() => nav("/community/posts")}
+          >
+            커뮤니티
+          </button>
         </nav>
       </aside>
 
       <section className="hero">
         <img src={centerImg} alt="health" />
         <div className="overlay" />
-        <button className="heroBtn" onClick={() => goPlanSetup('HEALTH')}>
+        <button className="heroBtn" onClick={() => goPlanSetup("HEALTH")}>
           <div className="title">
             <strong>Health</strong>
             <span>건강/근력</span>
@@ -36,7 +48,7 @@ export default function MainPage({ me, onLoginClick, onAccountClick }) {
       <section className="hero">
         <img src={rightImg} alt="lean" />
         <div className="overlay" />
-        <button className="heroBtn" onClick={() => goPlanSetup('LEAN')}>
+        <button className="heroBtn" onClick={() => goPlanSetup("LEAN")}>
           <div className="title">
             <strong>Lean</strong>
             <span>다이어트</span>

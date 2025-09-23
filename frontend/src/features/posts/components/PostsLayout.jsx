@@ -6,7 +6,7 @@ import leanImage from '../../../assets/lean.png';
 export default function PostsLayout() {
   const layoutStyle = {
     display: "grid",
-    gridTemplateColumns: "1fr 920px 1fr",
+    gridTemplateColumns: "1fr 1050px 1fr",
     minHeight: "100vh",
     boxSizing: "border-box",
   };

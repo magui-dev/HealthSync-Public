@@ -2,6 +2,8 @@ import React, { useMemo } from "react";
 import styles from "./BmiChart.module.css";
 import { buildSegments, buildBoundaryTicks, positionArrow } from "../hooks/bmi";
 
+
+
 export default function BmiChart({ bmi }) {
   const segments = useMemo(() => buildSegments(), []);
   const boundaryTicks = useMemo(() => buildBoundaryTicks(), []);

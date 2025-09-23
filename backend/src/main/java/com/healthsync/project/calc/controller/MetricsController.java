@@ -29,4 +29,7 @@ public class MetricsController {
             return ResponseEntity.badRequest().body("BMI 계산 중 오류: " + e.getMessage());
         }
     }
+
+
+
 }

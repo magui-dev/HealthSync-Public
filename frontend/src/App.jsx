@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import PlanSetup from "./pages/PlanSetup";
+import MyReportPage from "./myreport/pages/MyReportPage"; // 이 import 구문이 있는지 확인
 
 import AuthSuccess from "./pages/AuthSuccess";
 import Me from "./pages/Me";
@@ -10,7 +11,8 @@ import Header from "./components/Header/Header";
 import LoginModal from "./components/LoginModal";
 import PostRoutes from "./features/posts/Routes";
 import ProfilePage from "./pages/ProfilePage/ProfilePage";
-import MyReportPage from "./myreport/pages/MyReportPage";
+import AIWithReportPage from "./openaiapi/pages/AIWithReportPage";
+
 // import { clearTokens } from "./token";
 import { apiLogout } from "./api";
 import { useMe } from "./hooks/useMe";
@@ -24,8 +26,8 @@ function Shell() {
   const closeLogin = () => setShowLogin(false);
 
   const logout = async () => {
-    await apiLogout();  // 서버가 쿠키 만료 처리
-    reset();            // 요청 자체를 안 보냄 → 네트워크 탭에 빨간 줄 없음
+    await apiLogout(); // 서버가 쿠키 만료 처리
+    reset(); // 요청 자체를 안 보냄 → 네트워크 탭에 빨간 줄 없음
   };
 
   useEffect(() => {
@@ -42,34 +44,45 @@ function Shell() {
     if (next && next.trim()) changeNickname(next.trim());
   };
 
-    const isRootPath = location.pathname === "/";
+  const isRootPath = location.pathname === "/";
 
   return (
     <>
       {isRootPath ? (
         /* 메인 페이지 */
-        <MainPage me={me} onLoginClick={openLogin} onAccountClick={onAccountClick} />
-      ) : (
-      <>
-        {/* 헤더 영역 (고정) */}
-        <Header
+        <MainPage
           me={me}
           onLoginClick={openLogin}
-          onLogoutClick={logout}
           onAccountClick={onAccountClick}
         />
-        
-        {/* 메인 영역 (페이지별로 바뀜) */}
-        <div className="mainArea" style={{ marginTop: 64 }}>
-          <Routes>
-            <Route path="/auth/success" element={<AuthSuccess onDone={refresh} />} />
-            <Route path="/me" element={<Me />} />
-            <Route path='profile' element={<ProfilePage/>}/>
-            <Route path="/community/posts/*" element={<PostRoutes />} />
-            <Route path="/my-report" element={<MyReportPage />} />
-          </Routes>
-        </div>
-      </>
+      ) : (
+        <>
+          {/* 헤더 영역 (고정) */}
+          <Header
+            me={me}
+            onLoginClick={openLogin}
+            onLogoutClick={logout}
+            onAccountClick={onAccountClick}
+          />
+
+          {/* 메인 영역 (페이지별로 바뀜) */}
+          <div className="mainArea" style={{ marginTop: 64 }}>
+            <Routes>
+              <Route
+                path="/auth/success"
+                element={<AuthSuccess onDone={refresh} />}
+              />
+              <Route path="/me" element={<Me />} />
+              <Route path="profile" element={<ProfilePage />} />
+              <Route path="/my-report" element={<MyReportPage />} />{" "}
+              <Route path="/community/posts/*" element={<PostRoutes />} />
+              <Route
+                path="/ai-with-report"
+                element={<AIWithReportPage />}
+              />{" "}
+            </Routes>
+          </div>
+        </>
       )}
 
       <LoginModal open={showLogin} onClose={closeLogin} />

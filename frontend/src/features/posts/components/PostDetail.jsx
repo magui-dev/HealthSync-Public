@@ -13,6 +13,8 @@ import {
 } from "../api";
 import { useMe } from "../../../hooks/useMe";
 import "./PostDetail.css"; // CSS 파일을 불러옵니다.
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm"; // 1. GFM 플러그인을 import 합니다.
 
 export default function PostDetail() {
   // ... (데이터 로딩, 상태 관리, 핸들러 함수 등 모든 로직은 이전과 동일합니다) ...
@@ -113,7 +115,7 @@ export default function PostDetail() {
     return true;
   }, [post]);
 
- const onAddComment = async (e) => {
+  const onAddComment = async (e) => {
     e.preventDefault();
     if (!canWriteComment) {
       alert("이 게시글은 댓글이 차단되었습니다.");
@@ -161,7 +163,7 @@ export default function PostDetail() {
       setComments((prev) => prev.filter((c) => c.id !== optimistic.id));
     }
   };
-  
+
   const onEditComment = async (c) => {
     const next = window.prompt("댓글 수정", c.content || "");
     if (next == null) return;
@@ -262,93 +264,95 @@ export default function PostDetail() {
         {new Date(post.createdAt).toLocaleString()}
       </div>
       <div className="post-content">
-        {post.contentTxt ?? post.content ?? ""}
-      </div>
-
-      {/* 좋아요/북마크 UI */}
-      <div className="post-actions">
-        <button
-          onClick={handleLike}
-          className={`like-button ${isLiked ? "active" : ""}`}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24">
-            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-          </svg>
-          <span>좋아요 {likeCount}</span>
-        </button>
-        <button
-          onClick={handleBookmark}
-          className={`bookmark-button ${isBookmarked ? "active" : ""}`}
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24">
-            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
-          </svg>
-          <span>북마크</span>
-        </button>
-      </div>
-
-      {/* 댓글 UI */}
-      <h2 className="comments-title">댓글</h2>
-      {isBlocked && (
-        <div className="comment-blocked-notice">
-          이 게시글은 작성자가 댓글을 차단했습니다.
-        </div>
-      )}
-
-      <ul className="comment-list">
-        {comments.map((c) => (
-          <li
-            key={c.id}
-            className={`comment-item ${c.__optimistic ? "optimistic" : ""}`}
+        {/* 2. remarkPlugins 속성에 플러그인을 추가합니다. */}
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          {post.contentTxt ?? post.content ?? ""}
+        </ReactMarkdown>
+        {/* 좋아요/북마크 UI */}
+        <div className="post-actions">
+          <button
+            onClick={handleLike}
+            className={`like-button ${isLiked ? "active" : ""}`}
           >
-            <div className="comment-meta">
-              {c.authorNickname ?? "익명"} ·{" "}
-              {new Date(c.createdAt).toLocaleString()}
-            </div>
-            <div className="comment-content">{c.content}</div>
-            {isMine(c) && (
-              <div className="comment-actions">
-                <button
-                  type="button"
-                  onClick={() => onEditComment(c)}
-                  className="action-button"
-                >
-                  수정
-                </button>
-                <button
-                  type="button"
-                  onClick={() => onDeleteComment(c)}
-                  className="action-button danger"
-                >
-                  삭제
-                </button>
-              </div>
-            )}
-          </li>
-        ))}
-        {comments.length === 0 && canWriteComment && (
-          <li className="no-comments">첫 댓글을 남겨보세요.</li>
-        )}
-      </ul>
+            <svg width="20" height="20" viewBox="0 0 24 24">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+            <span>좋아요 {likeCount}</span>
+          </button>
+          <button
+            onClick={handleBookmark}
+            className={`bookmark-button ${isBookmarked ? "active" : ""}`}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <span>북마크</span>
+          </button>
+        </div>
 
-      {canWriteComment ? (
-        <form onSubmit={onAddComment} className="comment-form">
-          <input
-            name="text"
-            placeholder="댓글 달기..."
-            className="comment-input"
-          />
-          <button className="comment-submit-button">등록</button>
-        </form>
-      ) : (
-        !isBlocked && (
-          <div className="comment-disabled-notice">
-            {post.visibility === "PRIVATE" && !isMine(post)
-              ? "비공개 게시글은 작성자만 댓글을 남길 수 있어요."
-              : "댓글 작성이 차단되었습니다."}
+        {/* 댓글 UI */}
+        <h2 className="comments-title">댓글</h2>
+        {isBlocked && (
+          <div className="comment-blocked-notice">
+            이 게시글은 작성자가 댓글을 차단했습니다.
           </div>
-        )
-      )}
+        )}
+
+        <ul className="comment-list">
+          {comments.map((c) => (
+            <li
+              key={c.id}
+              className={`comment-item ${c.__optimistic ? "optimistic" : ""}`}
+            >
+              <div className="comment-meta">
+                {c.authorNickname ?? "익명"} ·{" "}
+                {new Date(c.createdAt).toLocaleString()}
+              </div>
+              <div className="comment-content">{c.content}</div>
+              {isMine(c) && (
+                <div className="comment-actions">
+                  <button
+                    type="button"
+                    onClick={() => onEditComment(c)}
+                    className="action-button"
+                  >
+                    수정
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onDeleteComment(c)}
+                    className="action-button danger"
+                  >
+                    삭제
+                  </button>
+                </div>
+              )}
+            </li>
+          ))}
+          {comments.length === 0 && canWriteComment && (
+            <li className="no-comments">첫 댓글을 남겨보세요.</li>
+          )}
+        </ul>
+
+        {canWriteComment ? (
+          <form onSubmit={onAddComment} className="comment-form">
+            <input
+              name="text"
+              placeholder="댓글 달기..."
+              className="comment-input"
+            />
+            <button className="comment-submit-button">등록</button>
+          </form>
+        ) : (
+          !isBlocked && (
+            <div className="comment-disabled-notice">
+              {post.visibility === "PRIVATE" && !isMine(post)
+                ? "비공개 게시글은 작성자만 댓글을 남길 수 있어요."
+                : "댓글 작성이 차단되었습니다."}
+            </div>
+          )
+        )}
+      </div>
     </div>
   );
 }

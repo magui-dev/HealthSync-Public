@@ -39,34 +39,38 @@
   padding: 4px;
 }
 
+/* 화살표 래퍼: 막대 위에만 오게, 내부는 기본 스택킹 컨텍스트 그대로 */
+.bmiArrowWrap { 
+  position: absolute; 
+  top: -65px; 
+  transform: translateX(-50%); 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  gap: 6px;
+  pointer-events: none; 
+  z-index: 5;            /* 막대 위에만 오도록 */
+  /* isolation: isolate;  // ← 필요 없음. 지우세요. */
+}
+
+/* ② 아이콘(이미지) — flex 순서는 그대로, '뒤'로만 보내기 */
 .bmiArrowIcon {
-  width: 50px;   /* 원하는 크기로 */
+  /* position: absolute;  // ← 이거 지우세요! */
+  position: relative; 
+  top: 2px;     /* z-index가 먹도록만 relative */
+  width: 50px;
   height: 30px;
   object-fit: contain;
-  margin: -8px;    /* 아이콘과 화살표 사이 간격 */
+  margin: -7px;           /* 겹치고 싶으면 이걸로만 미세 조정 */
+  z-index: 0;             /* ✅ '맨 뒤' */
 }
 
-
-/* 화살표 래퍼는 그대로 (막대 위에서 가운데 정렬) */
-.bmiArrowWrap { 
-    position:absolute; 
-    top:-65px; 
-    transform:translateX(-50%); 
-    display:flex; 
-    flex-direction:column; 
-    align-items:center; 
-    gap: 6px;
-    pointer-events:none; 
-    z-index:3; }
-
-/* SVG 헤드: 크기/여백만 제어 */
-.bmiArrowHead { 
-    display:block; 
-}
-
+/* ① 값(텍스트) — 이미지 앞 */
 .bmiArrowValue {
-   margin: 0;   
-  display: inline-block;       /* 전체 폭 차지 방지 */
+  position: relative;     /* ✅ z-index 적용 */
+  z-index: 2;             /* ✅ 이미지보다 앞 */
+  margin: 0;   
+  display: inline-block;
   font-size: 12px;
   color: #222;
   background: #fff;
@@ -76,6 +80,17 @@
   box-shadow: 0 1px 2px rgba(0,0,0,0.06);
   white-space: nowrap;
 }
+
+/* ③ ▼ 화살표(삼각형) — 이미지 앞 */
+.bmiArrowHead { 
+  position: relative;     /* ✅ z-index 적용 */
+  z-index: 2;             /* ✅ 이미지보다 앞 */
+  display: block; 
+}
+
+/* (선택) 막대 세그먼트는 굳이 스택 올릴 필요 X */
+.bmiSegment { position: relative; z-index: 1; }
+
 .bmiClampNote { color: #888; font-size: 11px; }
 
 /* ⬇️ 눈금: 막대와 겹치지 않게 간격/높이 확보 */
@@ -111,3 +126,4 @@
   line-height: 1;
   transform: translateX(-50%);   /* ✅ 라벨만 중앙 보정 */
 }
+

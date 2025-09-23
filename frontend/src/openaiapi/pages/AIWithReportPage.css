@@ -1,0 +1,21 @@
+.ai-with-report {
+  display: flex;
+  height: calc(100vh - 64px);
+  justify-content: center; /* 전체를 가운데 정렬 */
+  gap: 5px; /* 두 패널 사이 간격 */
+  padding: 0 32px; /* 양쪽 여백 */
+  box-sizing: border-box;
+}
+
+.left-panel {
+  width: 800px;   /* 원하는 픽셀 */
+  border-right: 1px solid #ddd;
+  overflow: auto;
+  background: #fff;
+}
+
+.right-panel {
+  width: 900px;   /* 원하는 픽셀 */
+  overflow: auto;
+  background: #fff;
+}

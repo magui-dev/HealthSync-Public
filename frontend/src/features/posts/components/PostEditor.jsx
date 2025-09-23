@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { createPost, getPost, updatePost } from "../api";
 import "./PostEditor.css"; // CSS 파일을 불러옵니다.
 
+
 const VIS = {
   PUBLIC: "PUBLIC",
   PRIVATE: "PRIVATE",
@@ -18,6 +19,8 @@ export default function PostEditor() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const nav = useNavigate();
+
+
 
   useEffect(() => {
     if (!isEdit) return;
