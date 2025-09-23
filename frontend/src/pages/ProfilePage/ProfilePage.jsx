@@ -186,6 +186,7 @@ export default function ProfilePage() {
                 <h3>프로필 사진</h3>
                 <div className="profileImageEdit">
                   <img src={tempProfileImage || "./public/images/profile-images/default-profile1.png"} alt="profile" className="profileImage" />
+                  
                   <input type="file" ref={fileInputRef} onChange={handleImageChange} style={{ display: 'none' }} accept="image/*" />
                   <button className="changeImageBtn" onClick={handleImageUpload}>사진 변경</button>
                   <button className="removeImageBtn" onClick={handleImageDelete}>삭제</button>

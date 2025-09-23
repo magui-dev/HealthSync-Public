@@ -13,9 +13,9 @@ export default function Header({ me, onLoginClick, onLogoutClick, onAccountClick
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   // 회원 닉네임(label) 버튼 클릭 시, 드롭다운 열기/닫기 
-  const handleProfileClick = () => {
-    setIsDropdownVisible(!isDropdownVisible);
-  };
+  const handleProfileClick = () => {
+   setIsDropdownVisible(!isDropdownVisible);
+  };
 
   useEffect(() => {
     const handleClickOutside = (e) => {
