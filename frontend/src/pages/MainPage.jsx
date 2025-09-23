@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 export default function MainPage({ me, onLoginClick, onAccountClick }) {
   const go = (msg) => () => alert(msg);
   const nav = useNavigate();
+  // 목표설정 구간
+  const goPlanSetup = (type) => nav(`/plan?type=${type}`);
 
   return (
     <div className="landing">

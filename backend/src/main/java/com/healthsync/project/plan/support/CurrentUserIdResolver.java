@@ -20,21 +20,39 @@ public class CurrentUserIdResolver {
     public Long requireCurrentUserId() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) {
-            throw new IllegalStateException("Unauthenticated");
+            throw new org.springframework.security.access.AccessDeniedException("Unauthenticated");
         }
 
-        // 1) 이메일 시도
+        // 1) 이메일 우선
         String email = resolveEmail(auth);
         if (has(email)) {
-            Optional<Long> id = userRepository.findIdByEmail(email);
-            if (id.isPresent()) return id.get();
+            var byEmail = userRepository.findIdByEmail(email);
+            if (byEmail.isPresent()) return byEmail.get();
         }
 
-        // 2) 닉네임 시도 (프로바이더 속성 → 마지막에 auth.getName())
+        // 2) 닉네임
         String nickname = resolveNickname(auth);
         if (has(nickname)) {
-            return userRepository.findIdByNickname(nickname)
-                    .orElseThrow(() -> new IllegalStateException("User not found by nickname: " + nickname));
+            var byNick = userRepository.findIdByNickname(nickname);
+            if (byNick.isPresent()) return byNick.get();
+        }
+
+        // 3) 마지막 폴백: auth.getName()을 이메일/닉네임 둘 다로 시도
+        String name = auth.getName();
+        if (has(name)) {
+            return userRepository.findIdByEmail(name)
+                    .or(() -> userRepository.findIdByNickname(name))
+                    .or(() -> {
+                        try {
+                            // 일부 프로바이더는 getName()이 내부 numeric id인 경우가 있음
+                            Long maybeId = Long.valueOf(name);
+                            return userRepository.findById(maybeId).map(u -> u.getId());
+                        } catch (Exception ignore) {
+                            return Optional.empty();
+                        }
+                    })
+                    .orElseThrow(() ->
+                            new org.springframework.security.access.AccessDeniedException("User not mapped"));
         }
 
         throw new IllegalStateException("Cannot resolve current user: no email/nickname in principal");

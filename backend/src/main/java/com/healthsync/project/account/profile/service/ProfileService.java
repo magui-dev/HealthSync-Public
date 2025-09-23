@@ -31,5 +31,4 @@ public class ProfileService {
         // 트랜잭션 종료 시 변경 감지(Dirty Checking)를 통해 자동으로 DB에 반영
         return profile;
     }
-
 }

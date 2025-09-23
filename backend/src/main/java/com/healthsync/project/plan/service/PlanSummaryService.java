@@ -2,6 +2,7 @@ package com.healthsync.project.plan.service;
 
 
 import com.healthsync.project.plan.domain.Goal;
+import com.healthsync.project.plan.domain.GoalType;
 import com.healthsync.project.plan.dto.PlanSummaryDto;
 import com.healthsync.project.plan.repository.GoalRepository;
 import lombok.RequiredArgsConstructor;
@@ -10,10 +11,25 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class PlanSummaryService {
+
+    private static final Map<GoalType, int[]> MACRO_PRESET = Map.of(
+            GoalType.LEAN,   new int[]{40, 35, 25},  // 탄/단/지 - 감량
+            GoalType.HEALTH, new int[]{45, 35, 20}   // 탄/단/지 - 유지/근력
+    );
+
+    private PlanSummaryDto.MacroRatio resolveRatio(GoalType type){
+        int[] r = MACRO_PRESET.getOrDefault(type, new int[]{40,40,20});
+        if (r[0] + r[1] + r[2] != 100)
+            throw new IllegalStateException("macro ratio must sum to 100");
+        // PlanSummaryDto.MacroRatio(car b, protein, fat) 순서에 맞춤
+        return new PlanSummaryDto.MacroRatio(r[0], r[1], r[2]);
+    }
+
     private final GoalRepository goals;
 
     @Transactional(readOnly = true)
@@ -33,9 +49,9 @@ public class PlanSummaryService {
         // 프로필 붙으면 아래계산 자동블록 활성화
         Integer tdee = null, dailyKcal = null, perMealKcal = null;
         int mealsPerDay = 3;  /** mealsPerDay = 3 : 기본 끼니 수는 3으로 설정(나중에 바꿀 여지). */
-        PlanSummaryDto.MacroRatio ratio = new PlanSummaryDto.MacroRatio(50, 30, 20);  /** 탄단지 비율 */
-        PlanSummaryDto.MacroGrams daily = null, perMeal = null;
 
+        PlanSummaryDto.MacroRatio ratio = resolveRatio(g.getType());
+        PlanSummaryDto.MacroGrams daily = null, perMeal = null;
         return new PlanSummaryDto(false, List.of("sex", "age", "heightCm", "activityLevel"),
                 tdee, dailyKcal, mealsPerDay, perMealKcal, ratio, daily, perMeal, forecast);
     }

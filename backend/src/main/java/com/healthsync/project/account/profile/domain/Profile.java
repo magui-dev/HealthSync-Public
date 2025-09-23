@@ -95,4 +95,9 @@ public class Profile {
         this.profileImageUrl = profileRequest.getProfileImageUrl();
         touchUpdatedAt();
     }
+
+    @PreUpdate
+    void preUpdate() {
+        this.updatedAt = java.time.LocalDateTime.now();
+    }
 }
