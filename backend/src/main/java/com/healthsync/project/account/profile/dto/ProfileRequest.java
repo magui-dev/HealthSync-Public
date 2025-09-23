@@ -16,4 +16,5 @@ public class ProfileRequest {
     private BigDecimal height;
     private BigDecimal weight;
     private int activityLevel;
+    private String profileImageUrl;
 }

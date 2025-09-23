@@ -36,5 +36,10 @@ public class GlobalExceptionHandler {
         return Map.of("message", e.getMessage());
     }
 
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public Map<String, String> unauth(org.springframework.security.access.AccessDeniedException e) {
+        return Map.of("message", e.getMessage());
+    }
 
 }
