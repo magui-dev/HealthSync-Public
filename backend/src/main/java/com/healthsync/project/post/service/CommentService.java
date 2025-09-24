@@ -122,12 +122,22 @@ public class CommentService {
 
     private void assertOwnerOrThrow(PostComment c, Long userId) {
         Long ownerId = (c.getUser() == null) ? null : c.getUser().getId();
+        String nick = null;
+
         if (ownerId != null && !ownerId.equals(userId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "본인 댓글만 처리할 수 있습니다.");
         }
     }
 
     private CommentResponse toResponse(PostComment c) {
+        Long uid = (c.getUser() != null) ? c.getUser().getId() : null;
+        String nick = null;
+        if (c.getUser() != null) {
+            // User 엔티티의 닉네임 필드에 맞춰서
+            // 예: getNickname() 혹은 getName()
+            nick = c.getUser().getNickname(); // ← 여기만 실제 필드명에 맞춰 주세요
+        }
+
         return CommentResponse.builder()
                 .id(c.getId())
                 .postId(c.getPost().getId())
@@ -136,6 +146,7 @@ public class CommentService {
                 .deleted(c.isDeleted())
                 .createdAt(c.getCreatedAt())
                 .updatedAt(c.getUpdatedAt())
+                .authorNickname(nick)
                 .build();
     }
 }

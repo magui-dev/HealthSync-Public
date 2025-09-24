@@ -1,8 +1,154 @@
+// PostList.jsx
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { listPosts, myBookmarks, myLikes } from "../api";
 import { useMe } from "../../../hooks/useMe";
-import styles from "./PostList.module.css"; // CSS 모듈 파일을 불러옵니다.
+import styles from "./PostList.module.css";
+
+const avatarCache = new Map(); // userId -> url|null
+
+// API 절대경로 보정 유틸
+const API_ORIGIN =
+  (import.meta?.env && import.meta.env.VITE_API_ORIGIN) ||
+  "http://localhost:8080";
+function resolveImageUrl(u) {
+  if (!u) return null;
+  if (/^https?:\/\//i.test(u)) return u; // 이미 절대경로면 그대로
+  if (u.startsWith("/")) return API_ORIGIN + u; // "/images/..." -> "http://localhost:8080/images/..."
+  return `${API_ORIGIN}/${u}`; // "images/..."  -> "http://localhost:8080/images/..."
+}
+
+async function fetchProfileImageUrl(userId) {
+  if (userId == null) return null;
+  const key = String(userId);
+  if (avatarCache.has(key)) return avatarCache.get(key) ?? null;
+
+  try {
+    const res = await fetch(`http://localhost:8080/profile/${key}?t=${Date.now()}`, {
+      credentials: "include",
+      cache: "no-store",
+      headers: {
+        "Cache-Control": "no-cache",
+        Pragma: "no-cache",
+      },
+    });
+
+    if (res.status === 304) {
+      return avatarCache.get(key) ?? null;
+    }
+    if (!res.ok) {
+      avatarCache.set(key, null);
+      return null;
+    }
+    
+    let data = null;
+    try {
+      data = await res.json();
+    } catch {
+      avatarCache.set(key, null);
+      return null;
+    }
+
+    const backendUrl = data?.profileImageUrl ?? null;
+
+    // **** ✅ 핵심 수정 부분 ****
+    // 백엔드가 보내준 URL이 '기본 이미지 경로'와 일치하는지 확인합니다.
+    // 여기서는 간단하게 null이 아닌지, 그리고 특정 문자열을 포함하는지로 확인합니다.
+    if (backendUrl && backendUrl.includes("/images/profile-images/")) {
+      // 프론트엔드의 public 폴더를 가리키는 로컬 경로를 그대로 사용합니다.
+      const localDefaultPath = backendUrl; 
+      avatarCache.set(key, localDefaultPath);
+      return localDefaultPath;
+    }
+
+    // 그 외의 실제 사용자 이미지 URL은 기존 로직대로 정상 처리합니다.
+    const url = resolveImageUrl(backendUrl);
+    avatarCache.set(key, url);
+    return url;
+
+  } catch {
+    avatarCache.set(key, null);
+    return null;
+  }
+}
+
+function pickAuthorId(obj) {
+  const flat =
+    obj?.authorId ??
+    obj?.userId ??
+    obj?.writerId ??
+    obj?.memberId ??
+    obj?.accountId ??
+    null;
+  if (flat != null) return String(flat);
+  const nested =
+    obj?.author?.id ??
+    obj?.user?.id ??
+    obj?.writer?.id ??
+    obj?.member?.id ??
+    obj?.account?.id ??
+    null;
+  return nested != null ? String(nested) : null;
+}
+
+function pickNickname(obj) {
+  const flat =
+    obj?.authorNickname ??
+    obj?.nickname ??
+    obj?.userNickname ??
+    obj?.writerNickname ??
+    obj?.memberNickname ??
+    obj?.authorName ??
+    obj?.name ??
+    null;
+  if (flat) return String(flat);
+  const nested =
+    obj?.author?.nickname ??
+    obj?.author?.name ??
+    obj?.user?.nickname ??
+    obj?.user?.name ??
+    obj?.writer?.nickname ??
+    obj?.writer?.name ??
+    obj?.member?.nickname ??
+    obj?.member?.name ??
+    null;
+  return nested ? String(nested) : null;
+}
+
+function Avatar({ userId, className }) {
+  const key = userId != null ? String(userId) : null;
+  const [url, setUrl] = useState(key ? avatarCache.get(key) ?? null : null);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      if (userId == null) {
+        if (alive) setUrl(null);
+        return;
+      }
+      const u = await fetchProfileImageUrl(userId);
+      if (!alive) return;
+      setUrl(u ?? null);
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [userId]);
+
+  return (
+    <img
+      className={className ?? styles.avatar}
+      src={url || "/default.png"}
+      alt="author avatar"
+      onError={(e) => {
+        if (key) {
+          avatarCache.set(key, null); // 이 URL은 실패했으므로 캐시를 null로 업데이트
+        }
+        e.currentTarget.src = "/default.png";
+      }}
+    />
+  );
+}
 
 export default function PostList() {
   const [params, setParams] = useSearchParams();
@@ -14,13 +160,12 @@ export default function PostList() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
   const [sort, setSort] = useState("createdAt,desc");
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState("all"); // "all" | "likes" | "bookmarks"
   const { me } = useMe();
 
   const page = parseInt(params.get("page") || "0", 10);
   const size = 10;
 
-  // 데이터 로딩 로직 (useEffect)은 이전과 동일합니다.
   useEffect(() => {
     window.scrollTo(0, 0);
     setLoading(true);
@@ -37,45 +182,34 @@ export default function PostList() {
 
     apiCall
       .then((res) => {
-        // ... (이 부분은 이전과 동일)
         const pageData = res?.data ?? res;
 
-        if (filter === "likes") {
-          setData({
-            content: pageData?.content ?? [],
-            totalPages: pageData?.totalPages ?? 1,
-            totalElements: pageData?.totalElements ?? 0,
-          });
-          return;
-        }
+        // 표준화
+        const normalizePost = (raw) => {
+          const post = raw?.post ?? raw;
+          const id = post?.id ?? post?.postId;
+          if (!id) return null;
 
-        if (filter === "bookmarks") {
-          const totalPages = pageData?.totalPages ?? 1;
-          const totalElements = pageData?.totalElements ?? 0;
-          const rows = (pageData?.content ?? [])
-            .map((item) => {
-              const post = item?.post ?? item;
-              const id = post?.id ?? post?.postId;
-              if (id == null) return null;
-              return {
-                ...post,
-                id,
-                title: post?.title ?? post?.postTitle ?? "(제목 없음)",
-                createdAt: post?.createdAt ?? item?.createdAt ?? null,
-                authorNickname:
-                  post?.authorNickname ??
-                  post?.author?.nickname ??
-                  "북마크된 글",
-              };
-            })
-            .filter(Boolean);
+          return {
+            ...post,
+            id,
+            title: post?.title ?? post?.postTitle ?? "(제목 없음)",
+            createdAt: post?.createdAt ?? raw?.createdAt ?? null,
+            authorNickname:
+              post?.authorNickname ??
+              post?.author?.nickname ??
+              pickNickname(post) ??
+              "익명",
+            authorId: pickAuthorId(post),
+          };
+        };
 
-          setData({ content: rows, totalPages, totalElements });
-          return;
-        }
+        const rows = (pageData?.content ?? [])
+          .map(normalizePost)
+          .filter(Boolean);
 
         setData({
-          content: pageData?.content ?? [],
+          content: rows,
           totalPages: pageData?.totalPages ?? 1,
           totalElements: pageData?.totalElements ?? 0,
         });
@@ -159,24 +293,27 @@ export default function PostList() {
       <div>
         {!loading &&
           !err &&
-         data.content.map((p) => (
-  <Link
-    key={p.id} // key는 가장 바깥 요소인 Link로 이동합니다.
-    to={`/community/posts/${p.id}`}
-    state={{ from: "list" }}
-    className={styles.postItem} // div의 클래스를 Link로 옮깁니다.
-  >
-    {/* 이제 div는 Link 안쪽에 위치합니다. */}
-    <div>
-      <div className={styles.postTitle}>{p.title}</div>
-      <div className={styles.postMeta}>
-        {p.authorNickname ?? "익명"} ·{" "}
-        {new Date(p.createdAt).toLocaleString()}
-      </div>
-    </div>
-  </Link>
-))
-          }
+          data.content.map((p) => (
+            <Link
+              key={p.id}
+              to={`/community/posts/${p.id}`}
+              state={{ from: "list" }}
+              className={styles.postItem}
+            >
+              <div className={styles.postRow}>
+                <div className={styles.metaLeft}>
+                  <Avatar userId={p.authorId} />
+                  <div>
+                    <div className={styles.postTitle}>{p.title}</div>
+                    <div className={styles.postMeta}>
+                      {p.authorNickname ?? "익명"} ·{" "}
+                      {new Date(p.createdAt).toLocaleString()}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ))}
       </div>
 
       {!loading && data.totalPages > 1 && (

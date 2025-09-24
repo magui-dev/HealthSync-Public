@@ -54,7 +54,7 @@ export default function MyPosts() {
               activeFilter === FILTERS.ALL ? "active" : ""
             }`}
           >
-            전체
+            전체글
           </button>
           <button
             onClick={() => setActiveFilter(FILTERS.PUBLIC)}

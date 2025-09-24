@@ -1,3 +1,5 @@
+/* ========== 게시판 목록 화면 (스코프: .container) ========== */
+
 /* 전체 컨테이너 */
 .container {
   max-width: 850px;
@@ -7,35 +9,51 @@
 }
 
 /* 헤더: 제목과 액션 버튼 */
-.header {
+.container .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
 }
 
-.title {
+.container .title {
   margin: 0;
   font-size: 24px;
 }
 
-.actions {
+.container .actions {
   display: flex;
   gap: 16px;
   align-items: center;
 }
 
-.actionLink {
+/* 링크/버튼 공통: 전역 width:100%나 block 규칙 무력화 */
+.container .actionLink,
+.container .newPostButton,
+.container .filterButton,
+.container .secondaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  line-height: 1;
+  writing-mode: horizontal-tb;
+  transform: none;
   text-decoration: none;
+  cursor: pointer;
+}
+
+/* 액션 링크 */
+.container .actionLink {
   color: #475569;
   font-weight: 500;
 }
-.actionLink:hover {
-  color: #1e293b;
-}
+.container .actionLink:hover { color: #1e293b; }
 
-.newPostButton {
-  text-decoration: none;
+/* 새 글 버튼 */
+.container .newPostButton {
   background-color: #f1f5f9;
   color: #334155;
   border: 1px solid #e5e7eb;
@@ -44,70 +62,74 @@
   font-weight: 500;
   transition: background-color 0.2s;
 }
-.newPostButton:hover {
-   background-color: #e2e8f0; 
-}
+.container .newPostButton:hover { background-color: #e2e8f0; }
 
 /* 컨트롤: 필터와 정렬 */
-.controls {
+.container .controls {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 8px;
+  gap: 12px;                 /* 과도한 간격 방지 */
   margin-bottom: 16px;
   padding-bottom: 16px;
   border-bottom: 1px solid #e5e7eb;
+  flex-wrap: wrap;           /* 좁은 화면에서만 줄바꿈 */
 }
 
-.filterGroup {
+/* 필터 그룹 */
+.container .filterGroup {
   display: flex;
+  flex-direction: row;
+  align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
-/* 필터 버튼 (기본, 활성 상태) */
-.filterButton {
+/* 필터 버튼 */
+.container .filterButton {
   background-color: #f1f5f9;
   color: #334155;
   border: 1px solid #e5e7eb;
   padding: 8px 12px;
   border-radius: 8px;
-  cursor: pointer;
   font-weight: 500;
   transition: all 0.2s;
 }
-.filterButton:hover {
+.container .filterButton:hover {
   background-color: #e2e8f0;
   border-color: #cbd5e1;
 }
-.filterButton.active {
+.container .filterButton.active {
   background-color: #334155;
-  color: white;
+  color: #fff;
   border-color: #334155;
 }
 
-.secondaryButton {
+/* 서브 버튼(예: 전체글/좋아요/북마크 옆 옵션 등) */
+.container .secondaryButton {
   background-color: #f1f5f9;
   color: #334155;
   border: 1px solid #e5e7eb;
-  padding: 8px 16px; /* 필터 버튼(8px 12px)보다 좌우로 조금 더 넓게 */
+  padding: 8px 16px; /* 필터 버튼보다 약간 넓게 */
   border-radius: 8px;
-  cursor: pointer;
   font-weight: 500;
   transition: all 0.2s;
-  text-decoration: none; /* Link 태그는 밑줄이 생길 수 있어 추가 */
 }
-.secondaryButton:hover {
-  background-color: #e2e8f0; /* 배경색을 살짝 어둡게 변경 */
-}
+.container .secondaryButton:hover { background-color: #e2e8f0; }
 
-.sortSelect {
+/* 정렬 셀렉트: 길게 늘어나는 현상 방지 */
+.container .sortSelect {
   padding: 8px 12px;
   border-radius: 8px;
   border: 1px solid #e5e7eb;
+  width: auto;           /* 전역 width:100% 무력화 */
+  max-width: 220px;
+  min-width: unset;
+  flex: 0 0 auto;
 }
 
 /* 게시글 목록 */
-.postItem {
+.container .postItem {
   display: block;
   text-decoration: none;
   color: inherit;
@@ -117,62 +139,108 @@
   margin-bottom: 12px;
   transition: background-color 0.2s, box-shadow 0.2s;
 }
-.postItem:hover {
+.container .postItem:hover {
   background-color: #f8fafc;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
-.postTitle {
+/* 제목/링크 */
+.container .postTitle,
+.container .postLink {
   font-weight: 600;
   font-size: 18px;
   text-decoration: none;
   color: inherit;
 }
-.postLink:hover {
-  text-decoration: underline;
-}
+.container .postLink:hover { text-decoration: underline; }
 
-.postMeta {
+/* 메타 정보 */
+.container .postMeta {
   font-size: 12px;
   color: #64748b;
   margin-top: 8px;
 }
 
 /* 페이지네이션 */
-.pagination {
+.container .pagination {
   display: flex;
   gap: 12px;
   align-items: center;
   justify-content: center;
   margin-top: 24px;
 }
-.pagination button {
+.container .pagination button {
   padding: 6px 12px;
   border: 1px solid #e5e7eb;
   border-radius: 6px;
-  background-color: white;
+  background-color: #fff;
   cursor: pointer;
 }
-.pagination button:hover:not(:disabled) {
-  background-color: #f8fafc;
-}
-.pagination button:disabled {
+.container .pagination button:hover:not(:disabled) { background-color: #f8fafc; }
+.container .pagination button:disabled {
   color: #94a3b8;
   cursor: not-allowed;
 }
 
-/* 에러 및 빈 상태 메시지 */
-.error {
+/* 에러 및 빈 상태 */
+.container .error {
   color: crimson;
   padding: 16px;
   border: 1px solid crimson;
   border-radius: 8px;
   margin-bottom: 16px;
 }
-.empty {
+.container .empty {
   padding: 48px 16px;
   text-align: center;
   color: #64748b;
   border: 1px dashed #e5e7eb;
   border-radius: 12px;
+}
+
+/* ========== 모바일 대응(선택) ========== */
+@media (max-width: 480px) {
+  .container .title { font-size: 20px; }
+  .container .sortSelect { max-width: 180px; }
+}
+
+/* PostList.module.css */
+
+.postItem {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  padding: 14px 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.postRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.metaLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  object-fit: cover;
+  flex: 0 0 auto;
+  background: #f3f3f3;
+}
+
+.postTitle {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.postMeta {
+  font-size: 12px;
+  color: #666;
 }

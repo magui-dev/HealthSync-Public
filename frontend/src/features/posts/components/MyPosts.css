@@ -1,3 +1,5 @@
+/* ========== My Posts (스코프 올려 전역 충돌 방지) ========== */
+
 /* --- 기본 레이아웃 --- */
 .my-posts-container {
   max-width: 750px;
@@ -7,78 +9,100 @@
 }
 
 /* --- 헤더 --- */
-.my-posts-header {
+.my-posts-container .my-posts-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
 }
 
-.my-posts-title {
+.my-posts-container .my-posts-title {
   margin: 0;
   font-size: 22px;
 }
 
-.all-posts-link {
-  color: #475569;
+/* 링크/버튼 공통: 전역 block/100% 폭 규칙 무력화 */
+.my-posts-container .all-posts-link,
+.my-posts-container .filter-button {
+  display: inline-flex;        /* 가로로 나란히 */
+  align-items: center;
+  justify-content: center;
+  width: auto;                 /* width:100% 전역규칙 무력화 */
+  flex: 0 0 auto;              /* 남는 공간 채우지 않기 */
+  white-space: nowrap;         /* 줄바꿈 방지 */
+  line-height: 1;
+  writing-mode: horizontal-tb; /* 혹시 전역 writing-mode 있으면 리셋 */
+  transform: none;             /* 전역 transform 리셋(있을 때만 효과) */
   text-decoration: none;
-  font-size: 14px;
-}
-.all-posts-link:hover {
-  text-decoration: underline;
+  cursor: pointer;
 }
 
+/* '전체글 보기' 링크 */
+.my-posts-container .all-posts-link {
+  color: #475569;
+  font-size: 14px;
+}
+.my-posts-container .all-posts-link:hover { text-decoration: underline; }
+
 /* --- 컨트롤 바 (필터, 정렬) --- */
-.controls-bar {
+.my-posts-container .controls-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;             /* 과도한 간격 방지 */
   margin-bottom: 24px;
+  flex-wrap: wrap;       /* 좁은 화면에서만 줄바꿈 */
 }
 
-.filter-group {
+/* 필터 그룹 */
+.my-posts-container .filter-group {
   display: flex;
+  align-items: center;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
-.filter-button {
+/* 필터 버튼 */
+.my-posts-container .filter-button {
   background-color: #f1f5f9;
   color: black;
   border: 1px solid #e5e7eb;
   padding: 8px 14px;
   border-radius: 8px;
-  cursor: pointer;
   font-size: 14px;
   transition: all 0.2s;
 }
-.filter-button:hover {
-  background-color: #e2e8f0;
-}
-.filter-button.active {
+.my-posts-container .filter-button:hover { background-color: #e2e8f0; }
+.my-posts-container .filter-button.active {
   background-color: #334155;
-  color: white;
+  color: #fff;
   border-color: #334155;
 }
 
-.sort-select {
+/* 정렬 셀렉트: 길게 늘어남 방지 */
+.my-posts-container .sort-select {
   padding: 8px 12px;
   border-radius: 8px;
   border: 1px solid #d1d5db;
+  width: auto;           /* 전역 width:100% 무력화 */
+  max-width: 220px;
+  min-width: unset;
+  flex: 0 0 auto;
 }
 
 /* --- 게시글 목록 --- */
-.post-item {
+.my-posts-container .post-item {
   border: 1px solid #e5e7eb;
   border-radius: 12px;
   margin-bottom: 12px;
   transition: background-color 0.2s, box-shadow 0.2s;
 }
-.post-item:hover {
+.my-posts-container .post-item:hover {
   background-color: #f8fafc;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.post-item-link {
+.my-posts-container .post-item-link {
   text-decoration: none;
   color: inherit;
   display: flex;
@@ -87,40 +111,42 @@
   padding: 16px;
 }
 
-.post-item-header {
+.my-posts-container .post-item-header {
   display: flex;
   align-items: center;
   gap: 8px;
   font-weight: 600;
 }
 
-.visibility-tag {
+.my-posts-container .visibility-tag {
   background: #64748b;
-  color: white;
+  color: #fff;
   font-size: 11px;
   padding: 2px 8px;
   border-radius: 99px;
   font-weight: 500;
 }
 
-.post-item-title {
-  font-size: 16px;
-}
+.my-posts-container .post-item-title { font-size: 16px; }
 
-.post-item-meta {
+.my-posts-container .post-item-meta {
   font-size: 12px;
   color: #64748b;
 }
 
 /* --- 메시지 --- */
-.error-message {
-  color: crimson;
-}
+.my-posts-container .error-message { color: crimson; }
 
-.empty-message {
+.my-posts-container .empty-message {
   padding: 48px 16px;
   text-align: center;
   color: #64748b;
   border: 1px dashed #e5e7eb;
   border-radius: 12px;
+}
+
+/* --- 모바일 보완(선택) --- */
+@media (max-width: 480px) {
+  .my-posts-container .my-posts-title { font-size: 20px; }
+  .my-posts-container .sort-select { max-width: 180px; }
 }
