@@ -1,14 +1,15 @@
 .profilePage {
   display: flex;
+  justify-content: center; /* 전체 컨테이너를 화면 가로 중앙에 배치 */
   gap: 24px;
-  max-width: 900px;
-  margin: 0px auto;
-  padding: 64px 16px 0 16px;
+  padding: 64px 0 0 0;
+  width: 100%; /* 부모 전체 폭 */
+  box-sizing: border-box;
 }
 
 /* 사이드 탭 */
 .sidebar {
-  width: 200px;
+  width: 200px; /* 고정 */
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 10px;
@@ -34,16 +35,18 @@
 }
 
 .sidebar div.active {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 /* 메인 영역 */
 .mainContent {
-  flex: 1;
+  flex: 1; /* 남는 공간 모두 차지 */
+  max-width: 900px; /* 최대 폭 제한 */
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 10px;
   padding: 24px;
+  padding-top: 12px;
 }
 
 /* editBtn 버튼 */
@@ -68,10 +71,10 @@
 }
 
 .profileHeader {
-  padding: 0 10px;
+  padding: 0 20px;
   display: flex;
   align-items: center;
-  gap: 40px;
+  gap: 60px;
   margin-bottom: 20px;
 }
 
@@ -80,18 +83,25 @@
   height: 150px;
   border-radius: 50%;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .nicknameText {
   font-weight: bold;
-  font-size: 1.2em;
+  font-size: 24px;
   margin: 0;
 }
 
 .emailText {
-  margin: 5px 0 0 0;
+  margin: 0;
   color: #666;
+  line-height: 20px;
+}
+
+.providerLogo {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
 }
 
 .nicknameInputContainer {
@@ -109,6 +119,7 @@
   flex-direction: column;
   gap: 12px;
   margin-bottom: 20px;
+  padding: 0 8px;
 }
 
 .bodyProfileView div {
@@ -116,7 +127,6 @@
   justify-content: space-between;
   padding: 8px 8px;
   align-items: baseline;
-  /* border-bottom: 1px solid #eee; */
 }
 
 .bodyProfileView div div:last-child {
@@ -129,6 +139,7 @@
   align-items: center;
   gap: 8px; /* input과 단위 사이 간격 */
   margin: 12px 0;
+  
 }
 
 .inlineLabel input {
@@ -215,7 +226,8 @@ select {
 .profileEditContainer .editLayout {
   display: flex;
   justify-content: space-between;
-  gap: 40px;
+  gap: 10px;
+  padding: 0 8px;
 }
 
 .profileEditContainer .leftPanel {
@@ -233,7 +245,7 @@ select {
 .profileImageEdit .profileImage {
   width: 150px;
   height: 150px;
-  object-fit: cover;
+  object-fit: contain;
   border: 1px solid #ddd;
   margin-bottom: 15px;
 }

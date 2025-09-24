@@ -1,17 +1,15 @@
-import React from "react";
-import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import PlanSetup from "./pages/PlanSetup";
-import AuthSuccess from "./pages/AuthSuccess";
-import Me from "./pages/Me";
-import MainPage from "./pages/MainPage";
+import { useState } from "react";
+import { BrowserRouter, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import Header from "./components/Header/Header";
 import LoginModal from "./components/LoginModal";
 import PostRoutes from "./features/posts/Routes";
-import ProfilePage from "./pages/ProfilePage/ProfilePage";
-import AIWithReportPage from "./openaiapi/pages/AIWithReportPage";
 import MyReportPage from "./myreport/pages/MyReportPage";
-import ProfileEditModal from "./components/Profile/ProfileEditModal";
+import AIWithReportPage from "./openaiapi/pages/AIWithReportPage";
+import AuthSuccess from "./pages/AuthSuccess";
+import MainPage from "./pages/MainPage";
+import Me from "./pages/Me";
+import PlanSetup from "./pages/PlanSetup";
+import ProfilePage from "./pages/ProfilePage/ProfilePage";
 //목표설정 임포트
 import FoodSelectionPage from "./pages/FoodSelectionPage";
 import PlanReport from "./pages/PlanReport/PlanReport";
@@ -24,39 +22,25 @@ function Shell() {
   const location = useLocation();
   const nav = useNavigate();
   const isRootPath = location.pathname === "/";
-  const { me, loading, refresh, changeNickname, reset } = useMe();
+  const { me, refresh, reset } = useMe();
   const [showLogin, setShowLogin] = useState(false);
 
-  // const openLogin = () => setShowLogin(true);
-  // const closeLogin = () => setShowLogin(false);
   const onLoginClick = () => setShowLogin(true);
   const onAccountClick = () => {
     if (!me) return setShowLogin(true);  
     nav("/profile");
-    // setShowProfile(true); // ✅ 로그인 시 프로필 모달 열기
-    // const next = window.prompt("새 닉네임을 입력하세요", me.nickname ?? "");
-    // if (next && next.trim()) changeNickname(next.trim());
   };
 
   const logout = async () => {
     await apiLogout(); // 서버가 쿠키 만료 처리
     reset(); // 요청 자체를 안 보냄 → 네트워크 탭에 빨간 줄 없음
+    nav("/", {replace: true}); // 로그아웃 시, 메인 페이지로 이동(뒤로가기 방지)
   };
-
-  useEffect(() => {
-    if (loading) return;
-    if (me && !me.profileCompleted) {
-      const next = window.prompt("표시할 닉네임을 입력하세요", me.nickname);
-      if (next && next.trim()) changeNickname(next.trim());
-    }
-  }, [me, loading, changeNickname]);
 
   return (
     <>
       {isRootPath ? (
-        /* 메인 페이지 */
-
-     
+        /* 메인 페이지 */     
         <MainPage me={me} onLoginClick={onLoginClick} onAccountClick={onAccountClick} />
       ) : (
       <>
@@ -76,27 +60,19 @@ function Shell() {
             <Route path='profile' element={<ProfilePage/>}/>
             <Route path="/community/posts/*" element={<PostRoutes />} />
             <Route path="/my-report" element={<MyReportPage />} />
-            <Route
-                path="/ai-with-report"
-                element={<AIWithReportPage />}
-              />{" "}
+            <Route path="/ai-with-report" element={<AIWithReportPage />} />
             {/* 목표설정 구간 */}
             <Route path="/" element={<MainPage me={me} onLoginClick={onLoginClick} onAccountClick={onAccountClick} />} />
             <Route path="/plan" element={<PlanSetup />} />
             <Route path="/plan/foods" element={<FoodSelectionPage />} /> 
             <Route path="/plan/report" element={<PlanReport />} />
-            
           </Routes>
         </div>
       </>
-
       )}
 
       {/* 로그인 모달 */}
       <LoginModal open={showLogin} onClose={() => setShowLogin(false)} />
-            
-      {/* 프로필 편집 모달 */}
-      {/* <ProfileEditModal open={showProfile} onClose={() => setShowProfile(false)}/> */}
     </>
   );
 }
