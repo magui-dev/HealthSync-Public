@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import "./Header.css";
-import ProfileEditModal from "../Profile/ProfileEditModal";
 
 export default function Header({ me, onLoginClick, onLogoutClick, onAccountClick }) {
   
@@ -10,7 +9,6 @@ export default function Header({ me, onLoginClick, onLogoutClick, onAccountClick
 
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
   const dropdownRef = useRef(null);
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   // 회원 닉네임(label) 버튼 클릭 시, 드롭다운 열기/닫기 
   const handleProfileClick = () => {
@@ -44,39 +42,16 @@ export default function Header({ me, onLoginClick, onLogoutClick, onAccountClick
               <button onClick={handleProfileClick} style={styles.btnLink}>{label}</button>
               {isDropdownVisible && (
                 <div id="dropdownMenu">
-                  {/* <Link onClick={() => { click(); setIsDropdownVisible(false); }} className="dropdownItem">닉네임 편집</Link>
-                  <Link
-                    onClick={() => {
-                      setIsProfileModalOpen(true); // 모달 열기
-                      setIsDropdownVisible(false);
-                    }}
-                    className="dropdownItem"
-                  >
-                    프로필 편집
-                  </Link> */}
                   <Link to="/profile" className="dropdownItem" onClick={() => setIsDropdownVisible(false)}>프로필 설정</Link>
                   <Link onClick={() => { onLogoutClick(); setIsDropdownVisible(false); }} className="dropdownItem">로그아웃</Link>
                 </div>
               )}
             </div>
-            
-            {/* <button onClick={click} style={styles.btnLink}>{label}</button> */}
-            {/* <button onClick={onLogoutClick} style={styles.btnLink}>Logout</button> */}
           </>
         ) : (
           <button onClick={click} style={styles.btnLink}>{label}</button>
         )}
       </nav>
-
-      {/* 프로필 편집 모달 */}
-      <ProfileEditModal 
-        open={isProfileModalOpen}
-        onClose={() => setIsProfileModalOpen(false)}
-        onSave={(data) => {
-          console.log("저장된 프로필:", data);
-          setIsProfileModalOpen(false);
-        }}
-      />
     </header>
   );
 }
