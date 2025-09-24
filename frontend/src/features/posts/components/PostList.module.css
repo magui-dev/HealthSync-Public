@@ -2,7 +2,7 @@
 
 /* 전체 컨테이너 */
 .container {
-  max-width: 850px;
+  max-width: 800px;
   margin: 24px auto;
   padding: 16px;
   font-family: sans-serif;
@@ -227,12 +227,11 @@
 }
 
 .avatar {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: 9999px;
-  object-fit: cover;
-  flex: 0 0 auto;
-  background: #f3f3f3;
+  object-fit: contain;
+  border: 2.5px solid #bcf8cb; 
 }
 
 .postTitle {

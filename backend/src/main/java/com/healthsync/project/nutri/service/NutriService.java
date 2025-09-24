@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+//import com.healthsync.project.nutri.dto.NutriInfoDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -210,3 +211,24 @@ public class NutriService {
 
 
 }
+
+//    // 0924 추가, 오픈 API 열결 테스트
+//    public NutriInfoDto extractNutriInfo(JsonNode rawNode) {
+//        // 1. 단일 노드의 키 이름을 한글로 변환합니다.
+//        // (기존의 translateKeys 메서드는 배열 전체를 변환하므로, 여기서는 단일 객체만 처리하도록 로직을 새로 구성합니다.)
+//        ObjectNode translatedNode = mapper.createObjectNode();
+//        rawNode.fieldNames().forEachRemaining(key -> {
+//            String translatedKey = FIELD_NAME_MAP.getOrDefault(key, key);
+//            translatedNode.set(translatedKey, rawNode.get(key));
+//        });
+//
+//        // 2. 변환된 노드에서 필요한 값을 추출합니다. (기존 optText 헬퍼 메서드 사용)
+//        String foodName = optText(translatedNode, "식품명");
+//        String kcal = optText(translatedNode, "에너지(kcal)");
+//        String carbs = optText(translatedNode, "탄수화물(g)");
+//        String protein = optText(translatedNode, "단백질(g)");
+//        String fat = optText(translatedNode, "지방(g)");
+//
+//        // 3. DTO에 담아 반환합니다.
+//        return new NutriInfoDto(foodName, kcal, carbs, protein, fat);
+//    }

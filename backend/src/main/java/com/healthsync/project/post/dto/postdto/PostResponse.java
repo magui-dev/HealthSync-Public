@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +32,8 @@ public class PostResponse {
     private boolean bookmarkedByMe;
     private boolean deleted;
     private Long goalId;
+    private String authorProfileImageUrl;
+    private LocalDateTime authorProfileImageUpdatedAt;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate postDate;

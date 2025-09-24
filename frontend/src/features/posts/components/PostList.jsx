@@ -5,71 +5,38 @@ import { listPosts, myBookmarks, myLikes } from "../api";
 import { useMe } from "../../../hooks/useMe";
 import styles from "./PostList.module.css";
 
-const avatarCache = new Map(); // userId -> url|null
+const DEFAULT_IMAGE_PATH = "/images/profile-images/default.png";
 
 // API 절대경로 보정 유틸
 const API_ORIGIN =
   (import.meta?.env && import.meta.env.VITE_API_ORIGIN) ||
   "http://localhost:8080";
+
 function resolveImageUrl(u) {
   if (!u) return null;
-  if (/^https?:\/\//i.test(u)) return u; // 이미 절대경로면 그대로
-  if (u.startsWith("/")) return API_ORIGIN + u; // "/images/..." -> "http://localhost:8080/images/..."
-  return `${API_ORIGIN}/${u}`; // "images/..."  -> "http://localhost:8080/images/..."
+  if (/^images\//i.test(u)) u = "/" + u;
+  if (/^https?:\/\//i.test(u)) return u;               // 절대경로면 그대로
+  if (u.startsWith("/images/")) return u;
+ if (u.startsWith("/")) return API_ORIGIN + u;        // "/images/..." -> "http://localhost:8080/images/..."
+  return `${API_ORIGIN}/${u}`;                          // "images/..."  -> "http://localhost:8080/images/..."
 }
 
-async function fetchProfileImageUrl(userId) {
-  if (userId == null) return null;
-  const key = String(userId);
-  if (avatarCache.has(key)) return avatarCache.get(key) ?? null;
+function withQuery(url, key, val) {
+  if (!url) return url;
+ const u = /^https?:\/\//i.test(url)
+   ? new URL(url)                       // 절대경로면 그대로
+   : new URL(url, window.location.origin); // ✅ 상대경로는 5173 기준
+  u.searchParams.set(key, String(val));
+  return u.toString();
+}
 
-  try {
-    const res = await fetch(`http://localhost:8080/profile/${key}?t=${Date.now()}`, {
-      credentials: "include",
-      cache: "no-store",
-      headers: {
-        "Cache-Control": "no-cache",
-        Pragma: "no-cache",
-      },
-    });
-
-    if (res.status === 304) {
-      return avatarCache.get(key) ?? null;
-    }
-    if (!res.ok) {
-      avatarCache.set(key, null);
-      return null;
-    }
-    
-    let data = null;
-    try {
-      data = await res.json();
-    } catch {
-      avatarCache.set(key, null);
-      return null;
-    }
-
-    const backendUrl = data?.profileImageUrl ?? null;
-
-    // **** ✅ 핵심 수정 부분 ****
-    // 백엔드가 보내준 URL이 '기본 이미지 경로'와 일치하는지 확인합니다.
-    // 여기서는 간단하게 null이 아닌지, 그리고 특정 문자열을 포함하는지로 확인합니다.
-    if (backendUrl && backendUrl.includes("/images/profile-images/")) {
-      // 프론트엔드의 public 폴더를 가리키는 로컬 경로를 그대로 사용합니다.
-      const localDefaultPath = backendUrl; 
-      avatarCache.set(key, localDefaultPath);
-      return localDefaultPath;
-    }
-
-    // 그 외의 실제 사용자 이미지 URL은 기존 로직대로 정상 처리합니다.
-    const url = resolveImageUrl(backendUrl);
-    avatarCache.set(key, url);
-    return url;
-
-  } catch {
-    avatarCache.set(key, null);
-    return null;
-  }
+// 백엔드에서 내려준 URL/updatedAt으로 <img src> 만들기 (추가 fetch 없음)
+function makeAvatarSrc(url, updatedAt) {
+  const base = resolveImageUrl(url) || DEFAULT_IMAGE_PATH;
+  if (!updatedAt) return base;
+  const ms = Date.parse(updatedAt);
+  if (Number.isNaN(ms)) return base;
+  return withQuery(base, "v", ms); // 캐시 버스터
 }
 
 function pickAuthorId(obj) {
@@ -113,41 +80,6 @@ function pickNickname(obj) {
     obj?.member?.name ??
     null;
   return nested ? String(nested) : null;
-}
-
-function Avatar({ userId, className }) {
-  const key = userId != null ? String(userId) : null;
-  const [url, setUrl] = useState(key ? avatarCache.get(key) ?? null : null);
-
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      if (userId == null) {
-        if (alive) setUrl(null);
-        return;
-      }
-      const u = await fetchProfileImageUrl(userId);
-      if (!alive) return;
-      setUrl(u ?? null);
-    })();
-    return () => {
-      alive = false;
-    };
-  }, [userId]);
-
-  return (
-    <img
-      className={className ?? styles.avatar}
-      src={url || "/default.png"}
-      alt="author avatar"
-      onError={(e) => {
-        if (key) {
-          avatarCache.set(key, null); // 이 URL은 실패했으므로 캐시를 null로 업데이트
-        }
-        e.currentTarget.src = "/default.png";
-      }}
-    />
-  );
 }
 
 export default function PostList() {
@@ -201,12 +133,13 @@ export default function PostList() {
               pickNickname(post) ??
               "익명",
             authorId: pickAuthorId(post),
+            // ✅ 백엔드가 내려준 프로필 이미지/업데이트 시각을 그대로 보관
+            authorProfileImageUrl: post?.authorProfileImageUrl ?? null,
+            authorProfileImageUpdatedAt: post?.authorProfileImageUpdatedAt ?? null,
           };
         };
 
-        const rows = (pageData?.content ?? [])
-          .map(normalizePost)
-          .filter(Boolean);
+        const rows = (pageData?.content ?? []).map(normalizePost).filter(Boolean);
 
         setData({
           content: rows,
@@ -241,9 +174,7 @@ export default function PostList() {
               setFilter("all");
               go(0);
             }}
-            className={`${styles.filterButton} ${
-              filter === "all" ? styles.active : ""
-            }`}
+            className={`${styles.filterButton} ${filter === "all" ? styles.active : ""}`}
           >
             전체글
           </button>
@@ -254,9 +185,7 @@ export default function PostList() {
                   setFilter("likes");
                   go(0);
                 }}
-                className={`${styles.filterButton} ${
-                  filter === "likes" ? styles.active : ""
-                }`}
+                className={`${styles.filterButton} ${filter === "likes" ? styles.active : ""}`}
               >
                 좋아요
               </button>
@@ -265,9 +194,7 @@ export default function PostList() {
                   setFilter("bookmarks");
                   go(0);
                 }}
-                className={`${styles.filterButton} ${
-                  filter === "bookmarks" ? styles.active : ""
-                }`}
+                className={`${styles.filterButton} ${filter === "bookmarks" ? styles.active : ""}`}
               >
                 북마크
               </button>
@@ -302,7 +229,13 @@ export default function PostList() {
             >
               <div className={styles.postRow}>
                 <div className={styles.metaLeft}>
-                  <Avatar userId={p.authorId} />
+                  {/* ✅ 추가 fetch 제거: 응답 값만으로 이미지 렌더 */}
+                  <img
+                    className={styles.avatar}
+                    alt="author avatar"
+                    src={makeAvatarSrc(p.authorProfileImageUrl, p.authorProfileImageUpdatedAt)}
+                    onError={(e) => { e.currentTarget.src = DEFAULT_IMAGE_PATH; }}
+                  />
                   <div>
                     <div className={styles.postTitle}>{p.title}</div>
                     <div className={styles.postMeta}>

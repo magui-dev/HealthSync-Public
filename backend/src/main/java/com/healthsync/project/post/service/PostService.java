@@ -1,5 +1,7 @@
 package com.healthsync.project.post.service;
 
+import com.healthsync.project.account.profile.domain.Profile;
+import com.healthsync.project.account.profile.repository.ProfileRepository;
 import com.healthsync.project.account.user.domain.User;
 import com.healthsync.project.account.user.repository.UserRepository;
 import com.healthsync.project.post.constant.Visibility;
@@ -19,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,6 +36,7 @@ public class PostService {
     private final UserRepository userRepository;
     private final PostLikeRepository likeRepository;
     private final PostBookmarkRepository bookmarkRepository;
+    private final ProfileRepository profileRepository;
 
     // 테스트 코드
     @Transactional
@@ -258,10 +262,22 @@ public class PostService {
             }
         }
 
+        String imgUrl = null;
+        LocalDateTime imgUpdatedAt = null;
+        if (p.getUser() != null && p.getUser().getId() != null) {
+            Profile pr = profileRepository.findById(p.getUser().getId()).orElse(null);
+            if (pr != null) {
+                imgUrl = pr.getProfileImageUrl();
+                imgUpdatedAt = pr.getUpdatedAt();
+            }
+        }
+
         return PostResponse.builder()
                 .id(p.getId())
                 .userId(p.getUser() != null ? p.getUser().getId() : null)
                 .authorNickname(nickname)
+                .authorProfileImageUrl(imgUrl)              // ✅ 추가
+                .authorProfileImageUpdatedAt(imgUpdatedAt)
                 .visibility(p.getVisibility())
                 .title(p.getTitle())
                 .contentTxt(p.getContentTxt())

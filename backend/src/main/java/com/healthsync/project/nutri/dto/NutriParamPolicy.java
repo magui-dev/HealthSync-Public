@@ -46,3 +46,50 @@ public class NutriParamPolicy {
         return q;
     }
 }
+
+// 0924 추가. 오픈 API 연결 테스트
+//@Component
+//public class NutriParamPolicy {
+//    public Map<String, String> sanitize(String apiName, Map<String, String> q) {
+//        if (q == null) return Map.of();
+//
+//        // 통합 name -> API별 실제 키 매핑
+//        String name = q.getOrDefault("name", q.getOrDefault("q", null));
+//        if (name != null && !name.isBlank()) {
+//            switch (apiName) {
+//                case "approved":
+//                    q.put("DESC_KOR", name);
+//                    break;
+//                case "food":
+//                    q.put("foodNm", name);
+//                    break;
+//                case "processed":
+//                    q.put("prdlstNm", name);
+//                    break;
+//                case "material":
+//                    q.put("MATRL_NM", name);
+//                    break;
+//            }
+//            // ✅ 중요: 공통 파라미터 'name', 'q'를 최종 URL에서 제거합니다.
+//            // 이 부분이 누락되어 오류가 발생했습니다.
+//            q.remove("name");
+//            q.remove("q");
+//        }
+//
+//        // (이 아래의 다른 키 정정 로직은 혹시 모를 경우를 대비해 그대로 둡니다)
+//        if ("approved".equals(apiName) && q.containsKey("prdlstNm")) {
+//            q.put("DESC_KOR", q.remove("prdlstNm"));
+//        }
+//        if ("food".equals(apiName) && q.containsKey("prdlstNm")) {
+//            q.put("foodNm", q.remove("prdlstNm"));
+//        }
+//        if ("processed".equals(apiName) && q.containsKey("foodNm")) {
+//            q.put("prdlstNm", q.remove("foodNm"));
+//        }
+//        if ("material".equals(apiName) && q.containsKey("foodNm")) {
+//            q.put("MATRL_NM", q.remove("foodNm"));
+//        }
+//
+//        return q;
+//    }
+//}
