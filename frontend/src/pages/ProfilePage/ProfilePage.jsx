@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import "./ProfilePage.css";
+import Loading from "../global/loading";
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("view");
@@ -17,13 +18,14 @@ export default function ProfilePage() {
   const [tempProfileImage, setTempProfileImage] = useState(null);
   const fileInputRef = useRef(null);
 
-  const UrlPath = "/images/profile-images/";
+  const ImageUrlPath = "/images/profile-images/";
   const DEFAULT_IMAGE = "/images/profile-images/default.png";
 
+  const providerUrlPath = "/images/OAuthProviderLogos/"
   const providerLogos = {
-  GOOGLE: "/icons/google.png",
-  KAKAO: "/icons/kakao.png",
-  NAVER: "/icons/naver.png"
+  GOOGLE: providerUrlPath + "google.png",
+  KAKAO: providerUrlPath + "kakaotalk.png",
+  NAVER: providerUrlPath + "naver.png"
 };
 
   // --- 프로필 불러오기 ---
@@ -75,7 +77,7 @@ export default function ProfilePage() {
         // // 서버에 저장될 고유 파일명 문자열 (ex: "1695481234567_filename.png")
         // const uniqueFileName = Date.now() + "_" + file.name;
         // uniqueFileName으로 이미지 로컬에 저장할 부분
-        finalProfileImage = UrlPath + file.name;
+        finalProfileImage = ImageUrlPath + file.name;
       }
 
       // 닉네임 저장
@@ -156,7 +158,8 @@ export default function ProfilePage() {
     setActiveTab("view");
   };
 
-  if (!profile) return <p>로딩 중...</p>;
+  // --- 로딩 중 표시 ---
+  if (!profile) return <Loading />;
 
   return (
     <div className="profilePage">
@@ -172,12 +175,15 @@ export default function ProfilePage() {
         {activeTab === "view" && (
           <div className="profileContainer">
             <div className="profileHeader">
+              {/* 프로필 이미지 */}
               <img src={profile.profileImageUrl || DEFAULT_IMAGE} alt="profile" className="profileImage" />
-              <div>
+              {/* 닉네임 및 이메일 */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <p className="nicknameText">{profile.nickname || nicknameInput || "닉네임 없음"}</p>
-                <p className="emailText">{email} ({profile.provider})</p>
-                {/* <img src={providerLogos[profile.provider]} alt={profile.provider} className="providerLogo" />
-                <span>{profile.provider} 로그인</span> */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <img src={providerLogos[profile.provider]} alt={profile.provider} className="providerLogo" />
+                  <p className="emailText">{email}</p>
+                </div>
               </div>
             </div>
 
