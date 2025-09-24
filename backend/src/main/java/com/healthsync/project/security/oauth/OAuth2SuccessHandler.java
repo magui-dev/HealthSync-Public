@@ -1,5 +1,6 @@
 package com.healthsync.project.security.oauth;
 
+import com.healthsync.project.account.user.constant.Provider;
 import com.healthsync.project.security.jwt.CookieUtil;
 import com.healthsync.project.security.jwt.JwtService;
 import com.healthsync.project.security.jwt.RefreshTokenStore;
@@ -40,13 +41,14 @@ public class OAuth2SuccessHandler implements org.springframework.security.web.au
             throws IOException, ServletException {
 
         OAuth2AuthenticationToken token = (OAuth2AuthenticationToken) auth;
-        String provider = token.getAuthorizedClientRegistrationId(); // google / kakao / naver
+        String providerStr = token.getAuthorizedClientRegistrationId(); // google / kakao / naver
+        Provider providerEnum = Provider.valueOf(providerStr.toUpperCase()); // enum 타입으로 변환
         OAuth2User oauth2User = (OAuth2User) auth.getPrincipal();
         Map<String, Object> attrs = oauth2User.getAttributes();
 
         // 표준화된 프로필 추출
-        String email = extractEmail(provider, attrs);
-        String name  = extractName(provider, attrs);
+        String email = extractEmail(providerStr, attrs);
+        String name  = extractName(providerStr, attrs);
 
         // ✅ 이메일은 필수 (엔티티가 not null)
         if (email == null || email.isBlank()) {
@@ -56,7 +58,7 @@ public class OAuth2SuccessHandler implements org.springframework.security.web.au
         }
 
         // ✅ 유저 upsert (처음이면 자동 닉네임 생성)
-        User user = userService.upsertSocial(email, name);
+        User user = userService.upsertSocial(email, name, providerEnum);
 
 //        // ✅ subject는 email로 고정 (토큰 subject = 이메일)
 //        String subject = user.getEmail();

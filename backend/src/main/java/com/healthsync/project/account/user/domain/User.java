@@ -1,6 +1,7 @@
 package com.healthsync.project.account.user.domain;
 
 import com.healthsync.project.account.profile.domain.Profile;
+import com.healthsync.project.account.user.constant.Provider;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -8,6 +9,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "users", indexes = {
         @Index(name = "ux_users_email", columnList = "email", unique = true),
@@ -40,6 +42,9 @@ public class User {
 
     @Column(name = "roles", nullable = false)
     private String roles = "USER";
+
+    @Enumerated(EnumType.STRING)
+    private Provider provider; // LOCAL, GOOGLE, KAKAO, NAVER
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createAt;
