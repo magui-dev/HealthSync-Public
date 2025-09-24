@@ -34,6 +34,7 @@ function Shell() {
   const logout = async () => {
     await apiLogout(); // 서버가 쿠키 만료 처리
     reset(); // 요청 자체를 안 보냄 → 네트워크 탭에 빨간 줄 없음
+    nav("/", {replace: true}); // 로그아웃 시, 메인 페이지로 이동(뒤로가기 방지)
   };
 
   return (
