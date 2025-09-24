@@ -6,6 +6,7 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("view");
   const [profile, setProfile] = useState(null);
   const [nicknameInput, setNicknameInput] = useState("");
+  const [nicknameError, setNicknameError] = useState(""); // 닉네임 중복 에러 메시지
   const [email, setEmail] = useState("");
   const [age, setAge] = useState("");
   const [height, setHeight] = useState("");
@@ -18,6 +19,12 @@ export default function ProfilePage() {
 
   const UrlPath = "/images/profile-images/";
   const DEFAULT_IMAGE = "/images/profile-images/default.png";
+
+  const providerLogos = {
+  GOOGLE: "/icons/google.png",
+  KAKAO: "/icons/kakao.png",
+  NAVER: "/icons/naver.png"
+};
 
   // --- 프로필 불러오기 ---
   useEffect(() => {
@@ -65,10 +72,10 @@ export default function ProfilePage() {
       if (fileInputRef.current.files[0]) {
         // 새 파일을 선택했다면 파일 이름만 문자열로 처리
         const file = fileInputRef.current.files[0];
-        // 서버에 저장될 고유 파일명 문자열 (ex: "1695481234567_filename.png")
-        const uniqueFileName = Date.now() + "_" + file.name;
+        // // 서버에 저장될 고유 파일명 문자열 (ex: "1695481234567_filename.png")
+        // const uniqueFileName = Date.now() + "_" + file.name;
         // uniqueFileName으로 이미지 로컬에 저장할 부분
-        finalProfileImage = UrlPath + uniqueFileName;
+        finalProfileImage = UrlPath + file.name;
       }
 
       // 닉네임 저장
@@ -92,8 +99,17 @@ export default function ProfilePage() {
         { withCredentials: true }
       );
 
-      // BMI 계산
-      await axios.post("http://localhost:8080/calc/bmi", null, { params: { userId: profile.userId }, withCredentials: true });
+      // BMI 계산(height 또는 weight 변경 시에만)
+      if (
+        Number(height).toFixed(1) !== Number(profile.height).toFixed(1) ||
+        Number(weight).toFixed(2) !== Number(profile.weight).toFixed(2)
+      ) {
+        await axios.post(
+          "http://localhost:8080/calc/bmi",
+          null,
+          { params: { userId: profile.userId }, withCredentials: true }
+        );
+      }
 
       // 상태 업데이트
       const updatedProfile = {
@@ -113,7 +129,14 @@ export default function ProfilePage() {
       alert("프로필이 저장되었습니다.");
     } catch (err) {
       console.error(err.response?.data || err);
-      alert("프로필 저장 중 오류가 발생했습니다.");
+
+      if (err.response?.status === 400 && err.response?.data) {
+        // 닉네임 중복 같은 에러 → 입력칸 밑에 표시
+        setNicknameError(err.response.data);
+      } else {
+        // 그 외 에러 → alert
+        alert("프로필 저장 중 오류가 발생했습니다.");
+      }
     }
   };
 
@@ -152,19 +175,31 @@ export default function ProfilePage() {
               <img src={profile.profileImageUrl || DEFAULT_IMAGE} alt="profile" className="profileImage" />
               <div>
                 <p className="nicknameText">{profile.nickname || nicknameInput || "닉네임 없음"}</p>
-                <p className="emailText">{email} ({profile.login})</p>
+                <p className="emailText">{email} ({profile.provider})</p>
+                {/* <img src={providerLogos[profile.provider]} alt={profile.provider} className="providerLogo" />
+                <span>{profile.provider} 로그인</span> */}
               </div>
             </div>
 
             <div className="bodyProfileView">
-              <p>나이: {profile.age} 세</p>
-              <p>키: {profile.height} cm</p>
-              <p>몸무게: {profile.weight} kg</p>
-              <p>성별: {profile.gender === "MALE" ? "남성" : "여성"}</p>
-              <p>활동 레벨: {profile.activityLevel}</p>
+              <div>나이
+                <div>{profile.age}세</div>
+              </div>
+              <div>키
+                <div>{profile.height}cm</div>
+              </div>
+              <div>몸무게
+                <div>{profile.weight}kg</div>
+              </div>
+              <div>성별
+                <div>{profile.gender === "MALE" ? "남성" : "여성"}</div>
+              </div>
+              <div>활동 레벨
+                <div>{profile.activityLevel}</div>
+              </div>
             </div>
 
-            <div className="editBtn">
+            <div className="editBtn" style={{ textAlign: "right" }}>
               <button onClick={() => setActiveTab("edit")}>편집하기</button>
             </div>
           </div>
@@ -180,17 +215,19 @@ export default function ProfilePage() {
                     <input
                       type="text"
                       value={nicknameInput}
-                      onChange={(e) => setNicknameInput(e.target.value)}
+                      onChange={(e) => {
+                        setNicknameInput(e.target.value);
+                        setNicknameError(""); // 사용자가 다시 입력하면 에러 문구 초기화
+                      }}
                       placeholder="닉네임 입력"
                       className="nicknameInput"
                       style={{ width: "200px" }}
                     />
                   </label>
+                  {nicknameError && <div className="warning" style={{ color: "red", marginTop: "2px", fontSize: "14px" }}>{nicknameError}</div>}
                 </div>
 
-                <br />
-
-                {/* <hr style={{ borderColor: "#cecece", borderWidth: "1px", borderStyle: "solid" }} /> */}
+                <hr style={{ border: "none" }} /> {/* 공백 추가 */}
 
                 <h3>신체 정보</h3>
                 <label className="inlineLabel">
@@ -240,9 +277,6 @@ export default function ProfilePage() {
                   <button className="changeImageBtn" onClick={handleImageUpload}>
                     사진 변경
                   </button>
-                  {/* <button className="removeImageBtn" onClick={handleImageDelete}>
-                    삭제
-                  </button> */}
                 </div>
               </div>
             </div>

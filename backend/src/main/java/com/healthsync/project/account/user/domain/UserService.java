@@ -1,5 +1,6 @@
 package com.healthsync.project.account.user.domain;
 
+import com.healthsync.project.account.user.constant.Provider;
 import com.healthsync.project.account.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -13,15 +14,23 @@ public class UserService {
     private final UserRepository userRepository;
 
     /** 소셜 로그인 최초 진입 시 upsert (email 기준) */
-    public User upsertSocial(String email, String name) {
-        return userRepository.findByEmail(email).orElseGet(() -> {
-            // 기본 닉네임 자동 생성 (name → email 앞부분 순)
-            String base = (name != null && !name.isBlank())
-                    ? name
-                    : (email != null && email.contains("@") ? email.substring(0, email.indexOf('@')) : "user");
-            String nick = uniqueNickname(base);
-            User u = User.newSocial(email, name, nick);
-            return userRepository.save(u);
+    public User upsertSocial(String email, String name, Provider provider) {
+        return userRepository.findByEmail(email)
+                .map(existing -> {
+                    // 이미 존재하는 경우 → 이름/프로바이더 업데이트
+                    existing.setName(name);
+                    existing.setProvider(provider);
+                    return userRepository.save(existing);
+                })
+                .orElseGet(() -> {
+                    // 기본 닉네임 자동 생성 (name → email 앞부분 순)
+                    String base = (name != null && !name.isBlank())
+                            ? name
+                            : (email != null && email.contains("@") ? email.substring(0, email.indexOf('@')) : "user");
+                    String nick = uniqueNickname(base);
+                    User u = User.newSocial(email, name, nick);
+                    u.setProvider(provider); // provider 포함해서 User 생성
+                    return userRepository.save(u);
         });
     }
 

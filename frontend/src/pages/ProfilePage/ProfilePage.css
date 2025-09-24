@@ -61,24 +61,26 @@
   background: #0056b3;
 }
 
-/* 내 프로필 탭 */
-.profileInfoContainer {
+/* 프로필 view */
+.profileContainer {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
 }
 
 .profileHeader {
+  padding: 0 10px;
   display: flex;
   align-items: center;
-  gap: 20px; /* 이미지와 텍스트 사이 간격 */
+  gap: 40px;
   margin-bottom: 20px;
 }
 
 .profileImage {
-  width: 100px;
+  width: 150px;
+  height: 150px;
   border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  object-fit: cover;
 }
 
 .nicknameText {
@@ -102,10 +104,26 @@
   box-sizing: border-box;
 }
 
-/* 내 프로필 편집 탭 */
+.bodyProfileView {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+}
 
+.bodyProfileView div {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 8px;
+  align-items: baseline;
+  /* border-bottom: 1px solid #eee; */
+}
 
-/* body 프로필 편집 탭 */
+.bodyProfileView div div:last-child {
+  font-weight: bold;
+}
+
+/* 프로필 edit */
 .inlineLabel {
   display: flex;
   align-items: center;
@@ -131,7 +149,8 @@ select {
   margin-top: 4px;
 }
 
-.hint {
+.warning, 
+.hint  {
   font-size: 12px;
   color: #666;
   margin-top: 4px;
@@ -192,7 +211,7 @@ select {
   background: #ddd;
 }
 
-/* panel */
+/* Edit panel */
 .profileEditContainer .editLayout {
   display: flex;
   justify-content: space-between;

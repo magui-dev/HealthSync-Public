@@ -36,7 +36,8 @@ public class AuthApi {
                 "email", u.getEmail(),
                 "name", u.getName(),
                 "nickname", u.getNickname(),
-                "nicknameSet", u.isNicknameSet()
+                "nicknameSet", u.isNicknameSet(),
+                "provider", u.getProvider()
         );
     }
 
