@@ -55,6 +55,7 @@ public class Profile {
     private int activityLevel;
 
     /** 프로필 image */
+    @Column(name = "profile_image_url")
     private String profileImageUrl;
 
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -81,7 +82,7 @@ public class Profile {
         Profile profile = new Profile();
         profile.setAge(0);
         profile.setHeight(BigDecimal.valueOf(250.0));
-        profile.setGender(GenderType.NOTTHING);
+        profile.setGender(GenderType.MALE);
         profile.setActivityLevel(1);
         return profile;
     }

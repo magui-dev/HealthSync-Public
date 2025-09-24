@@ -16,7 +16,6 @@ import ProfileEditModal from "./components/Profile/ProfileEditModal";
 import FoodSelectionPage from "./pages/FoodSelectionPage";
 import PlanReport from "./pages/PlanReport/PlanReport";
 
-
 // import { clearTokens } from "./token";
 import { apiLogout } from "./api";
 import { useMe } from "./hooks/useMe";

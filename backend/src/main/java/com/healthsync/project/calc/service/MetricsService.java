@@ -96,11 +96,12 @@ public class MetricsService {
 
     /** BMI 분류 */
     private String getBMICategory(BigDecimal bmi) {
-        if (bmi.compareTo(BigDecimal.valueOf(18.5)) <= 0) return "저체중";
-        if (bmi.compareTo(BigDecimal.valueOf(22.9)) <= 0) return "정상체중";
-        if (bmi.compareTo(BigDecimal.valueOf(24.9)) <= 0) return "과체중";
-        if (bmi.compareTo(BigDecimal.valueOf(29)) <= 0) return "1단계 비만";
-        return "2단계 비만";
+        if (bmi.compareTo(BigDecimal.valueOf(18.5)) < 0) return "저체중";
+        if (bmi.compareTo(BigDecimal.valueOf(22.9)) <= 0) return "정상";
+        if (bmi.compareTo(BigDecimal.valueOf(24.9)) <= 0) return "비만전단계";
+        if (bmi.compareTo(BigDecimal.valueOf(29.9)) <= 0) return "1단계 비만";
+        if (bmi.compareTo(BigDecimal.valueOf(34.9)) <= 0) return "2단계 비만";
+        return "3단계 비만";
     }
 
     /**

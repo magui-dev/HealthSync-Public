@@ -30,12 +30,21 @@ public class UserService {
         if (nickname == null || nickname.isBlank()) {
             throw new IllegalArgumentException("닉네임은 비어 있을 수 없습니다.");
         }
+
+        User u = getById(userId);
+
+        // 변경하지 않았다면 중복 검사도 하지 않고 그냥 반환
+        if (u.getNickname().equals(nickname)) {
+            return u;
+        }
+
+        // 다른 사람이 이미 쓰고 있는 닉네임이라면 예외
         if (userRepository.existsByNickname(nickname)) {
             throw new IllegalArgumentException("이미 사용 중인 닉네임입니다.");
         }
-        User u = getById(userId); // 아래 getById 메서드를 재사용
+
         u.changeNickname(nickname);
-        return u; // @Transactional에 의해 변경 감지(dirty checking)로 자동 저장됩니다.
+        return u;
     }
 
     @Transactional(readOnly = true)

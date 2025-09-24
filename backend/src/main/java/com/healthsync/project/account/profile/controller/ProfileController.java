@@ -1,5 +1,6 @@
 package com.healthsync.project.account.profile.controller;
 
+import org.springframework.web.multipart.MultipartFile;
 import com.healthsync.project.account.profile.dto.ProfileRequest;
 import com.healthsync.project.account.profile.dto.ProfileResponse;
 import com.healthsync.project.account.profile.service.ProfileService;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.healthsync.project.security.auth.AuthApi;
+
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -38,4 +41,5 @@ public class ProfileController {
             return ResponseEntity.badRequest().body("프로필 수정 중 오류가 발생했습니다.");
         }
     }
+
 }
