@@ -29,6 +29,10 @@ public class GoalMetrics {
     @JoinColumn(name = "goal_id", nullable = false)
     private Goal goal;
 
+    // ⬇️ 추가: metrics 테이블의 PK를 그대로 저장(실제 FK 제약 없이 숫자만)
+    @Column(name = "metrics_id")
+    private Long metricsId;
+
     // 입력(스냅샷 시점 정보)
     @Column(name = "tdee_baseline")
     private Integer tdeeBaseline;     // 스냅샷 당시 기준 TDEE

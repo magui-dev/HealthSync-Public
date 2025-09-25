@@ -24,8 +24,29 @@ export async function getGoal(goalId, opts) {
 }
 
 // 목표 요약(권장 섭취 등)
-export async function getSummary(goalId, params) {
-  const { data } = await axios.get(`/api/plan/goals/${goalId}/summary`, { params });
+export async function getSummary(goalId, params = {}) {
+  // 1) goalId 없으면 바로 에러 대신 '레거시 경로'로도 시도 (디버깅 로그 포함)
+  if (!goalId) {
+    console.warn("[getSummary] goalId is missing. Falling back to /api/plan/summary?goalId=...");
+    const q = new URLSearchParams({ ...params, goalId }).toString(); // goalId: undefined면 서버가 4xx 반환
+    const url = `/api/plan/summary?${q}`;
+    console.debug("[getSummary] GET", url);
+    const res = await axios.get(url); // 여기서 409면 네트워크 탭에서 URL 확인 가능
+    const data = res.data || {};
+    return {
+      targetDailyCalories: data?.targetDailyCalories ?? data?.dailyKcal ?? null,
+      perMealKcal: data?.perMealKcal ?? null,
+      mealsPerDay: data?.mealsPerDay ?? null,
+      macroRatio: data?.macroRatio ?? null,
+    };
+  }
+
+  // 2) 정상 경로: /api/plan/goals/{goalId}/summary?mealsPerDay=...
+  const q = new URLSearchParams(params).toString();
+  const url = `/api/plan/goals/${encodeURIComponent(goalId)}/summary${q ? `?${q}` : ""}`;
+  console.debug("[getSummary] GET", url);
+  const { data } = await axios.get(url, { headers: { Accept: "application/json" } });
+
   // 키 호환: targetDailyCalories > dailyKcal
   return {
     targetDailyCalories: data?.targetDailyCalories ?? data?.dailyKcal ?? null,
