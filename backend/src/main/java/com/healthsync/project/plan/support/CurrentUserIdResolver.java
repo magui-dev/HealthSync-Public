@@ -175,4 +175,16 @@ public class CurrentUserIdResolver {
     }
     private static String s(Object o) { return o == null ? null : o.toString(); }
     private static boolean has(String v) { return v != null && !v.isBlank(); }
+
+    /** 쿼리 파라미터 userId가 있으면 그대로 사용, 없으면 현재 로그인에서 강제 추출(없으면 403) */
+    public Long resolve(Long userIdParam) {
+        if (userIdParam != null) return userIdParam;
+        return requireCurrentUserId(); // 로그인 안 되어 있으면 AccessDeniedException
+    }
+
+    /** 쿼리 파라미터 userId가 있으면 그것을, 없으면 현재 로그인에서 Optional로 반환(없으면 empty) */
+    public Optional<Long> resolveOptional(Long userIdParam) {
+        if (userIdParam != null) return Optional.of(userIdParam);
+        return tryResolve();
+    }
 }

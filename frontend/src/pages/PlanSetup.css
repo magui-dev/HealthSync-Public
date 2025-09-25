@@ -1,3 +1,4 @@
+/* src/pages/PlanSetup.css */
 :root {
   --bg: #0e0f12;
   --card: #1c1e23;
@@ -7,15 +8,17 @@
   --btn: #6e757d;       /* 회색 버튼 */
   --btn-active: #aab2bd;/* 활성 버튼 */
   --radius: 18px;
+  --header-h: 56px;     /* 페이지 헤더 높이를 쓰는 경우 대비 기본값 */
 }
 
+/* 레이아웃 */
 .plan-wrap {
   display: grid;
-  grid-template-columns: 3fr 7fr;   /* ✅ 3:7 비율 */
+  grid-template-columns: 3fr 7fr;   /* 3:7 비율 */
   gap: 24px;
-  height: calc(100vh - var(--header-h));     /* 헤더 아래 꽉 채우기 */
+  height: calc(100vh - var(--header-h));
   padding: 20px;
-  padding-top: calc(20px + var(--header-h)); /* 헤더만큼 내려앉히기 */
+  padding-top: calc(20px + var(--header-h));
   background: var(--bg);
   color: var(--text);
 }
@@ -27,49 +30,61 @@
   overflow: hidden;
   height: 100%;
 }
-
 .bg-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;       /* ✅ 왼쪽 3영역을 빈틈 없이 채움 */
-  object-position: center; /* 필요 시 'center left'로 바꿔 프레이밍 조정 가능 */
+  object-fit: cover;
+  object-position: center;
   filter: grayscale(100%) contrast(1.05);
 }
-
 .overlay-title {
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);  /* ✅ 중앙 */
+  transform: translate(-50%, -50%);
   text-align: center;
   font-weight: 800;
   font-size: 52px;
   line-height: 0.95;
-  color: #ffffff;                    /* ✅ 흰색 */
+  color: #ffffff;
   text-shadow: 0 2px 10px rgba(0,0,0,0.55);
 }
 
-/* Right card */
-
+/* Right */
 .plan-right {
   display: flex;
-  align-items: center;  /* 우측 카드가 위로 붙지 않고 가운데 오도록 */
+  align-items: center;
   justify-content: center;
 }
-  
-  
-  
 .card {
-  width: 100%;            /* ✅ 우측 7영역을 가득 사용 */
+  width: 100%;
   background: linear-gradient(180deg, #1b1d22, #15171b);
   border-radius: 26px;
   padding: 28px;
   box-shadow: 0 10px 40px rgba(0,0,0,0.35);
   border: 1px solid rgba(255,255,255,0.05);
-  display: flex;           /* 내부를 위-아래로 꽉 차게 */
+  display: flex;
   flex-direction: column;
-  min-height: 88%;         /* 가운데 배치 + 적당히 큰 카드 높이 */
+  min-height: 88%;
 }
+
+/* 상단 유틸바 */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.btn-ghost {
+  padding: 8px 12px;
+  border: 1px solid #334155;
+  background: transparent;
+  color: #e2e8f0;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+.btn-ghost:hover { background:#0f172a; }
 
 .title {
   margin-top: 10px;
@@ -78,6 +93,7 @@
   font-weight: 700;
 }
 
+/* 주차 선택 */
 .weeks-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -100,6 +116,7 @@
 .week-btn.active { background: var(--btn-active); }
 .week-btn.accent { outline: none; }
 
+/* 입력 폼 */
 .row {
   display: grid;
   grid-template-columns: 140px 1fr;
@@ -131,7 +148,7 @@
   box-shadow: 0 0 0 3px rgba(63,140,255,0.15);
 }
 
-/* Progress bar */
+/* 진행바 */
 .progress-title {
   margin-top: 8px;
   margin-bottom: 8px;
@@ -152,7 +169,7 @@
   background: linear-gradient(90deg, #ffe600, #9ae34a);
 }
 
-/* Chart */
+/* 차트 */
 .chart-area {
   width: 100%;
   min-height: 200px;
@@ -161,20 +178,18 @@
   border-radius: 12px;
   padding: 8px;
   margin-top: 6px;
-  flex: 1;                /* 남는 세로 공간을 차트가 먹어서 카드가 꽉 차 보이도록 */
+  flex: 1;
 }
+.recharts-cartesian-axis-tick tspan { font-size: 12px; }
 
-/* Actions */
+/* 하단 액션 */
 .actions {
   display: flex;
-  justify-content: flex-end; /* 버튼 오른쪽 정렬 */
+  justify-content: flex-end;
   margin-top: 12px;
   gap: 12px;
-  justify-content: space-between;
 }
-
 .save-btn {
-  position: static;   
   background: #6e757d;
   color: white;
   border: none;
@@ -184,6 +199,10 @@
   font-weight: 800;
   cursor: pointer;
 }
+.save-btn:hover { filter: brightness(1.05); }
+.save-btn:disabled { opacity: .6; cursor: default; }
+
+/* 우측 안전 패널(옵션) */
 .safety-panel {
   flex: 1;
   background: #121418;
@@ -193,36 +212,18 @@
   color: #eef2ff;
   min-height: 130px;
 }
-
-.safety-title {
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
+.safety-title { font-weight: 700; margin-bottom: 8px; }
 .safety-kv {
   display: grid;
   grid-template-columns: repeat(2, minmax(160px, 1fr));
   gap: 6px 12px;
   margin-bottom: 8px;
 }
-.safety-kv > div {
-  display: flex; align-items: baseline; gap: 6px;
-  font-size: 13px;
-}
+.safety-kv > div { display: flex; align-items: baseline; gap: 6px; font-size: 13px; }
 .safety-kv b { font-size: 14px; }
-
 .safety-rules { font-size: 12px; opacity: .9; }
 .safety-rules .rule-title { font-weight: 600; margin-top: 6px; margin-bottom: 4px; }
 .safety-rules ul { margin: 0 0 4px 18px; padding: 0; }
-
-.safety-warnings {
-  margin-top: 8px;
-  font-size: 12px;
-  color: #ffb4a2;
-}
+.safety-warnings { margin-top: 8px; font-size: 12px; color: #ffb4a2; }
 .safety-panel .rule-title { color:#e5e7eb; }
 .safety-panel b { font-weight: 700; }
-
-.recharts-cartesian-axis-tick tspan { font-size: 12px; }
-.save-btn:hover { filter: brightness(1.05); }
-.save-btn:disabled { opacity: .6; cursor: default; }
