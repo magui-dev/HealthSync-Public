@@ -5,7 +5,7 @@ import "./MainPage.css";
 import { useNavigate } from "react-router-dom";
 
 export default function MainPage({ me, onLoginClick, onAccountClick }) {
-  const go = (msg) => () => alert(msg);
+  // const go = (msg) => () => alert(msg);
   const nav = useNavigate();
   // 목표설정 구간
   const goPlanSetup = (type) => nav(`/plan?type=${type}`);
@@ -15,24 +15,12 @@ export default function MainPage({ me, onLoginClick, onAccountClick }) {
       <aside className="side">
         <img className="bg" src={leftImg} alt="left bg" />
         <nav className="menu">
-          <button
-            className="menuBtn ivory"
-            onClick={me ? onAccountClick : onLoginClick}
-          >
+          <button className="menuBtn" onClick={me ? onAccountClick : onLoginClick}>
             {me?.nickname ? `${me.nickname}님` : "Login"}
           </button>
-<button className="menuBtn sky" onClick={() => nav("/ai-with-report")}>
-            AI 식단 추천
-          </button>{" "}
-          <button className="menuBtn ivory" onClick={() => nav("/my-report")}>
-            나의 리포트
-          </button>
-          <button
-            className="menuBtn sky"
-            onClick={() => nav("/community/posts")}
-          >
-            커뮤니티
-          </button>
+          <button className="menuBtn" onClick={() => nav("/ai-with-report")}>AI 식단 추천</button>
+          <button className="menuBtn" onClick={() => nav("/my-report")}>나의 리포트</button>
+          <button className="menuBtn" onClick={() => nav("/community/posts")}>커뮤니티</button>
         </nav>
       </aside>
 

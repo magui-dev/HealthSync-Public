@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import "./Header.css";
+import AiDietIcon from "../icons/AIDietIcon";
+import ReportIcon from "../icons/ReportIcon";
+import CommunityIcon from "../icons/CommunityIcon";
 
 export default function Header({ me, onLoginClick, onLogoutClick, onAccountClick }) {
   
@@ -35,8 +38,15 @@ export default function Header({ me, onLoginClick, onLogoutClick, onAccountClick
       <nav style={styles.nav}>
         {me ? (
           <>
+            {/* AI 식단 추천 */}
+            <Link to="/me" style={styles.link}>
+            <AiDietIcon style={{marginRight: 4, verticalAlign: "middle"}} /> AI 식단 추천</Link>
             {/* My Report */}
-            <Link to="/me" style={styles.link}>My Report</Link>
+            <Link to="/me" style={styles.link}>
+            <ReportIcon style={{marginRight: 4, verticalAlign: "middle"}} />My Report</Link>
+            {/* 커뮤니티 */}
+            <Link to="/me" style={styles.link}>
+            <CommunityIcon style={{marginRight: 4, verticalAlign: "middle"}} />커뮤니티</Link>
             {/* Profile 설정 드롭다운 */}
             <div style={{ position: 'relative' }} ref={dropdownRef}>
               <button onClick={handleProfileClick} style={styles.btnLink}>{label}</button>
