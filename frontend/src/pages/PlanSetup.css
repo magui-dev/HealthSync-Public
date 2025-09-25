@@ -168,7 +168,9 @@
 .actions {
   display: flex;
   justify-content: flex-end; /* 버튼 오른쪽 정렬 */
-  margin-top: 16px;
+  margin-top: 12px;
+  gap: 12px;
+  justify-content: space-between;
 }
 
 .save-btn {
@@ -182,6 +184,45 @@
   font-weight: 800;
   cursor: pointer;
 }
+.safety-panel {
+  flex: 1;
+  background: #121418;
+  border: 1px solid #2a2f39;
+  border-radius: 12px;
+  padding: 14px;
+  color: #eef2ff;
+  min-height: 130px;
+}
+
+.safety-title {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.safety-kv {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(160px, 1fr));
+  gap: 6px 12px;
+  margin-bottom: 8px;
+}
+.safety-kv > div {
+  display: flex; align-items: baseline; gap: 6px;
+  font-size: 13px;
+}
+.safety-kv b { font-size: 14px; }
+
+.safety-rules { font-size: 12px; opacity: .9; }
+.safety-rules .rule-title { font-weight: 600; margin-top: 6px; margin-bottom: 4px; }
+.safety-rules ul { margin: 0 0 4px 18px; padding: 0; }
+
+.safety-warnings {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #ffb4a2;
+}
+.safety-panel .rule-title { color:#e5e7eb; }
+.safety-panel b { font-weight: 700; }
+
 .recharts-cartesian-axis-tick tspan { font-size: 12px; }
 .save-btn:hover { filter: brightness(1.05); }
 .save-btn:disabled { opacity: .6; cursor: default; }

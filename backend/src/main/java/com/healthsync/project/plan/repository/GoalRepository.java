@@ -14,4 +14,5 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
     // ✅ 업서트: 같은 시작일 + 같은 주차면 기존 목표 찾아서 덮어쓰기
     Optional<Goal> findByUserIdAndStartDateAndDuration_Weeks(Long userId, LocalDate startDate, int value);
 
+    Optional<Goal> findByIdAndUserId(Long id, Long userId);
 }

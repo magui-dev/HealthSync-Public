@@ -11,12 +11,15 @@ import com.healthsync.project.plan.dto.GoalDto;
 import com.healthsync.project.plan.repository.GoalRepository;
 import com.healthsync.project.plan.support.CurrentUserIdResolver;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import com.healthsync.project.plan.service.PlanService;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class GoalService {
@@ -25,13 +28,15 @@ public class GoalService {
     private final ProfileRepository profileRepository; //프로필의 현재 몸무게를 수정하도록 작업
     private final WeightLogRepository weightLogRepository; // 프로필의 당시 기준 몸무게를 저장해두어 데이터 꼬임방지
     private final CurrentUserIdResolver current;
-
+    private final PlanService planService;  //  목표 저장 직후 metrics 자동 스냅샷을 위해 PlanService 주입
 
     /**
      * 생성
      */
     @Transactional
     public GoalDto create(Long userId, CreateGoalReq req) {
+        log.info("[GoalService] create userId={}, weeks={}, startDate={}",
+                userId, req.weeks(), req.startDate());
         //--입력 검증
         if (userId == null) throw new IllegalArgumentException("userId 는 필수 입니다.");
         if (!PlanDurationPreset.isAllowed(req.weeks())) {
@@ -49,8 +54,12 @@ public class GoalService {
         if (dup.isPresent()) {
             Goal g = dup.get();
             g.overwriteSameSlot(req.type(), req.startWeightKg(), req.targetWeightKg());
-            // 주차/시작일 동일이므로 변경 없음
-            //  덮어쓰기 시에는 WeightLog 스냅샷 추가하지 않음(원하면 여기에 추가 가능)
+            log.info("[GoalService] overwrite slot -> call upsertMetrics goalId={}, sex={}",
+                    g.getId(), g.getSex());
+            //  덮어쓰기인 경우에도 metrics를 '덮어쓰기' (tdee/sex/meals 미정이면 null로)
+            //     sex은 Goal 엔티티에 값이 있으면 활용함(없으면 null)
+            planService.upsertMetrics(g, /*tdee*/ null, /*sex*/ g.getSex(), /*meals*/ null);
+
             return GoalDto.from(g);
         }
         //그냥 엔티티 생성 & 저장
@@ -64,6 +73,8 @@ public class GoalService {
         ));
 
         //  프로필 '기본 체중'은 비어있을 때만 1회 세팅 (덮어쓰지 않음)
+        log.info("[GoalService] created goalId={} -> call upsertMetrics sex={}",
+                saved.getId(), saved.getSex());
         profileRepository.findByUserId(userId).ifPresent(p -> {
             if (p.getWeight() == null) {
                 p.setWeight(req.startWeightKg());
@@ -75,7 +86,9 @@ public class GoalService {
                 .userId(userId)
                 .weight(req.startWeightKg())
                 .build());
-
+        // [ADD] 신규 생성 시에도 metrics를 '신규 생성' (tdee/sex/meals 미정이면 null로)
+        //       sex은 Goal 엔티티의 값 사용(없으면 null)
+        planService.upsertMetrics(saved, /*tdee*/ null, /*sex*/ saved.getSex(), /*meals*/ null);
         return GoalDto.from(saved);
     }
 
