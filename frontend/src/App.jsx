@@ -13,10 +13,12 @@ import ProfilePage from "./pages/ProfilePage/ProfilePage";
 //목표설정 임포트
 import FoodSelectionPage from "./pages/FoodSelectionPage";
 import PlanReport from "./pages/PlanReport/PlanReport";
+import ProfileImage from "./components/Profile/ProfileImageEdit";
 
 // import { clearTokens } from "./token";
 import { apiLogout } from "./api";
 import { useMe } from "./hooks/useMe";
+import "./App.css";
 
 function Shell() {
   const location = useLocation();
@@ -53,11 +55,11 @@ function Shell() {
         />
         
         {/* 메인 영역 (페이지별로 바뀜) */}
-        <div className="mainArea" style={{ marginTop: 64 }}>
+        <div className="mainArea">
           <Routes>
             <Route path="/auth/success" element={<AuthSuccess onDone={refresh} />} />
             <Route path="/me" element={<Me />} />
-            <Route path='profile' element={<ProfilePage/>}/>
+            <Route path='/profile' element={<ProfilePage/>}/>
             <Route path="/community/posts/*" element={<PostRoutes />} />
             <Route path="/my-report" element={<MyReportPage />} />
             <Route path="/ai-with-report" element={<AIWithReportPage />} />
