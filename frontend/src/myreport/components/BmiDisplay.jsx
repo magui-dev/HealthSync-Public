@@ -27,8 +27,10 @@ const getBmiImageSrc = (label, gender) => {
       imageNumber = 4;
       break;
     case '2단계 비만':
-    case '3단계 비만': // 2단계와 3단계는 모두 5번 이미지를 사용합니다.
       imageNumber = 5;
+      break;
+    case '3단계 비만': // 2단계와 3단계는 모두 5번 이미지를 사용합니다.
+      imageNumber = 6;
       break;
     default:
       imageNumber = 2; // 혹시 모를 경우를 대비한 기본값 (정상)

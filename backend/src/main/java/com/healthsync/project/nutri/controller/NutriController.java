@@ -76,19 +76,6 @@ public class NutriController {
 
 //    private final NutriService nutriService;
 //
-//    @GetMapping("/{api}")
-//    public ResponseEntity<JsonNode> search(
-//            @PathVariable String api,
-//            @RequestParam Map<String, String> params
-//    ) throws Exception {
-//        JsonNode translatedData = nutriService.getTranslatedData(api, params);
-//        return ResponseEntity.ok(translatedData);
-//    }
-//}
-
-
-//    private final NutriService nutriService;
-//
 //    @GetMapping("/search")
 //    public ResponseEntity<List<NutriInfoDto>> search(
 //            @RequestParam(name = "q", required = false) String q,

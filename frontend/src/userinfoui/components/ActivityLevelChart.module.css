@@ -1,6 +1,6 @@
 .activityChartContainer {
-  width: 100%;
-  margin-top: 24px;
+  width: 98%;
+  margin-top: 60px;
   position: relative;
 }
 
@@ -131,7 +131,7 @@
   z-index: 20;                /* 리본 위로 */
 }
 .activityPointerIcon {
-  width: 50px;                /* 보유한 이미지 크기에 맞게 */
+  width: 55px;                /* 보유한 이미지 크기에 맞게 */
   height: 90px;
   object-fit: contain;
   filter: drop-shadow(0 2px 4px rgba(0,0,0,.15));
