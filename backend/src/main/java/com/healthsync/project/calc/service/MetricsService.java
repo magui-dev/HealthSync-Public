@@ -15,6 +15,7 @@ import java.time.Period;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 @Service
@@ -24,6 +25,16 @@ public class MetricsService {
 
     private final ProfileRepository profileRepository;
     private final MetricsRepository metricsRepository;
+
+
+    // 활동계수(PlanCalcService와 동일 테이블 사용)
+    private static final Map<Integer, Double> ACTIVITY_FACTOR = Map.of(
+            1, 1.20,   // 좌식
+            2, 1.375,  // 가벼운 활동
+            3, 1.55,   // 중등도
+            4, 1.725   // 활동적
+    );
+
 
     /**
      * 프로필을 기반으로 BMI 계산 및 Metrics 저장
@@ -57,8 +68,14 @@ public class MetricsService {
         // 5. 기초대사량(BMR) 계산 (미프린-세인트 조르 공식 사용)
         BigDecimal bmr = calculateBMR(weightKg, profile.getHeight(), age, gender);
         // 6. 활동대사량 계산
-        BigDecimal activityCalories = bmr.multiply(BigDecimal.valueOf(getActivityMultiplier(activityLevel))).setScale(2, RoundingMode.HALF_UP);
+        /** 기존코드
+        // BigDecimal activityCalories = bmr.multiply(BigDecimal.valueOf(getActivityMultiplier(activityLevel))).setScale(2, RoundingMode.HALF_UP);
+        */
+        /** 수정코드 */
+        BigDecimal activityCalories = bmr.multiply(BigDecimal.valueOf(getActivityMultiplier(activityLevel)))
+                .setScale(2, RoundingMode.HALF_UP);
 
+        /** 기존 코드
         // 7. 하루 총 소화대사량 계산
         BigDecimal dailyCalories;
         if (bmi.compareTo(BigDecimal.valueOf(22.9)) <= 0) {
@@ -69,6 +86,16 @@ public class MetricsService {
         }
         // 소화대사량 포함
         dailyCalories = dailyCalories.add(bmr.add(activityCalories).multiply(BigDecimal.valueOf(0.1))).setScale(2, RoundingMode.HALF_UP);
+        */
+
+        // 7. 하루 총 에너지소비(TDEE) 계산 = BMR × (1 + 활동비율)
+        //    goal_metrics.tdee_baseline 과 동일한 정의
+        BigDecimal factor = BigDecimal.valueOf(1.0 + getActivityMultiplier(activityLevel));
+        BigDecimal dailyCalories = bmr.multiply(factor)
+                .setScale(0, RoundingMode.HALF_UP) // 정수 반올림
+        // (선택) TEF 10%를 정책상 포함하려면 위 한 줄 대신 아래 2줄 사용
+                .multiply(BigDecimal.valueOf(1.10))           // +10%
+                .setScale(0, RoundingMode.HALF_UP);
 
         // 8. Metrics 엔티티 생성 및 DB 저장
         Metrics metrics = Metrics.builder()
