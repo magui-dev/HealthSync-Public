@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import "./ProfilePage.css";
+import { useEffect, useState } from "react";
 import Loading from "../global/loading";
+import "./ProfilePage.css";
+import ProfileImageEdit from "../../components/Profile/ProfileImageEdit";
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("view");
@@ -14,19 +15,17 @@ export default function ProfilePage() {
   const [weight, setWeight] = useState("");
   const [gender, setGender] = useState("male");
   const [activityLevel, setActivityLevel] = useState(null);
+  const [tempProfileImage, setTempProfileImage] = useState(null); // 변경할 프로필 사진 URL
+  const [showProfileImageEdit, setShowProfileImageEdit] = useState(false); // 프로필 사진 편집창 상태
 
-  const [tempProfileImage, setTempProfileImage] = useState(null);
-  const fileInputRef = useRef(null);
-
-  const ImageUrlPath = "/images/profile-images/";
   const DEFAULT_IMAGE = "/images/profile-images/default.png";
 
   const providerUrlPath = "/images/OAuthProviderLogos/"
   const providerLogos = {
-  GOOGLE: providerUrlPath + "google.png",
-  KAKAO: providerUrlPath + "kakaotalk.png",
-  NAVER: providerUrlPath + "naver.png"
-};
+    GOOGLE: providerUrlPath + "google.png",
+    KAKAO: providerUrlPath + "kakaotalk.png",
+    NAVER: providerUrlPath + "naver.png"
+  };
 
   // --- 프로필 불러오기 ---
   useEffect(() => {
@@ -53,14 +52,6 @@ export default function ProfilePage() {
     fetchProfile();
   }, []);
 
-  // --- 이미지 변경 ---
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) setTempProfileImage(URL.createObjectURL(file));
-  };
-
-  const handleImageUpload = () => fileInputRef.current.click();
-
   // --- 저장 ---
   const handleSaveAllProfiles = async () => {
     if (height < 100 || height > 250) return alert("키는 100cm 이상, 250cm 이하로 입력해주세요.");
@@ -68,17 +59,7 @@ export default function ProfilePage() {
     if (!nicknameInput) return alert("닉네임을 입력해주세요.");
 
     try {
-      let finalProfileImage = tempProfileImage;
-
-      // 새 파일 업로드
-      if (fileInputRef.current.files[0]) {
-        // 새 파일을 선택했다면 파일 이름만 문자열로 처리
-        const file = fileInputRef.current.files[0];
-        // // 서버에 저장될 고유 파일명 문자열 (ex: "1695481234567_filename.png")
-        // const uniqueFileName = Date.now() + "_" + file.name;
-        // uniqueFileName으로 이미지 로컬에 저장할 부분
-        finalProfileImage = ImageUrlPath + file.name;
-      }
+      let finalProfileImage = tempProfileImage; // 선택된 이미지 URL
 
       // 닉네임 저장
       await axios.patch(
@@ -126,7 +107,6 @@ export default function ProfilePage() {
       };
       setProfile(updatedProfile);
       setTempProfileImage(finalProfileImage);
-      if (fileInputRef.current) fileInputRef.current.value = "";
       setActiveTab("view");
       alert("프로필이 저장되었습니다.");
     } catch (err) {
@@ -143,11 +123,6 @@ export default function ProfilePage() {
   };
 
   const handleCancelEdit = () => {
-    // 이전에 생성한 URL 해제
-    if (fileInputRef.current?.files[0]) {
-      URL.revokeObjectURL(tempProfileImage);
-      fileInputRef.current.value = "";
-    }
     setTempProfileImage(profile.profileImageUrl || DEFAULT_IMAGE);
     setNicknameInput(profile.nickname || "");
     setAge(profile.age ?? "");
@@ -163,14 +138,8 @@ export default function ProfilePage() {
 
   return (
     <div className="profilePage">
-      <aside className="sidebar">
-        <div className={activeTab === "view" ? "active" : ""} onClick={() => setActiveTab("view")}>
-          프로필 설정
-        </div>
-      </aside>
-
       <main className="mainContent">
-        <h2>프로필 설정</h2>
+        <h3 className="profileSectionTitle">프로필 설정</h3>
 
         {activeTab === "view" && (
           <div className="profileContainer">
@@ -279,8 +248,7 @@ export default function ProfilePage() {
                 <h3>프로필 사진</h3>
                 <div className="profileImageEdit">
                   <img src={tempProfileImage || DEFAULT_IMAGE} alt="profile" className="profileImage" />
-                  <input type="file" ref={fileInputRef} onChange={handleImageChange} style={{ display: "none" }} accept="image/*" />
-                  <button className="changeImageBtn" onClick={handleImageUpload}>
+                  <button className="changeImageBtn" onClick={() => setShowProfileImageEdit(true)}>
                     사진 변경
                   </button>
                 </div>
@@ -294,6 +262,16 @@ export default function ProfilePage() {
           </div>
         )}
       </main>
+      {/* 프로필 사진 변경 모달창 */}
+      {showProfileImageEdit && (
+         <ProfileImageEdit
+            onClose={() => setShowProfileImageEdit(false)}
+            onSelect={(imgUrl) => {
+              setTempProfileImage(imgUrl); // 선택한 이미지를 임시 상태에 저장
+              setShowProfileImageEdit(false);
+            }}
+          />    
+      )}
     </div>
   );
 }
