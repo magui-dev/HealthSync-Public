@@ -58,6 +58,7 @@ public class SecurityConfig {
                         // 그 외 /api/auth/** (로그인/리프레시/로그아웃 등)은 공개
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/profile/**").authenticated()
+                        .requestMatchers("/api/plan/**").permitAll()
                         .anyRequest().authenticated()
 
 

@@ -112,4 +112,27 @@ public class Goal {
         this.duration = duration;
     }
 
+    @Column(name = "meals_per_day")
+    private Integer mealsPerDay;   // null이면 3으로 해석
+
+    @Column(name = "calorie_delta_per_day")
+    private Integer calorieDeltaPerDay; // null이면 요약에서 즉시 계산
+
+    // --- 여기만 추가 ---
+    public void changeMealsPerDay(Integer meals) {
+        this.mealsPerDay = (meals == null || meals < 1) ? 3 : meals;
+    }
+    public void changeCalorieDeltaPerDay(Integer delta) {
+        this.calorieDeltaPerDay = (delta == null) ? 0 : delta;
+    }
+
+    @Column(name = "sex", length = 1)       // "M" | "F" | null
+    private String sex;
+
+    public void changeSex(String sex) {
+        // null 허용. 값이 들어오면 "M"/"F" 중 하나로만 정규화
+        if (sex == null) { this.sex = null; return; }
+        String v = sex.trim().toUpperCase();
+        this.sex = ("M".equals(v) || "F".equals(v)) ? v : null;
+    }
 }
