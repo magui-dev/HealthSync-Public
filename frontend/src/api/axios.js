@@ -1,9 +1,13 @@
 import axios from "axios";
+// dev(5173)에서는 vite proxy를 타게 baseURL을 ''로 둔다.
+// prod 에선 VITE_API_BASE_URL(예: https://api.myapp.com) 사용.
+const BASE = import.meta.env.DEV ? "" : (import.meta.env.VITE_API_BASE_URL ?? "");
 
-const BASE = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
+//원래 코드 혹시모를 복구용 
+//const BASE = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080";
 
 export const api = axios.create({
-  baseURL: BASE,
+  baseURL: BASE, // '' 이면 아래에서 '/api/...' 그대로 호출 → 프록시가 8080으로 전달
   withCredentials: true,
 });
 

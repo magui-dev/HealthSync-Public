@@ -1,13 +1,21 @@
 import React, { useMemo } from "react";
 import styles from "./BmiChart.module.css";
-import { buildSegments, buildBoundaryTicks, positionArrow } from "../hooks/bmi";
-
+// ✅ getBMICategory 함수를 가져와야 합니다. (이미 가져오고 있다면 생략)
+import { buildSegments, buildBoundaryTicks, positionArrow, BMI_BUCKETS_KR } from "../hooks/bmi";
 
 
 export default function BmiChart({ bmi }) {
   const segments = useMemo(() => buildSegments(), []);
   const boundaryTicks = useMemo(() => buildBoundaryTicks(), []);
   const arrow = useMemo(() => positionArrow(bmi), [bmi]);
+
+  // ✅ 현재 BMI에 해당하는 카테고리 정보 (이미지 소스를 가져오기 위함)
+  const currentBmiCategory = useMemo(() => {
+    if (bmi == null || !Number.isFinite(bmi)) return null;
+    return BMI_BUCKETS_KR.find(
+      (bucket) => bmi >= bucket.min && bmi <= bucket.max
+    );
+  }, [bmi]);
 
   return (
     <div className={styles.section}>
@@ -39,12 +47,14 @@ export default function BmiChart({ bmi }) {
                   <span className={styles.bmiClampNote}> (범위 밖)</span>
                 )}
               </div>
-              {/* ② 아이콘(화살표 위에 위치) */}
-              <img
-                src="/icons/run.png"
-                alt="Run Icon"
-                className={styles.bmiArrowIcon}
-              />
+              {/* ② 아이콘(화살표 위에 위치) - ✅ 여기를 수정합니다. */}
+              {currentBmiCategory && currentBmiCategory.imgSrc && (
+                <img
+                  src={currentBmiCategory.imgSrc} // ✅ 동적으로 이미지 경로 설정
+                  alt={`${currentBmiCategory.label} 아이콘`} // ✅ alt 텍스트도 동적으로
+                  className={styles.bmiArrowIcon}
+                />
+              )}
               {/* ③ ▼ 화살표(맨 아래, 막대 쪽) */}
               <svg
                 className={styles.bmiArrowHead}

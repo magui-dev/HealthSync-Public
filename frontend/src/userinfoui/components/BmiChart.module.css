@@ -1,6 +1,6 @@
 .bmiChartContainer {
   width: 100%;
- margin-top: 20px;     /* 너무 큰 마진 대신 */
+ margin-top: 70px;     /* 너무 큰 마진 대신 */
   padding-top: 48px;
   position: relative;
 }
@@ -10,7 +10,7 @@
   position: relative;
   display: flex;
   width: 100%;
-  height: 48px;
+  height: 68px;
   border-radius: 10px;
   overflow: visible;            /* 화살표/눈금이 잘리지 않도록 */
   box-shadow: 0 0 0 1px rgba(0,0,0,0.06) inset;
@@ -42,7 +42,7 @@
 /* 화살표 래퍼: 막대 위에만 오게, 내부는 기본 스택킹 컨텍스트 그대로 */
 .bmiArrowWrap { 
   position: absolute; 
-  top: -65px; 
+  top: -110px; 
   transform: translateX(-50%); 
   display: flex; 
   flex-direction: column; 
@@ -59,7 +59,7 @@
   position: relative; 
   top: 2px;     /* z-index가 먹도록만 relative */
   width: 50px;
-  height: 30px;
+  height: 60px;
   object-fit: contain;
   margin: -7px;           /* 겹치고 싶으면 이걸로만 미세 조정 */
   z-index: 0;             /* ✅ '맨 뒤' */

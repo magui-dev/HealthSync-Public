@@ -1,22 +1,25 @@
 .chat-shell {
+    /* height: 100%;  ← ❌ 부모가 고정 높이가 아니면 오히려 제약 */
+    flex: 1;              /* ✅ 부모(.chat-body)가 준 공간을 꽉 채움 */
+    min-height: 0;        /* ✅ 내부 스크롤 허용 */
     width: 100%;
-    height: 100%;
     display: flex;
     flex-direction: column;
     background: #232323;
-    border-radius: 10px;
-    overflow: hidden;
+    border-radius: 30px;
+    overflow: hidden;     /* 스크롤은 chat-window가 담당 */
 }
 
 .chat-header {
-    padding: 18px;
-    font-weight: 700;
+    padding: 16px;
+    font-weight: 500;
     border-bottom: 1px solid rgba(255, 255, 255, 0.04);
     color: #fff;
 }
 
 .chat-window {
     flex: 1;
+    min-height: 0;        /* ✅ 진짜 중요: 여기 없으면 스크롤 영역이 줄어듦 */
     padding: 16px;
     overflow-y: auto;
     display: flex;

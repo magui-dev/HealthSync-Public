@@ -1,20 +1,21 @@
 .background {
-  background-color: #f0f2f5;
-  min-height: calc(100vh - 64px);
-  padding: 40px 20px;
+  background-color: #d6f5d6;
+  border-radius: 32px;
+  padding: 5px 5px;
   box-sizing: border-box;
 }
 .container {
-  max-width: 800px;
+  max-width: 850px;
   margin: 0 auto;
   background-color: #ffffff;
-  border-radius: 12px;
+  border-radius: 30px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  padding: 32px;
+  padding: 10px;
   font-family: sans-serif;
 }
 
 .reportContainer {
+  
   padding: 24px;
   background-color: #f4f7f6;
   font-family: sans-serif;
@@ -34,6 +35,22 @@
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   margin-bottom: 24px;
+}
+
+.noteText {
+  color: #6b7280;       /* 회색 텍스트 */
+  font-size: 0.9em;     /* 살짝 작은 글씨 */
+  line-height: 1.5;
+  margin: 12px 0;
+  display: flex;        /* 앞에 기호와 텍스트 정렬 */
+  align-items: flex-start;
+}
+
+.noteMark {
+  margin-right: 6px;
+  color: #9ca3af;       /* 기호도 회색 */
+  font-weight: bold;
+  flex-shrink: 0;       /* 줄바꿈 시 기호 위치 고정 */
 }
 
 .infoRow, .infoRowFull {
@@ -106,3 +123,188 @@
   border-radius: 5px;
 }
 
+/* ====== 활동 지수 제목 스타일 ====== */
+.sectionTitleContainer {
+  display: flex;            /* 이 부분이 자식 요소(h3, span)를 가로로 정렬합니다. */
+  align-items: center;      /* 세로 높이를 중앙으로 예쁘게 맞춰줍니다. */
+  gap: 5px;                /* '활동 지수' 텍스트와 배지 사이의 간격 */
+}
+
+/* h3 태그의 불필요한 기본 여백 제거 */
+.sectionTitleContainer h3 {
+  margin: 0;
+}
+
+/* 숫자 배지 스타일 */
+.levelBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%; /* 원 모양으로 만들기 */
+  font-size: 1em;
+  font-weight: bold;
+  color: #333;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+
+/* ====== 활동 지수 설명 리스트 ====== */
+.activitySection {
+  position: relative; /* ✅ 1. 이 구역을 기준점으로 설정 (매우 중요!) */
+  padding-top: 30px;  /* ✅ 2. 차트 포인터가 올라올 공간을 미리 확보 */
+  margin-top: 2px;   /* 위쪽 BmiChart와의 간격 */
+  margin-bottom: 24px;/* 아래쪽 목표 정보와의 간격 */
+}
+
+.activityListItem {
+  display: flex;
+  align-items: flex-start; 
+  padding: 10px 0px;
+  font-size: 0.9em;
+  color: #6c757d;
+  position: relative;
+  transition: all 0.2s ease;
+   width: 95%;
+  box-sizing: border-box;  /* padding 포함해서 폭 계산 */
+
+}
+
+
+
+/* 다른 파일에서 강제로 만드는 점(•)을 제거하는 코드 */
+.activityListItem::before {
+  content: none !important;
+  display: none !important;
+}
+
+.activityListItem:not(:last-child) {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* 'LevelX' 텍스트 라벨 스타일 */
+.itemLevelPrefix {
+  font-weight: 700;
+  color: #495057;
+  white-space: nowrap;
+  
+  /* ✅ 이 값을 수정해서 간격을 조절하세요. */
+  margin-right: 12px;
+}
+
+/* 설명 텍스트 스타일 */
+.itemDescription {
+  line-height: 1.5;
+}
+
+/* 현재 레벨에 해당하는 아이템을 강조하는 스타일 */
+.activityListItem.active {
+  background-color: #e7f3ff;
+  color: #0056b3;
+  border-radius: 3px;
+  /* active 일 때는 좌우 패딩을 주어 더 보기 좋게 만듭니다. */
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+/* 활성화 시 Level 텍스트 색상 */
+.activityListItem.active .itemLevelPrefix {
+  color: #004085;
+}
+
+/* 활성화 시 설명 텍스트 스타일 */
+.activityListItem.active .itemDescription {
+  font-weight: 700;
+}
+
+/* ====== 목표 정보 섹션 (카드 그리드 UI) ====== */
+.goalSection {
+  margin-top: 24px;
+  padding: 24px;
+  background-color: #f9fafb; /* 기존보다 약간 더 밝은 배경색 */
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+}
+
+.sectionTitle {
+  margin-top: 0;
+  margin-bottom: 20px;
+  font-size: 1.2em;
+  color: #111827;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 12px;
+}
+
+/* 카드를 담을 그리드 컨테이너 */
+.infoCardGrid {
+  display: grid;
+  /* 2개의 열을 만들고, 각 열이 동일한 너비를 갖도록 설정 */
+  grid-template-columns: repeat(2, 1fr); 
+  gap: 16px; /* 카드 사이의 간격 */
+}
+
+/* 개별 정보 카드 */
+.infoCard {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.infoCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 카드 안의 아이콘 */
+.cardIcon {
+  font-size: 2em; /* 이모지 크기 */
+  background-color: #eef2ff;
+  color: #4f46e5;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+/* 카드 안의 텍스트 컨텐츠 */
+.cardContent {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cardLabel {
+  font-size: 0.9em;
+  color: #6b7280; /* 라벨은 연한 회색 */
+  font-weight: 500;
+}
+
+.cardValueContainer {
+  display: flex;
+  flex-direction: column; /* 자식 요소들을 세로로 쌓음 */
+  align-items: flex-start; /* 왼쪽 정렬 */
+  gap: 2px; /* 두 줄 사이의 간격 */
+}
+
+/* '8주' 텍스트 스타일 (기존 cardValue와 동일하게 강조) */
+.cardDuration {
+  font-size: 1.1em;
+  color: #111827;
+  font-weight: 700;
+}
+
+/* '날짜 범위' 텍스트 스타일 (조금 더 작고 연하게) */
+.cardDateRange {
+  font-size: 0.85em;
+  color: #6b7280;
+  font-weight: 500;
+}

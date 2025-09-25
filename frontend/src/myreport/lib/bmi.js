@@ -3,12 +3,12 @@ export const DISPLAY_MIN = 15;
 export const DISPLAY_MAX = 40;
 
 export const BMI_BUCKETS_KR = [
-  { label: '저체중',     min: -Infinity, max: 18.5,   color: '#3498db', range: '< 18.5' },
-  { label: '정상',       min: 18.5,      max: 22.9,   color: '#2ecc71', range: '18.5 ~ 22.9' },
-  { label: '비만전단계', min: 23.0,      max: 24.9,   color: '#f1c40f', range: '23.0 ~ 24.9' },
-  { label: '1단계 비만', min: 25.0,      max: 29.9,   color: '#e67e22', range: '25.0 ~ 29.9' },
-  { label: '2단계 비만', min: 30.0,      max: 34.9,   color: '#e74c3c', range: '30.0 ~ 34.9' },
-  { label: '3단계 비만', min: 35.0,      max: Infinity, color: '#c0392b', range: '≥ 35.0' },
+  { label: '저체중',     min: -Infinity, max: 18.5,   color: '#7AD4F7', range: '< 18.5' },
+  { label: '정상',       min: 18.5,      max: 22.9,   color: '#A2B535', range: '18.5 ~ 22.9' },
+  { label: '비만전단계', min: 23.0,      max: 24.9,   color: '#FBD43B', range: '23.0 ~ 24.9' },
+  { label: '1단계 비만', min: 25.0,      max: 29.9,   color: '#F4A351', range: '25.0 ~ 29.9' },
+  { label: '2단계 비만', min: 30.0,      max: 34.9,   color: '#F86A3A', range: '30.0 ~ 34.9' },
+  { label: '3단계 비만', min: 35.0,      max: Infinity, color: '#8B0000', range: '≥ 35.0' },
 ];
 
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));

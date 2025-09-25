@@ -58,6 +58,51 @@ public class CurrentUserIdResolver {
         throw new IllegalStateException("Cannot resolve current user: no email/nickname in principal");
     }
 
+    /** 로그인 안 되어 있으면 null 반환(예외 던지지 않음) */
+    public Long getOrNull() {
+        return tryResolve().orElse(null);
+    }
+
+    /** 로그인 안 되어 있으면 Optional.empty() 반환 */
+    public Optional<Long> tryResolve() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) return Optional.empty();
+
+        // 스프링 anonymousUser 처리
+        Object principal = auth.getPrincipal();
+        if (principal == null || "anonymousUser".equals(principal)) return Optional.empty();
+
+        // 1) 이메일
+        String email = resolveEmail(auth);
+        if (has(email)) {
+            var byEmail = userRepository.findIdByEmail(email);
+            if (byEmail.isPresent()) return byEmail;
+        }
+
+        // 2) 닉네임
+        String nickname = resolveNickname(auth);
+        if (has(nickname)) {
+            var byNick = userRepository.findIdByNickname(nickname);
+            if (byNick.isPresent()) return byNick;
+        }
+
+        // 3) getName() 폴백
+        String name = auth.getName();
+        if (has(name)) {
+            return userRepository.findIdByEmail(name)
+                    .or(() -> userRepository.findIdByNickname(name))
+                    .or(() -> {
+                        try {
+                            Long maybeId = Long.valueOf(name);
+                            return userRepository.findById(maybeId).map(u -> u.getId());
+                        } catch (Exception ignore) {
+                            return Optional.empty();
+                        }
+                    });
+        }
+        return Optional.empty();
+    }
+
     // -------- helpers --------
     private String resolveEmail(Authentication auth) {
         Object p = auth.getPrincipal();

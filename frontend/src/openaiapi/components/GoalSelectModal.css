@@ -1,0 +1,156 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background-color: #fff;
+  padding: 24px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.25em;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 1.8em;
+  cursor: pointer;
+  color: #888;
+}
+
+/* GoalLoader.css의 카드 스타일을 여기에 가져오거나 import하여 사용합니다. */
+/* 아래는 GoalLoader.css에서 가져온 카드 관련 스타일 */
+.goal-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.goal-card {
+  padding: 16px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  background-color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.goal-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border-color: #007bff;
+}
+
+.goal-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.goal-type-badge {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.8em;
+  font-weight: bold;
+  color: #fff;
+}
+.goal-type-badge.lean { background-color: #dc3545; }
+.goal-type-badge.health { background-color: #28a745; }
+.goal-period { font-size: 0.9em; color: #555; font-weight: 500; }
+.goal-card-body p { margin: 4px 0 0; }
+.goal-date { font-size: 0.85em; color: #777; }
+.goal-weight-info { font-size: 1em; font-weight: bold; color: #333; }
+
+/* ====== 모달 하단 (Footer) ====== */
+.modal-footer {
+  border-top: 1px solid #eee;
+  padding-top: 16px;
+  margin-top: 16px;
+  text-align: right;
+}
+
+.create-goal-button {
+  padding: 10px 20px;
+  font-size: 0.9em;
+  font-weight: bold;
+  color: #fff;
+  background-color: #28a745;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.create-goal-button:hover {
+  background-color: #218838;
+}
+
+
+/* ====== 목표 없음 (Empty State) UI ====== */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  color: #555;
+}
+
+.empty-state-icon {
+  font-size: 3em;
+  margin-bottom: 16px;
+}
+
+.empty-state h4 {
+  margin: 0 0 8px 0;
+  font-size: 1.2em;
+  color: #333;
+}
+
+.empty-state p {
+  margin: 0 0 20px 0;
+  font-size: 0.9em;
+}
+
+.create-goal-button-alt {
+  padding: 12px 24px;
+  font-size: 1em;
+  font-weight: bold;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.create-goal-button-alt:hover {
+  background-color: #0056b3;
+}

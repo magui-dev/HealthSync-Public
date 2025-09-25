@@ -13,6 +13,7 @@ public record PlanSummaryDto(
         MacroGrams macroDaily,
         MacroGrams macroRerMeal,
         List<ForecastPoint> forecast   //주차별 예상체중
+
 ) {
     public record MacroRatio(int carb, int protein, int fat) { }
     public record MacroGrams(int carb_g, int protein_g, int fat_g){ }
