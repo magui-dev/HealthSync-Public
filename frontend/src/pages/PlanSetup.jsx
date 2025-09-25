@@ -1,3 +1,4 @@
+// src/pages/PlanSetup.jsx
 import { useMemo, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
@@ -62,7 +63,7 @@ export default function PlanSetup() {
           nav(`/plan/report?goalId=${goals[0].id}`);
           return;
         }
-      } catch (_) { }
+      } catch (_) {}
       console.error(e);
       alert(e?.response?.data?.message ?? "저장 실패. 콘솔을 확인하세요.");
     } finally {
@@ -140,20 +141,7 @@ export default function PlanSetup() {
             </ResponsiveContainer>
           </div>
 
-          <div
-            className="card-footer"
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              gap: 12,
-              marginTop: 12,
-            }}
-          >
-            <div className="advice" style={{ fontSize: 12, opacity: 0.75 }}>
-              ※ 일반 권고: <b>남성 1,500 / 여성 1,200 kcal/일</b> 이하는 위험할 수 있어요.
-            </div>
-
+          <div className="actions">
             <button className="save-btn" onClick={handleSave} disabled={saving}>
               {saving ? "저장중..." : "저장"}
             </button>
