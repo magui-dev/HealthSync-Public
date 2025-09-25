@@ -1,9 +1,30 @@
+// src/pages/PlanReport/PlanReport.jsx
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useMe } from "../../hooks/useMe";
 import { getSummary } from "../../api/plan";
 import { getMetrics } from "../../api/calc";
 import { searchNutri } from "../../api/nutri";
+
+/* ===== 작은 UI 컴포넌트: Pill (이 파일 안에 포함) ===== */
+function Pill({ label, value, sub, tone = "gray" }) {
+  const colors = {
+    gray:  { bg: "#2f2f2f", fg: "#e5e7eb" },
+    blue:  { bg: "#1e3a8a", fg: "#ffffff" },
+    green: { bg: "#065f46", fg: "#ecfdf5" },
+    red:   { bg: "#7f1d1d", fg: "#fee2e2" },
+    amber: { bg: "#78350f", fg: "#fef3c7" },
+  };
+  const { bg, fg } = colors[tone] ?? colors.gray;
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "4px 10px",
+                   borderRadius: 999, background: bg, color: fg, fontSize: 12, fontWeight: 600 }}>
+      <span style={{ opacity: 0.85 }}>{label}</span>
+      <span style={{ fontWeight: 700 }}>{value}</span>
+      {sub ? <span style={{ opacity: 0.85 }}>{sub}</span> : null}
+    </span>
+  );
+}
 
 /* ===== 프리셋/유틸 ===== */
 const PRESETS = {
@@ -42,14 +63,14 @@ function recommendGrams(item, macro, perMealKcal, ratio) {
   return Math.round(grams / 5) * 5;
 }
 
-/* ===== 컴포넌트 ===== */
+/* ===== 페이지 컴포넌트 ===== */
 export default function PlanReport() {
   const [sp] = useSearchParams();
-  const goalId = sp.get("goalId");
+  const goalId = sp.get("goalId"); // URL: /plan/report?goalId=12
   const { me } = useMe();
 
   const [metrics, setMetrics] = useState(null); // { bmi, bmr, dailyCalories }
-  const [summary, setSummary] = useState(null); // { dailyKcal/targetDailyCalories, perMealKcal, macroRatio, ... }
+  const [summary, setSummary] = useState(null); // { targetDailyCalories/perMealKcal/macroRatio/... }
   const [meals, setMeals] = useState(3);
 
   // 검색
@@ -73,7 +94,7 @@ export default function PlanReport() {
     (async () => {
       const s = await getSummary(goalId, { mealsPerDay: meals });
       setSummary(s || {});
-      if (s?.mealsPerDay) setMeals(s.mealsPerDay);
+      if (s?.mealsPerDay && s.mealsPerDay !== meals) setMeals(s.mealsPerDay); // 루프 방지
     })();
   }, [goalId, meals]);
 
@@ -85,7 +106,7 @@ export default function PlanReport() {
     return tdee && meals ? Math.round(tdee / meals) : 0;
   }, [summary?.perMealKcal, metrics?.dailyCalories, meals]);
 
-  // ✔ 권장섭취 안전 추출(키가 무엇이든 다 커버)
+  // ✔ 권장섭취 안전 추출(백엔드 키가 달라도 커버)
   const dailyKcalResolved = useMemo(
     () => summary?.targetDailyCalories ?? summary?.target_daily_kcal ?? summary?.dailyKcal ?? null,
     [summary]
@@ -106,6 +127,16 @@ export default function PlanReport() {
     }
   };
 
+  // goalId 없으면 사용자 안내
+  if (!goalId) {
+    return (
+      <div style={{ padding: 24 }}>
+        <h2 style={{ marginTop: 0 }}>goalId 가 없습니다.</h2>
+        <div>목표 생성 후 이 페이지로 이동해 주세요.</div>
+      </div>
+    );
+  }
+
   return (
     <div style={{ display: "grid", gridTemplateColumns: "1.2fr 0.8fr", gap: 24, padding: 24, alignItems: "start" }}>
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -117,8 +148,7 @@ export default function PlanReport() {
             <Pill label="BMI"  value={fmt(metrics?.bmi, 1)} />
             <Pill label="BMR"  value={fmt(metrics?.bmr)} sub="kcal" />
             <Pill label="TDEE" value={fmt(metrics?.dailyCalories)} sub="kcal/일" />
-            {/* ▼ 여기 한 줄만 바뀜 */}
-            <Pill label="권장 섭취" value={fmt(summary?.targetDailyCalories ?? summary?.target_daily_kcal ?? summary?.dailyKcal)} sub="kcal/일" />
+            <Pill label="권장 섭취" value={fmt(dailyKcalResolved)} sub="kcal/일" tone="blue" />
           </div>
 
           <div style={{display:"grid",gridTemplateColumns:"repeat(2,auto)",gap:12, marginTop:4, fontSize:13}}>
@@ -142,7 +172,7 @@ export default function PlanReport() {
           </div>
         </div>
 
-        {/* 프리셋 추천 카드 (기존 UI 유지) */}
+        {/* 프리셋 추천 카드 */}
         <PresetBlock title="Carb 탄수화물" items={PRESETS.carb} macro="carb" kcal={perMealKcal} ratio={ratio} />
         <PresetBlock title="Protein 단백질" items={PRESETS.protein} macro="protein" kcal={perMealKcal} ratio={ratio} />
         <PresetBlock title="지방" items={PRESETS.fat} macro="fat" kcal={perMealKcal} ratio={ratio} />
@@ -172,7 +202,7 @@ export default function PlanReport() {
           {err && <div style={{ color: "#ff7b7b" }}>{err}</div>}
           {!loading && !err && results.length === 0 && <div style={{ opacity: 0.6, fontSize: 13 }}>검색 결과가 없습니다.</div>}
 
-        <div style={{ display: "grid", gap: 8, marginTop: 8 }}>
+          <div style={{ display: "grid", gap: 8, marginTop: 8 }}>
             {results.map((r, i) => (
               <div key={r?.foodCd || r?.id || i}
                    style={{ background: "#0f0f0f", border: "1px solid #222", borderRadius: 10, padding: 10 }}>
@@ -187,6 +217,7 @@ export default function PlanReport() {
   );
 }
 
+/* ===== 하위 블록 ===== */
 function PresetBlock({ title, items, macro, kcal, ratio }) {
   const macroKcal = (m) => {
     const c = (m?.carb_g ?? 0) * KCAL_PER_G.carb;
@@ -225,19 +256,4 @@ function PresetBlock({ title, items, macro, kcal, ratio }) {
       </div>
     </div>
   );
-<<<<<<< HEAD
 }
-=======
-}
-
-function Pill({ label, value, sub }) {
-  return (
-    <div style={{ display: "flex", alignItems: "baseline", gap: 6, padding: "8px 12px",
-                  borderRadius: 999, background: "#1a1a1a", border: "1px solid #333", color: "#fff", whiteSpace: "nowrap" }}>
-      <span style={{ opacity: 0.85, fontSize: 12 }}>{label}</span>
-      <strong style={{ fontSize: 14 }}>{value}</strong>
-      {sub ? <span style={{ opacity: 0.7, fontSize: 12 }}>{sub}</span> : null}
-    </div>
-  );
-}
->>>>>>> 77439e4 (plan 미완성본 일단올리고 보는작업)

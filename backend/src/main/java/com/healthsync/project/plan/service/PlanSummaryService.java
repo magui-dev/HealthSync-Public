@@ -135,7 +135,6 @@ public class PlanSummaryService {
             profileReady = false;
             missing.add("profile"); // 프로필 자체가 없음
         } else {
-            if (sex == null || prof.getGender() == GenderType.NOTTHING) { profileReady = false; missing.add("sex"); }
             if (prof.getAge() <= 0) { profileReady = false; missing.add("age"); }
             if (prof.getHeight() == null) { profileReady = false; missing.add("height"); }
             if (prof.getWeight() == null) { profileReady = false; missing.add("weight"); }
