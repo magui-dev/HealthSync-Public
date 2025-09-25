@@ -37,7 +37,16 @@ export async function getSummary(goalId, params = {}) {
       targetDailyCalories: data?.targetDailyCalories ?? data?.dailyKcal ?? null,
       perMealKcal: data?.perMealKcal ?? null,
       mealsPerDay: data?.mealsPerDay ?? null,
-      macroRatio: data?.macroRatio ?? null,
+      macroRatio:
+        data?.macroRatio ??
+        data?.macro_ratio ??
+        (data?.ratioCarb || data?.ratio_carb || data?.ratioProt || data?.ratio_prot || data?.ratioFat || data?.ratio_fat
+          ? {
+            carb: data?.ratioCarb ?? data?.ratio_carb ?? null,
+            protein: data?.ratioProt ?? data?.ratio_prot ?? null,
+            fat: data?.ratioFat ?? data?.ratio_fat ?? null,
+          }
+          : null),
     };
   }
 
