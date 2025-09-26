@@ -97,6 +97,18 @@ public class Profile {
         touchUpdatedAt();
     }
 
+    /**
+     * 목표 설정 등 다른 서비스에서 체중만 업데이트할 때 사용하는 메소드
+     * @param newWeight 새로운 체중
+     */
+    public void updateWeight(BigDecimal newWeight) {
+        // 유효한 체중 값일 때만 업데이트하고, updatedAt 타임스탬프를 갱신합니다.
+        if (newWeight != null && newWeight.compareTo(BigDecimal.ZERO) > 0) {
+            this.weight = newWeight;
+            touchUpdatedAt();
+        }
+    }
+
     @PreUpdate
     void preUpdate() {
         this.updatedAt = java.time.LocalDateTime.now();

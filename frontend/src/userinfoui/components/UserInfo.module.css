@@ -1,9 +1,6 @@
-/* UserInfo.module.css */
-
 /* 전체 그리드 레이아웃 */
 .infoGrid {
   display: grid;
-  /* 화면 크기에 따라 2~5개의 열로 자동 조정됩니다. */
   grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   gap: 10px;
   width: 100%;
@@ -13,14 +10,14 @@
 /* 개별 정보 카드 */
 .infoCard {
   display: flex;
-  flex-direction: column; /* 요소를 세로로 쌓습니다. */
+  flex-direction: column;
   justify-content: center;
-  gap: 5px; /* 라벨과 값 사이의 간격 */
+  gap: 5px;
   padding: 3px;
-  background-color: #f9fafb; /* 밝은 회색 배경 */
-  border-radius:20px; /* 둥근 모서리 */
+  background-color: #f9fafb;
+  border-radius: 20px;
   border: 5px solid #caf3f1;
-  text-align: center; /* 텍스트를 가운데 정렬합니다. */
+  text-align: center;
   box-shadow: 0 1px 3px rgba(52, 15, 221, 0.03);
 }
 
@@ -28,22 +25,23 @@
 .label {
   font-size: 15px;
   font-weight: 500;
-  color: #6b7280; /* 부드러운 회색 텍스트 */
+  color: #6b7280;
 }
 
 /* 값과 단위를 감싸는 컨테이너 */
 .valueContainer {
   display: flex;
   justify-content: center;
-  align-items: baseline; /* 숫자와 단위의 하단 라인을 맞춥니다. */
-  gap: 1px;
+  align-items: baseline;
+  gap: 4px; /* 💡 간격은 가독성을 위해 4px로 유지 */
+  flex-wrap: wrap;
 }
 
 /* 가장 중요한 값 (숫자) */
 .value {
   font-size: 15px;
   font-weight: 700;
-  color: #1f2937; /* 진한 텍스트 색상 */
+  color: #1f2937;
   line-height: 1;
 }
 
@@ -52,4 +50,11 @@
   font-size: 15px;
   font-weight: 500;
   color: #4b5563;
+}
+
+/* 시작 -> 목표 화살표 (이전 스타일 유지) */
+.arrow {
+  color: #3b82f6;
+  font-weight: bold;
+  margin: 0 4px;
 }

@@ -21,6 +21,7 @@ import java.math.RoundingMode;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -44,20 +45,61 @@ public class PlanService {
      */
     @Transactional
     public Long save(Long userId, SavePlanRequest req, Integer tdeeNullable, String sexNullable) {
-        Goal g = new Goal(
-                userId,
-                GoalType.from(req.getType()),
-                LocalDate.parse(req.getStartDate()),
-                PlanDuration.of(req.getWeeks()),
-                BigDecimal.valueOf(req.getStartWeightKg()),
-                BigDecimal.valueOf(req.getTargetWeightKg())
-        );
+
+        // 💡💡💡 [핵심 수정] "덮어쓰기" 로직 추가 💡💡💡
+        LocalDate startDate = LocalDate.parse(req.getStartDate());
+        int weeks = req.getWeeks();
+
+        Optional<Goal> dup = repo.findByUserIdAndStartDateAndDuration_Weeks(userId, startDate, weeks);
+
+
+        Goal g; // 저장하거나 업데이트할 Goal 객체
+        if (dup.isPresent()) {
+            // 1. 기존 목표가 있으면, 해당 목표의 내용을 덮어씁니다.
+            g = dup.get();
+            g.overwriteSameSlot(
+                    GoalType.from(req.getType()),
+                    BigDecimal.valueOf(req.getStartWeightKg()),
+                    BigDecimal.valueOf(req.getTargetWeightKg())
+            );
+            log.info("[PlanService] 기존 Goal을 덮어씁니다. goalId={}", g.getId());
+        } else {
+            // 2. 기존 목표가 없으면, 새로 생성합니다.
+            g = new Goal(
+                    userId,
+                    GoalType.from(req.getType()),
+                    startDate,
+                    PlanDuration.of(weeks),
+                    BigDecimal.valueOf(req.getStartWeightKg()),
+                    BigDecimal.valueOf(req.getTargetWeightKg())
+            );
+            log.info("[PlanService] 신규 Goal을 생성합니다.");
+        }
 
         int delta = calc.calcDailyDelta(req.getStartWeightKg(), req.getTargetWeightKg(), req.getWeeks());
         g.changeMealsPerDay(req.getMealsPerDay()); // null -> 내부에서 3 처리
         g.changeCalorieDeltaPerDay(delta);
 
         repo.save(g);
+
+        try {
+            Optional<Profile> userProfileOpt = profileRepository.findByUserId(userId);
+            if (userProfileOpt.isPresent()) {
+                Profile userProfile = userProfileOpt.get();
+                BigDecimal newWeight = BigDecimal.valueOf(req.getStartWeightKg());
+
+                // Profile 엔티티에 체중 변경을 위한 메소드가 있다고 가정 (예: updateWeight)
+                userProfile.updateWeight(newWeight);
+
+                // @Transactional에 의해 메소드 종료 시 변경 감지(dirty checking)되어 자동으로 DB에 UPDATE 쿼리 실행됨
+                log.info("[PlanService] userId={}의 프로필 체중을 {}kg으로 업데이트했습니다.", userId, newWeight);
+            } else {
+                log.warn("[PlanService] userId={}의 프로필이 존재하지 않아 체중을 업데이트할 수 없습니다.", userId);
+            }
+        } catch (Exception e) {
+            log.error("[PlanService] 프로필 체중 업데이트 중 오류 발생", e);
+            // 프로필 업데이트에 실패하더라도 목표 생성 자체는 실패시키지 않도록 예외 처리
+        }
 
         // 저장 직후, 스냅샷도 준비(없으면 insert, 있으면 update)
         upsertMetrics(g, tdeeNullable, sexNullable, req.getMealsPerDay());
@@ -82,7 +124,9 @@ public class PlanService {
                 .orElseThrow(() -> new IllegalArgumentException("goal not found"));
     }
 
-    // 0926추가
+    /**
+     * 목표 스냅샷 upsert (저장 또는 갱신)
+     */
     @Transactional
     public GoalMetrics upsertMetrics(Goal goal, Integer tdee, String sex, Integer mealsOverride) {
         log.info("[PlanService] upsertMetrics START goalId={}, tdee={}, sex={}, meals={}",
@@ -90,60 +134,69 @@ public class PlanService {
 
         // 0) 기본값/보정 준비
         int weeks = (goal.getDuration() != null) ? goal.getDuration().value() : 0;
-        // 💡 목표의 시작/목표 체중을 명확히 가져옵니다.
-        BigDecimal startWeight = goal.getStartWeightKg();
-        BigDecimal targetWeight = goal.getTargetWeightKg();
-        double startKg = (startWeight != null) ? startWeight.doubleValue() : 0d;
-        double targetKg = (targetWeight != null) ? targetWeight.doubleValue() : 0d;
+        double startKg = (goal.getStartWeightKg() != null) ? goal.getStartWeightKg().doubleValue() : 0d;
+        double targetKg = (goal.getTargetWeightKg() != null) ? goal.getTargetWeightKg().doubleValue() : 0d;
         int meals = (mealsOverride != null)
                 ? mealsOverride
                 : (goal.getMealsPerDay() != null ? goal.getMealsPerDay() : 3);
 
-        // ... (sex 보충, metricsId 확보 로직은 그대로)
-        if (sex == null) sex = goal.getSex();
+        // 1) sex 보충: Goal → Profile 순서
+        if (sex == null) sex = goal.getSex(); // Goal엔 String("M"/"F")일 가능성
         Profile prof = null;
         if (sex == null || tdee == null) {
             prof = profileRepository.findByUserId(goal.getUserId()).orElse(null);
         }
         if (sex == null && prof != null && prof.getGender() != null) {
-            sex = mapGender(prof.getGender());
+            sex = mapGender(prof.getGender()); // GenderType -> "M"/"F"/null
         }
+
+        // 1.5) ✅ 최신 metrics 스냅샷을 찾아서 metricsId 확보 (tdee 비어있으면 보충도 가능)
+        // PlanService.upsertMetrics(...) 내부, prof를 얻은 "직후"에 이 블록을 넣고,
+        // 아래처럼 메서드/파라미터 이름을 교체한다.
         Long metricsId = null;
         if (prof != null) {
             var latest = metricsRepository
-                    .findTopByProfile_UserIdOrderByIdDesc(prof.getUserId())
+                    .findTopByProfile_UserIdOrderByIdDesc(prof.getUserId())  // ✅ 여기!
                     .orElse(null);
             if (latest != null) {
                 metricsId = latest.getId();
                 if (tdee == null && latest.getDailyCalories() != null) {
                     try {
                         tdee = latest.getDailyCalories().intValue();
-                    } catch (Exception ignore) {}
+                    } catch (Exception ignore) {
+                    }
                 }
             }
         }
 
-        // 2) TDEE 보충
+        // 2) TDEE 보충: 인자가 null이면 Profile 값으로 계산 시도 (네 기존 로직 유지)
+        // 2) TDEE 보충: MetricsService와 동일 정책 사용
         if (tdee == null && prof != null) {
+            // 2-1) 가장 최신 metrics 스냅샷이 있으면 그 값을 우선 사용 (위 1.5에서 latest로 가져온 것)
+            //      위에서 latest로 tdee 채웠을 가능성이 있으므로 여기선 없을 때만 다시 계산
             if (tdee == null) {
-                // 💡💡💡 [핵심 수정] 프로필 값이 충분하면 BMR -> TDEE 계산 시,
-                // prof.getWeight() 대신 'goal.getStartWeightKg()'를 사용합니다.
-                if (startWeight != null && prof.getHeight() != null && prof.getAge() > 0 && prof.getGender() != null) {
-                    tdee = calcTdeeLikeMetrics(prof, startWeight); // 💡 사용할 체중을 직접 전달
+                // 프로필 값이 충분하면 BMR -> (1 + 활동비) -> × 1.10 으로 계산
+                if (prof.getHeight() != null && prof.getWeight() != null && prof.getAge() > 0 && prof.getGender() != null) {
+                    tdee = calcTdeeLikeMetrics(prof);
                 }
             }
         }
 
-        // ... (이하 로직은 TDEE 값만 정확하면 자동으로 올바르게 계산됨)
+        // 3) 원시/적용 델타 계산
         int raw = calc.calcDailyDelta(startKg, targetKg, weeks);
         int applied = calc.clampByPlanLimit(goal.getType(), raw, tdee);
+
+        // 4) 타깃 칼로리/끼니당 계산 (tdee가 있어야 산출됨)
         Integer targetDaily = (tdee != null) ? (tdee + applied) : null;
         if (targetDaily != null) {
-            targetDaily = calc.applyFloor(targetDaily, sex);
+            targetDaily = calc.applyFloor(targetDaily, sex); // 성별별 최소치 바닥 적용
         }
         Integer perMeal = calc.perMeal(targetDaily, meals);
-        var ratio = calc.ratioFor(goal.getType());
 
+        // 5) 탄단지 비율
+        var ratio = calc.ratioFor(goal.getType()); // {"carb":40,"protein":35,"fat":25} 등
+
+        // 6) upsert
         GoalMetrics m = metricsRepo.findByGoalId(goal.getId()).orElse(new GoalMetrics(goal));
         m.setTdeeBaseline(tdee);
         m.setSex(sex);
@@ -155,132 +208,13 @@ public class PlanService {
         m.setRatioProt(ratio.get("protein"));
         m.setRatioFat(ratio.get("fat"));
         m.setMealsPerDay(meals);
-        m.setMetricsId(metricsId);
+        m.setMetricsId(metricsId); // ✅ 여기서 저장
 
         GoalMetrics saved = metricsRepo.save(m);
         log.info("[PlanService] upsertMetrics DONE metricsId={}, goalId={}, tdee={}, sex={}, targetDaily={}, perMeal={}, baseMetricsId={}",
                 saved.getId(), goal.getId(), tdee, sex, targetDaily, perMeal, metricsId);
         return saved;
     }
-
-    /** * MetricsService와 동일한 방식으로 TDEE 계산
-     * 💡💡💡 [수정] 사용할 체중(weightToUse)을 파라미터로 받도록 변경
-     */
-    private Integer calcTdeeLikeMetrics(Profile prof, BigDecimal weightToUse) {
-        var bmr = calculateBMRLikeMetrics(weightToUse, prof.getHeight(), prof.getAge(), prof.getGender());
-        var factor = BigDecimal.valueOf(1.0 + activityPercent(prof.getActivityLevel()));
-        return bmr.multiply(factor)
-                .multiply(BigDecimal.valueOf(1.10))
-                .setScale(0, RoundingMode.HALF_UP)
-                .intValue();
-    }
-
-    /** * MetricsService.calculateBMR와 동일
-     * (이 메소드는 이미 체중을 파라미터로 받고 있으므로 수정 필요 없음)
-     */
-    private BigDecimal calculateBMRLikeMetrics(BigDecimal weightKg, BigDecimal heightCm, int age, GenderType gender) {
-        BigDecimal result = BigDecimal.valueOf(10).multiply(weightKg)
-                .add(BigDecimal.valueOf(6.25).multiply(heightCm))
-                .subtract(BigDecimal.valueOf(5).multiply(BigDecimal.valueOf(age)));
-        if (gender == GenderType.MALE) {
-            result = result.add(BigDecimal.valueOf(5));
-        } else {
-            result = result.subtract(BigDecimal.valueOf(161));
-        }
-        return result.setScale(2, RoundingMode.HALF_UP);
-    }
-
-//    /**
-//     * 목표 스냅샷 upsert (저장 또는 갱신)
-//     */
-//    @Transactional
-//    public GoalMetrics upsertMetrics(Goal goal, Integer tdee, String sex, Integer mealsOverride) {
-//        log.info("[PlanService] upsertMetrics START goalId={}, tdee={}, sex={}, meals={}",
-//                goal.getId(), tdee, sex, mealsOverride);
-//
-//        // 0) 기본값/보정 준비
-//        int weeks = (goal.getDuration() != null) ? goal.getDuration().value() : 0;
-//        double startKg = (goal.getStartWeightKg() != null) ? goal.getStartWeightKg().doubleValue() : 0d;
-//        double targetKg = (goal.getTargetWeightKg() != null) ? goal.getTargetWeightKg().doubleValue() : 0d;
-//        int meals = (mealsOverride != null)
-//                ? mealsOverride
-//                : (goal.getMealsPerDay() != null ? goal.getMealsPerDay() : 3);
-//
-//        // 1) sex 보충: Goal → Profile 순서
-//        if (sex == null) sex = goal.getSex(); // Goal엔 String("M"/"F")일 가능성
-//        Profile prof = null;
-//        if (sex == null || tdee == null) {
-//            prof = profileRepository.findByUserId(goal.getUserId()).orElse(null);
-//        }
-//        if (sex == null && prof != null && prof.getGender() != null) {
-//            sex = mapGender(prof.getGender()); // GenderType -> "M"/"F"/null
-//        }
-//
-//        // 1.5) ✅ 최신 metrics 스냅샷을 찾아서 metricsId 확보 (tdee 비어있으면 보충도 가능)
-//        // PlanService.upsertMetrics(...) 내부, prof를 얻은 "직후"에 이 블록을 넣고,
-//        // 아래처럼 메서드/파라미터 이름을 교체한다.
-//        Long metricsId = null;
-//        if (prof != null) {
-//            var latest = metricsRepository
-//                    .findTopByProfile_UserIdOrderByIdDesc(prof.getUserId())  // ✅ 여기!
-//                    .orElse(null);
-//            if (latest != null) {
-//                metricsId = latest.getId();
-//                if (tdee == null && latest.getDailyCalories() != null) {
-//                    try {
-//                        tdee = latest.getDailyCalories().intValue();
-//                    } catch (Exception ignore) {
-//                    }
-//                }
-//            }
-//        }
-//
-//        // 2) TDEE 보충: 인자가 null이면 Profile 값으로 계산 시도 (네 기존 로직 유지)
-//        // 2) TDEE 보충: MetricsService와 동일 정책 사용
-//        if (tdee == null && prof != null) {
-//            // 2-1) 가장 최신 metrics 스냅샷이 있으면 그 값을 우선 사용 (위 1.5에서 latest로 가져온 것)
-//            //      위에서 latest로 tdee 채웠을 가능성이 있으므로 여기선 없을 때만 다시 계산
-//            if (tdee == null) {
-//                // 프로필 값이 충분하면 BMR -> (1 + 활동비) -> × 1.10 으로 계산
-//                if (prof.getHeight() != null && prof.getWeight() != null && prof.getAge() > 0 && prof.getGender() != null) {
-//                    tdee = calcTdeeLikeMetrics(prof);
-//                }
-//            }
-//        }
-//
-//        // 3) 원시/적용 델타 계산
-//        int raw = calc.calcDailyDelta(startKg, targetKg, weeks);
-//        int applied = calc.clampByPlanLimit(goal.getType(), raw, tdee);
-//
-//        // 4) 타깃 칼로리/끼니당 계산 (tdee가 있어야 산출됨)
-//        Integer targetDaily = (tdee != null) ? (tdee + applied) : null;
-//        if (targetDaily != null) {
-//            targetDaily = calc.applyFloor(targetDaily, sex); // 성별별 최소치 바닥 적용
-//        }
-//        Integer perMeal = calc.perMeal(targetDaily, meals);
-//
-//        // 5) 탄단지 비율
-//        var ratio = calc.ratioFor(goal.getType()); // {"carb":40,"protein":35,"fat":25} 등
-//
-//        // 6) upsert
-//        GoalMetrics m = metricsRepo.findByGoalId(goal.getId()).orElse(new GoalMetrics(goal));
-//        m.setTdeeBaseline(tdee);
-//        m.setSex(sex);
-//        m.setDailyDeltaRaw(raw);
-//        m.setDailyDeltaApplied(applied);
-//        m.setTargetDailyKcal(targetDaily);
-//        m.setPerMealKcal(perMeal);
-//        m.setRatioCarb(ratio.get("carb"));
-//        m.setRatioProt(ratio.get("protein"));
-//        m.setRatioFat(ratio.get("fat"));
-//        m.setMealsPerDay(meals);
-//        m.setMetricsId(metricsId); // ✅ 여기서 저장
-//
-//        GoalMetrics saved = metricsRepo.save(m);
-//        log.info("[PlanService] upsertMetrics DONE metricsId={}, goalId={}, tdee={}, sex={}, targetDaily={}, perMeal={}, baseMetricsId={}",
-//                saved.getId(), goal.getId(), tdee, sex, targetDaily, perMeal, metricsId);
-//        return saved;
-//    }
 
     /**
      * GenderType -> "M"/"F"/null 로 변환
@@ -293,30 +227,28 @@ public class PlanService {
             default -> null; // NOTTHING 등 기타 값은 null
         };
     }
+    /** MetricsService와 동일한 방식으로 TDEE 계산 */
+    private Integer calcTdeeLikeMetrics(Profile prof) {
+        var bmr = calculateBMRLikeMetrics(prof.getWeight(), prof.getHeight(), prof.getAge(), prof.getGender());
+        var factor = BigDecimal.valueOf(1.0 + activityPercent(prof.getActivityLevel()));
+        return bmr.multiply(factor)
+                .multiply(BigDecimal.valueOf(1.10)) // TEF 10% 포함(현재 MetricsService 정책)
+                .setScale(0, RoundingMode.HALF_UP)
+                .intValue();
+    }
 
-
-//    /** MetricsService와 동일한 방식으로 TDEE 계산 */
-//    private Integer calcTdeeLikeMetrics(Profile prof) {
-//        var bmr = calculateBMRLikeMetrics(prof.getWeight(), prof.getHeight(), prof.getAge(), prof.getGender());
-//        var factor = BigDecimal.valueOf(1.0 + activityPercent(prof.getActivityLevel()));
-//        return bmr.multiply(factor)
-//                .multiply(BigDecimal.valueOf(1.10)) // TEF 10% 포함(현재 MetricsService 정책)
-//                .setScale(0, RoundingMode.HALF_UP)
-//                .intValue();
-//    }
-//
-//    /** MetricsService.calculateBMR와 동일 */
-//    private BigDecimal calculateBMRLikeMetrics(BigDecimal weightKg, BigDecimal heightCm, int age, GenderType gender) {
-//        BigDecimal result = BigDecimal.valueOf(10).multiply(weightKg)
-//                .add(BigDecimal.valueOf(6.25).multiply(heightCm))
-//                .subtract(BigDecimal.valueOf(5).multiply(BigDecimal.valueOf(age)));
-//        if (gender == GenderType.MALE) {
-//            result = result.add(BigDecimal.valueOf(5));
-//        } else {
-//            result = result.subtract(BigDecimal.valueOf(161));
-//        }
-//        return result.setScale(2, RoundingMode.HALF_UP);
-//    }
+    /** MetricsService.calculateBMR와 동일 */
+    private BigDecimal calculateBMRLikeMetrics(BigDecimal weightKg, BigDecimal heightCm, int age, GenderType gender) {
+        BigDecimal result = BigDecimal.valueOf(10).multiply(weightKg)
+                .add(BigDecimal.valueOf(6.25).multiply(heightCm))
+                .subtract(BigDecimal.valueOf(5).multiply(BigDecimal.valueOf(age)));
+        if (gender == GenderType.MALE) {
+            result = result.add(BigDecimal.valueOf(5));
+        } else {
+            result = result.subtract(BigDecimal.valueOf(161));
+        }
+        return result.setScale(2, RoundingMode.HALF_UP);
+    }
 
     /** MetricsService.getActivityMultiplier와 동일(퍼센트값) */
     private double activityPercent(int level) {

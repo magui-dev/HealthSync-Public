@@ -1,9 +1,5 @@
 import { Link } from "react-router-dom";
 import "./Header.css";
-import AiCounselIcon from "../icons/AiCounselIcon";
-import ReportIcon from "../icons/ReportIcon";
-import CommunityIcon from "../icons/CommunityIcon";
-import GoalAddIcon from "../icons/GoalAddIcon";
 import DropdownMenu from "../common/DropdownMenu";
 
 export default function Header({ me, onLoginClick, onLogoutClick, onAccountClick }) {
