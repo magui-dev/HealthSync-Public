@@ -13,44 +13,44 @@
   padding: 5px;
 }
 
+/* 프로필 섹션 제목 */
 .profileSectionTitle {
   margin-top: 0;
   margin-bottom: 24px;
   padding-top: 0;
   padding-bottom: 8px;
-  border-bottom: 1.5px solid #f0f0f0; /* subtle한 구분선 */
-  letter-spacing: -0.5px;
+  border-bottom: 1.5px solid var(--color-header-bottom);
 }
 
-/* editBtn 버튼 */
-.editBtn button {
+/* selectBtn 버튼 */
+.selectBtn button {
+  background: var(--color-bg);
   padding: 10px 20px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
+  border: 1px solid var(--color-border-gray);
+  border-radius: 8px;
   font-weight: 500;
-  background: var(--color-button-primary);
-  color: white;
+  font-size: 14px;
+  cursor: pointer;
 }
 
-.editBtn button:hover {
-  background: var(--color-button-primary-hover);
+.selectBtn button:hover {
+  background: var(--color-hover-gray);
 }
 
-/* 프로필 view */
+/* 프로필 View */
 .profileContainer {
   display: flex;
   flex-direction: column;
 }
 
-.profileHeader {
-  padding: 24px 24px;
+.ViewHeader {
+  padding: 24px 32px;
   display: flex;
   align-items: center;
   gap: 50px;
   margin-bottom: 24px;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
+  border: 1px solid var(--color-border-gray);
+  border-radius: 16px;
 }
 
 .profileImage {
@@ -58,12 +58,11 @@
   height: 150px;
   border-radius: 50%;
   border: 1px solid #e0e0e0;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
   object-fit: contain;
 }
 
 .nicknameText {
-  font-weight: bold;
+  font-weight: 600;
   font-size: 24px;
   margin: 0;
 }
@@ -80,9 +79,60 @@
   object-fit: contain;
 }
 
+.ViewBody {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 16px 32px;
+  border: 1px solid var(--color-border-gray);
+  border-radius: 16px;
+}
+
+.ViewBody div {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  align-items: baseline;
+}
+
+.ViewBody div div:last-child {
+  font-weight: 600;
+}
+
+
+/* 프로필 Edit */
+.profileEditContainer {
+  background: #fff;
+  border: 1.5px solid var(--color-border-gray);
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 32px;
+}
+
+.profileEditContainer .editLayout {
+  display: flex;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 0;
+}
+
+.profileEditContainer .leftPanel {
+  flex: 2;
+}
+
+.profileEditContainer .rightPanel {
+  flex: 1; 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
 .nicknameInputContainer {
   width: 100%;
   max-width: 400px;
+  margin-bottom: 18px;
 }
 
 .nicknameInput {
@@ -90,34 +140,19 @@
   box-sizing: border-box;
 }
 
-.bodyProfileView {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-bottom: 24px;
-  padding: 16px 24px;
-  border: 1px solid var(--color-box-gray);
-  border-radius: 12px;
-}
-
-.bodyProfileView div {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px 0;
-  align-items: baseline;
-}
-
-.bodyProfileView div div:last-child {
-  font-weight: bold;
-}
-
-/* 프로필 edit */
 .inlineLabel {
   display: flex;
   align-items: center;
-  gap: 8px; /* input과 단위 사이 간격 */
-  margin: 12px 0;
-  
+  margin: 16px 0;
+}
+
+.inlineLabel span {
+  white-space: nowrap; /* 줄바꿈 방지 */
+  font-size: medium;
+}
+
+.inlineLabel span:first-child {
+  margin-right: 16px;
 }
 
 .inlineLabel input {
@@ -125,24 +160,33 @@
   margin: 0;
 }
 
-.inlineLabel span {
-  white-space: nowrap; /* 줄바꿈 방지 */
+.inlineLabel span:last-child {
+  margin-left: 8px;
 }
 
 input,
 select {
   width: 100%;
-  border: 1px solid var(--color-border-gray);
   padding: 8px;
-  border-radius: 6px;
   margin-top: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+  border: 1.5px solid var(--color-border-gray);
+  border-radius: 6px;
+  transition: border-color 0.2s;
+}
+
+input:focus, select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary);
+  outline: none;
 }
 
 .warning, 
 .hint  {
-  font-size: 12px;
+  font-size: 14px;
   color: #666;
-  margin-top: 4px;
+  margin-top: 8px;
   margin-bottom: 12px;
 }
 
@@ -156,6 +200,7 @@ select {
   background-color: #f9f9f9;
   cursor: pointer;
   transition: background-color 0.2s ease;
+  font-size: 14px;
 }
 
 .activityLevel button:hover {
@@ -163,9 +208,9 @@ select {
 }
 
 .activityLevel button.active {
-  background-color: var(--color-button-primary);
+  background-color: var(--color-primary);
   color: white;
-  border-color: #007bff;
+  border-color: var(--color-primary);
 }
 
 .editActions {
@@ -184,46 +229,25 @@ select {
 }
 
 .editActions button:first-child {
-  background: var(--color-button-primary);
-  color: white;
+  background: none;
 }
 
 .editActions button:first-child:hover {
-  background: var(--color-button-primary-hover);
+  background: var(--color-hover-gray);
 }
 
 .editActions button:last-child {
-  background: #f1f1f1;
+  background: var(--color-primary);
+  color: white;
 }
 
 .editActions button:last-child:hover {
-  background: #ddd;
-}
-
-/* Edit panel */
-.profileEditContainer .editLayout {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 0 8px;
-}
-
-.profileEditContainer .leftPanel {
-  flex: 2; /* 왼쪽 패널을 더 넓게 설정 */
-}
-
-.profileEditContainer .rightPanel {
-  flex: 1; /* 오른쪽 패널 */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
+  background: #0056b3;
 }
 
 .profileImageEdit .profileImage {
   margin-bottom: 15px;
 }
-
 
 .changeImageBtn,
 .removeImageBtn {
@@ -232,11 +256,11 @@ select {
   margin-top: 5px;
   cursor: pointer;
   border-radius: 6px;
-  border: 1px solid #ccc;
-  background-color: var(--color-gray-hover);
+  border: 1px solid var(--color-border-gray);
+  background: none;
 }
 
 .changeImageBtn:hover,
 .removeImageBtn:hover {
-  background-color: var(--color-box-gray);
+  background-color: var(--color-hover-gray);
 }
