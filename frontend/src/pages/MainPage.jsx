@@ -30,7 +30,7 @@ export default function MainPage({ me, onLoginClick, onAccountClick }) {
         <button className="heroBtn" onClick={() => goPlanSetup("HEALTH")}>
           <div className="title">
             <strong>Health</strong>
-            <span>건강/근력</span>
+            <span>건강</span>
           </div>
         </button>
       </section>

@@ -141,9 +141,10 @@ export default function ProfilePage() {
       <main className="mainContent">
         <h3 className="profileSectionTitle">프로필 설정</h3>
 
+        {/* 프로필 View */}
         {activeTab === "view" && (
           <div className="profileContainer">
-            <div className="profileHeader">
+            <div className="ViewHeader">
               {/* 프로필 이미지 */}
               <img src={profile.profileImageUrl || DEFAULT_IMAGE} alt="profile" className="profileImage" />
               {/* 닉네임 및 이메일 */}
@@ -155,8 +156,7 @@ export default function ProfilePage() {
                 </div>
               </div>
             </div>
-
-            <div className="bodyProfileView">
+            <div className="ViewBody">
               <div>나이
                 <div>{profile.age}세</div>
               </div>
@@ -173,36 +173,36 @@ export default function ProfilePage() {
                 <div>{profile.activityLevel}</div>
               </div>
             </div>
-
-            <div className="editBtn" style={{ textAlign: "right" }}>
+            <div className="selectBtn" style={{ textAlign: "right" }}>
               <button onClick={() => setActiveTab("edit")}>편집하기</button>
             </div>
           </div>
         )}
 
+        {/* 프로필 Edit */}
         {activeTab === "edit" && (
           <div className="profileEditContainer">
             <div className="editLayout">
               <div className="leftPanel">
                 <div className="nicknameInputContainer">
-                  <label className="inlineLabel">
+                  <label className="inlineLabel" style={{marginTop:0, marginBottom:0}}>
                     <span>닉네임:</span>
                     <input
                       type="text"
                       value={nicknameInput}
                       onChange={(e) => {
                         setNicknameInput(e.target.value);
-                        setNicknameError(""); // 사용자가 다시 입력하면 에러 문구 초기화
+                        setNicknameError("");
                       }}
                       placeholder="닉네임 입력"
                       className="nicknameInput"
                       style={{ width: "200px" }}
                     />
                   </label>
-                  {nicknameError && <div className="warning" style={{ color: "red", marginTop: "2px", fontSize: "14px" }}>{nicknameError}</div>}
+                  {nicknameError && <div className="warning" style={{ color: "red", fontSize: "14px" }}>{nicknameError}</div>}
                 </div>
 
-                <hr style={{ border: "none" }} /> {/* 공백 추가 */}
+                <hr style={{border: "none"}} />
 
                 <h3>신체 정보</h3>
                 <label className="inlineLabel">
@@ -228,7 +228,6 @@ export default function ProfilePage() {
                     <option value="female">여성</option>
                   </select>
                 </label>
-
                 <div className="activityLevel">
                   <p>활동 레벨:</p>
                   {["1. 사무실에서 일만 (운동 거의 없음)", "2. 조금 활동적 (주 2회 가벼운 운동)", "3. 중간 강도의 운동 (주 3~5일)", "4. 고강도 운동 (주 6~7일)"].map(
@@ -256,8 +255,8 @@ export default function ProfilePage() {
             </div>
 
             <div className="editActions">
-              <button onClick={handleSaveAllProfiles}>저장</button>
               <button onClick={handleCancelEdit}>취소</button>
+              <button onClick={handleSaveAllProfiles}>저장</button>
             </div>
           </div>
         )}
