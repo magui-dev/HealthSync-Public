@@ -4,9 +4,9 @@
 .infoGrid {
   display: grid;
   /* 화면 크기에 따라 2~5개의 열로 자동 조정됩니다. */
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   gap: 10px;
-  width: 70%;
+  width: 100%;
   margin-top: 0px;
 }
 

@@ -1,16 +1,26 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { createPost, getPost, updatePost } from "../api";
-import "./PostEditor.css"; // CSS 파일을 불러옵니다.
-
+import "./PostEditor.css";
+import TagInput from "../components/TagInput";
 
 const VIS = {
   PUBLIC: "PUBLIC",
   PRIVATE: "PRIVATE",
 };
 
+async function fetchTagSuggestionsAPI(q) {
+  const res = await fetch(
+    `/posts/tags?query=${encodeURIComponent(q)}&size=10`,
+    {
+      credentials: "include",
+    }
+  );
+  if (!res.ok) return [];
+  return res.json();
+}
+
 export default function PostEditor() {
-  // ... (컴포넌트의 모든 로직은 이전과 동일합니다) ...
   const { postId } = useParams();
   const isEdit = Boolean(postId);
   const [form, setForm] = useState({ title: "", content: "" });
@@ -19,8 +29,38 @@ export default function PostEditor() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const nav = useNavigate();
+  const [tags, setTags] = useState([]);
+  const contentRef = useRef(null);
 
+  function wrapSelection(prefix, suffix = "") {
+    const ta = contentRef.current;
+    if (!ta) return;
+    const { selectionStart: s, selectionEnd: e, value } = ta;
+    const before = value.slice(0, s);
+    const sel = value.slice(s, e);
+    const after = value.slice(e);
+    const next = before + prefix + sel + suffix + after;
+    const cursor = (before + prefix + sel + suffix).length;
+    setForm((prev) => ({ ...prev, content: next }));
+    requestAnimationFrame(() => {
+      ta.focus();
+      ta.setSelectionRange(cursor, cursor);
+    });
+  }
 
+  function insertLineStart(token) {
+    const ta = contentRef.current;
+    if (!ta) return;
+    const { selectionStart: s, selectionEnd: e, value } = ta;
+    const lineStart = value.lastIndexOf("\n", s - 1) + 1;
+    const lineEnd = value.indexOf("\n", e);
+    const end = lineEnd === -1 ? value.length : lineEnd;
+    const line = value.slice(lineStart, end);
+    const updated =
+      value.slice(0, lineStart) + `${token}${line}` + value.slice(end);
+    setForm((prev) => ({ ...prev, content: updated }));
+    requestAnimationFrame(() => ta.focus());
+  }
 
   useEffect(() => {
     if (!isEdit) return;
@@ -32,9 +72,14 @@ export default function PostEditor() {
         const rawVis = p?.visibility;
         const vis = rawVis === VIS.PRIVATE ? VIS.PRIVATE : VIS.PUBLIC;
         const block = p?.blockComment === true;
+        const initialTags = Array.isArray(p?.tags)
+          ? p.tags.map((t) => String(t).trim().toLowerCase()).filter(Boolean)
+          : [];
+
         setForm({ title, content });
         setVisibility(vis);
         setAllowComment(!block);
+        setTags(initialTags);
       } catch {
         // ignore error
       }
@@ -55,6 +100,7 @@ export default function PostEditor() {
       content: form.content.trim(),
       visibility,
       blockComment: !allowComment,
+      tags,
     };
 
     try {
@@ -78,16 +124,7 @@ export default function PostEditor() {
         return;
       }
 
-      if (visibility === "PRIVATE") {
-        try {
-          await getPost(createdId);
-          nav(`/community/posts/${createdId}`, { replace: true });
-        } catch {
-          nav("/community/myposts", { replace: true });
-        }
-      } else {
-        nav("/community/posts", { replace: true });
-      }
+      nav(`/community/posts/${createdId}`, { replace: true });
     } catch (e) {
       setError(
         e?.response?.data?.message || e?.message || "저장에 실패했습니다"
@@ -103,9 +140,7 @@ export default function PostEditor() {
         <button onClick={() => nav(-1)} className="back-button">
           ← 뒤로
         </button>
-        <h1 className="editor-title">
-          {isEdit ? "게시글 수정" : "글쓰기"}
-        </h1>
+        <h1 className="editor-title">{isEdit ? "게시글 수정" : "글쓰기"}</h1>
         <div className="header-placeholder" />
       </div>
 
@@ -119,13 +154,79 @@ export default function PostEditor() {
           className="form-input title-input"
         />
 
-        <textarea
-          placeholder="내용"
-          value={form.content}
-          onChange={(e) => setForm({ ...form, content: e.target.value })}
-          rows={12}
-          className="form-input content-textarea"
-        />
+        <fieldset className="options-fieldset">
+          <legend className="options-legend">내용</legend>
+
+          <div className="md-toolbar">
+            <button
+              type="button"
+              onClick={() => wrapSelection("**", "**")}
+              title="굵게"
+            >
+              B
+            </button>
+            <button
+              type="button"
+              onClick={() => wrapSelection("*", "*")}
+              title="기울임"
+            >
+              I
+            </button>
+            <button
+              type="button"
+              onClick={() => wrapSelection("`", "`")}
+              title="코드"
+            >{`</>`}</button>
+            <button
+              type="button"
+              onClick={() => insertLineStart("> ")}
+              title="인용"
+            >
+              &gt;
+            </button>
+            <button
+              type="button"
+              onClick={() => insertLineStart("- ")}
+              title="불릿"
+            >
+              •
+            </button>
+            <button
+              type="button"
+              onClick={() => insertLineStart("1. ")}
+              title="번호"
+            >
+              1.
+            </button>
+            <button
+              type="button"
+              onClick={() => wrapSelection("[텍스트](", ")")}
+              title="링크"
+            >
+              🔗
+            </button>
+          </div>
+
+          <textarea
+            ref={contentRef}
+            placeholder="내용을 입력하세요. 마크다운 문법을 사용할 수 있습니다."
+            value={form.content}
+            onChange={(e) => setForm({ ...form, content: e.target.value })}
+            rows={12}
+            className="form-input content-textarea mono"
+          />
+        </fieldset>
+
+        <fieldset className="options-fieldset">
+          <legend className="options-legend">태그</legend>
+          <TagInput
+            value={tags}
+            onChange={setTags}
+            fetchSuggestions={fetchTagSuggestionsAPI}
+            maxTags={10}
+            placeholder="태그를 입력하고 Enter"
+          />
+        </fieldset>
 
         <fieldset className="options-fieldset">
           <legend className="options-legend">공개 범위</legend>
@@ -134,7 +235,6 @@ export default function PostEditor() {
             있습니다.
           </p>
           <div className="visibility-grid">
-            {/* PUBLIC */}
             <label
               className={`visibility-option ${
                 visibility === VIS.PUBLIC ? "active" : ""
@@ -156,7 +256,6 @@ export default function PostEditor() {
               </div>
             </label>
 
-            {/* PRIVATE */}
             <label
               className={`visibility-option ${
                 visibility === VIS.PRIVATE ? "active" : ""

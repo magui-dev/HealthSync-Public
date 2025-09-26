@@ -201,3 +201,151 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+
+/* --- Tag input --- */
+.tagbox {
+  position: relative;
+}
+
+.tagbox-control {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 20px;
+  padding: 8px;
+  border: 3px solid #c9d9f1;
+  border-radius: 8px;
+  background-color: #fff;
+}
+
+.tagbox-control:focus-within {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59,130,246,.4);
+}
+
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #eef2ff;
+  font-size: 13px;
+}
+
+.tag-text {
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tag-remove {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.tag-input {
+  flex: 1;
+  min-width: 140px;
+  border: none;
+  outline: none;
+  font: inherit;
+  padding: 6px;
+}
+
+.tag-suggest {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+  max-height: 260px;
+  box-shadow: 0 8px 20px rgba(0,0,0,.08);
+}
+
+.tag-suggest-item {
+  padding: 10px 12px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.tag-suggest-item:hover,
+.tag-suggest-item.active {
+  background: #f3f4f6;
+}
+
+.tag-hint {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* 작성 모드 전체 영역 스타일 */
+.options-fieldset {
+  padding:5px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  margin-bottom: 0px;
+  background: #fafafa; /* 전체 배경 색 */
+}
+
+/* 작성 모드 전용 필드셋 크기 */
+.options-fieldset.mode-fieldset {
+  max-width: 150px;   /* 너비 제한 */
+  /* width: 50%;        부모 폭 따라가기 */
+}
+
+
+/* 작성 모드 토글 */
+.mode-switch {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.mode-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  background: #f9fafb;
+  font-size: 10px;
+  cursor: pointer;
+}
+.mode-chip input { display: none; }
+.mode-chip.active {
+  background: #eef2ff;
+  border-color: #c7d2fe;
+}
+
+/* 마크다운 툴바 */
+.md-toolbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.md-toolbar > button {
+  padding: 6px 10px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.md-toolbar > button:hover { background: #eef2ff; }
+
+/* 마크다운 모드에서 가독성 */
+.content-textarea.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}

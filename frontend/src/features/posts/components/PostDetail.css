@@ -120,6 +120,7 @@
   line-height: 1.8;
   font-size: 17px;
   min-height: 200px;
+  white-space: pre-wrap;
 }
 
 /* --- 마크다운 스타일 --- */
@@ -340,3 +341,35 @@
   background-color: #dc2626;
   color: #ffffff;
 }
+
+/* --- Post detail tags --- */
+.post-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 16px;
+}
+
+.post-tag {
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  color: #374151;
+}
+
+/* 읽기 전용: 클릭/포커스/호버 전부 제거 */
+.post-tag--readonly {
+  cursor: default;
+  user-select: text;     /* 복사만 가능 */
+  pointer-events: none;  /* 클릭 차단 */
+}
+
+/* hover 시에도 변화 없도록 */
+.post-tag--readonly:hover {
+  background: #f9fafb;
+  border-color: #e5e7eb;
+  color: #374151;
+}
+

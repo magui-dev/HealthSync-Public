@@ -25,10 +25,8 @@ const API_ORIGIN =
 function resolveImageUrl(u) {
   if (!u) return null;
   if (/^https?:\/\//i.test(u)) return u;
-  if (/^images\//i.test(u)) u = "/" + u; // 슬래시 보정(백엔드가 images/... 줄 때)
-  // ✅ public 자산(/images/...)은 프론트(5173)에서 서빙
+  if (/^images\//i.test(u)) u = "/" + u;
   if (u.startsWith("/images/")) return u;
-  // 그 외 상대경로는 백엔드 기준
   if (u.startsWith("/")) return API_ORIGIN + u;
   return `${API_ORIGIN}/${u}`;
 }
@@ -36,8 +34,8 @@ function resolveImageUrl(u) {
 function withQuery(url, key, val) {
   if (!url) return url;
   const u = /^https?:\/\//i.test(url)
-    ? new URL(url) // 절대경로는 그대로
-    : new URL(url, window.location.origin); // 상대경로는 프론트 오리진
+    ? new URL(url)
+    : new URL(url, window.location.origin);
   u.searchParams.set(key, String(val));
   return u.toString();
 }
@@ -47,7 +45,7 @@ function makeAvatarSrc(url, updatedAt) {
   if (!updatedAt) return base;
   const ms = Date.parse(updatedAt);
   if (Number.isNaN(ms)) return base;
-  return withQuery(base, "v", ms); // 캐시버스터
+  return withQuery(base, "v", ms);
 }
 
 export default function PostDetail() {
@@ -61,8 +59,6 @@ export default function PostDetail() {
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [isBookmarked, setIsBookmarked] = useState(false);
-
-  // ✅ 2. 기존 authorAvatarUrl 상태 및 fetch 함수 삭제 (Avatar 컴포넌트가 대체)
 
   const loc = useLocation();
   const cameFromList =
@@ -307,9 +303,7 @@ export default function PostDetail() {
 
   return (
     <div className="post-detail-container">
-      {/* 👇 이 새로운 div가 '목록' 버튼과 '수정/삭제' 그룹을 하나로 묶어줍니다. */}
       <div className="post-header-container">
-        {/* 1. '목록' 버튼 */}
         <button onClick={goList} className="back-button">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -328,7 +322,6 @@ export default function PostDetail() {
           <span>목록</span>
         </button>
 
-        {/* 2. '수정/삭제' 버튼 그룹 */}
         {canEditPost && (
           <div className="edit-actions">
             <Link to="edit" className="action-link">
@@ -369,9 +362,7 @@ export default function PostDetail() {
             </button>
           </div>
         )}
-      </div>{" "}
-      {/* post-header-container 끝 */}
-      {/* 기존의 불필요한 <div className="post-header">는 삭제했습니다. */}
+      </div>
       <h1 className="post-title">{post.title}</h1>
       <div className="post-meta">
         <img
@@ -391,82 +382,97 @@ export default function PostDetail() {
         <span className="post-dot">·</span>
         {new Date(post.createdAt).toLocaleString()}
       </div>
+
       <div className="post-content">
         <ReactMarkdown remarkPlugins={[remarkGfm]}>
           {post.contentTxt ?? post.content ?? ""}
         </ReactMarkdown>
-
-        <div className="post-actions">
-          <button
-            onClick={handleLike}
-            className={`like-button ${isLiked ? "active" : ""}`}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24">
-              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-            </svg>
-            <span>좋아요 {likeCount}</span>
-          </button>
-          <button
-            onClick={handleBookmark}
-            className={`bookmark-button ${isBookmarked ? "active" : ""}`}
-          >
-            <svg width="20" height="20" viewBox="0 0 24 24">
-              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
-            </svg>
-            <span>북마크</span>
-          </button>
-        </div>
-
-        <h2 className="comments-title">댓글</h2>
-        <ul className="comment-list">
-          {comments.map((c) => (
-            <li
-              key={c.id}
-              className={`comment-item ${c.__optimistic ? "optimistic" : ""}`}
-            >
-              <div className="comment-body comment-body--no-avatar">
-                <div className="comment-meta">
-                  {c.authorNickname ?? "익명"} ·{" "}
-                  {new Date(c.createdAt).toLocaleString()}
-                </div>
-                <div className="comment-content">{c.content}</div>
-                {isMine(c) && (
-                  <div className="comment-actions">
-                    <button
-                      type="button"
-                      onClick={() => onEditComment(c)}
-                      className="action-button edit"
-                    >
-                      수정
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => onDeleteComment(c)}
-                      className="action-button danger"
-                    >
-                      삭제
-                    </button>
-                  </div>
-                )}
-              </div>
-            </li>
-          ))}
-          {comments.length === 0 && canWriteComment && (
-            <li className="no-comments">첫 댓글을 남겨보세요.</li>
-          )}
-        </ul>
-
-        {canWriteComment && (
-          <form onSubmit={onAddComment} className="comment-form">
-            <input
-              name="text"
-              placeholder="댓글 달기..."
-              className="comment-input"
-            />
-            <button className="comment-submit-button">등록</button>
-          </form>
-        )}
       </div>
+
+      {Array.isArray(post.tags) && post.tags.length > 0 && (
+        <div className="post-tags">
+          {post.tags.map((t) => {
+            const text = String(t).trim();
+            if (!text) return null;
+            return (
+              <span key={text} className="post-tag">
+                #{text}
+              </span>
+            );
+          })}
+        </div>
+      )}
+
+      <div className="post-actions">
+        <button
+          onClick={handleLike}
+          className={`like-button ${isLiked ? "active" : ""}`}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+          </svg>
+          <span>좋아요 {likeCount}</span>
+        </button>
+        <button
+          onClick={handleBookmark}
+          className={`bookmark-button ${isBookmarked ? "active" : ""}`}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+          </svg>
+          <span>북마크</span>
+        </button>
+      </div>
+
+      <h2 className="comments-title">댓글</h2>
+      <ul className="comment-list">
+        {comments.map((c) => (
+          <li
+            key={c.id}
+            className={`comment-item ${c.__optimistic ? "optimistic" : ""}`}
+          >
+            <div className="comment-body comment-body--no-avatar">
+              <div className="comment-meta">
+                {c.authorNickname ?? "익명"} ·{" "}
+                {new Date(c.createdAt).toLocaleString()}
+              </div>
+              <div className="comment-content">{c.content}</div>
+              {isMine(c) && (
+                <div className="comment-actions">
+                  <button
+                    type="button"
+                    onClick={() => onEditComment(c)}
+                    className="action-button edit"
+                  >
+                    수정
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onDeleteComment(c)}
+                    className="action-button danger"
+                  >
+                    삭제
+                  </button>
+                </div>
+              )}
+            </div>
+          </li>
+        ))}
+        {comments.length === 0 && canWriteComment && (
+          <li className="no-comments">첫 댓글을 남겨보세요.</li>
+        )}
+      </ul>
+
+      {canWriteComment && (
+        <form onSubmit={onAddComment} className="comment-form">
+          <input
+            name="text"
+            placeholder="댓글 달기..."
+            className="comment-input"
+          />
+          <button className="comment-submit-button">등록</button>
+        </form>
+      )}
     </div>
   );
 }
