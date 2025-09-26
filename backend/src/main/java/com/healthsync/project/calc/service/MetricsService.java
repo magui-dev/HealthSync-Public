@@ -35,6 +35,16 @@ public class MetricsService {
             4, 1.725   // 활동적
     );
 
+    // ✅ [추가] 사용자의 최신 Metrics를 조회하는 서비스 메서드
+    @Transactional(readOnly = true) // 조회 전용이므로 readOnly = true 설정
+    public MetricsResponse getLatestMetricsByUserId(Long userId) {
+        // Repository를 사용해 가장 최근 데이터를 찾습니다.
+        Metrics latestMetrics = metricsRepository.findTopByProfile_UserIdOrderByIdDesc(userId)
+                .orElseThrow(() -> new NoSuchElementException("해당 유저의 측정 기록이 없습니다."));
+
+        // 찾은 엔티티를 DTO로 변환하여 반환합니다.
+        return MetricsResponse.fromEntity(latestMetrics);
+    }
 
     /**
      * 프로필을 기반으로 BMI 계산 및 Metrics 저장

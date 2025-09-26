@@ -30,6 +30,21 @@ public class MetricsController {
         }
     }
 
+    // ✅ [추가] 사용자의 최신 Metrics를 조회하는 GET 엔드포인트
+    @GetMapping("/{userId}/latest")
+    public ResponseEntity<?> getLatestMetrics(@PathVariable Long userId) {
+        try {
+            MetricsResponse latestMetrics = metricsService.getLatestMetricsByUserId(userId);
+            return ResponseEntity.ok(latestMetrics);
+        } catch (NoSuchElementException e) {
+            // 서비스에서 던진 예외를 받아 404 상태 코드와 메시지를 반환합니다.
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            // 그 외의 예외 처리
+            return ResponseEntity.badRequest().body("최신 데이터 조회 중 오류가 발생했습니다: " + e.getMessage());
+        }
+    }
+
 
 
 }

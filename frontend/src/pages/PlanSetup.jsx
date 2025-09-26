@@ -9,6 +9,7 @@ import "./PlanSetup.css";
 import leanImg from "../assets/lean.png";
 import healthImg from "../assets/health.png";
 import { listGoals, savePlan, deleteGoal } from "../api/plan";
+// import axios from "axios";
 
 const WEEK_OPTIONS = [2, 4, 6, 8, 10, 12, 14, 16];
 const VISUALS = {

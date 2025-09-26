@@ -54,6 +54,9 @@ public class Goal {
     @Column(name = "target_weight_kg", nullable = false, precision = 5, scale = 2)
     private BigDecimal targetWeightKg;
 
+    @OneToOne(mappedBy = "goal", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    private GoalMetrics goalMetrics;
+
     /** 타임스탬프 */
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

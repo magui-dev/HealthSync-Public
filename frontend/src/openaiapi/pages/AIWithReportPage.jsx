@@ -1,54 +1,80 @@
+// AIWithReportPage.js
+
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useMe } from "../../hooks/useMe";
 import UserInfoPage from "../../userinfoui/pages/UserInfoPage";
 import AIChatPage from "../components/AIChatPage";
-import GoalSelectModal from "../components/GoalSelectModal"; // 새로 만든 모달 import
+// ✅ [수정] GoalSelectModal의 import 경로를 원래대로 되돌립니다.
+import GoalSelectModal from "../components/GoalSelectModal";
 import "./AIWithReportPage.css";
-// import "./GoalLoader.css"; // 이 CSS는 이제 모달 CSS에 통합됨
 
 export default function AIWithReportPage() {
   const { me } = useMe();
+  
   const [userProfile, setUserProfile] = useState(null);
-  const [selectedReport, setSelectedReport] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false); // 모달 상태 관리
+  const [userMetrics, setUserMetrics] = useState(null);
+  const [planData, setPlanData] = useState(null);
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (me) {
-      const fetchUserProfile = async () => {
+    if (me && me.userId) {
+      const fetchInitialData = async () => {
+        setLoading(true);
+        setError(null);
         try {
-          const res = await axios.get("http://localhost:8080/profile", {
+          const profilePromise = axios.get("http://localhost:8080/profile", {
             withCredentials: true,
           });
-          setUserProfile(res.data);
+          const metricsPromise = axios.get(`http://localhost:8080/calc/${me.userId}/latest`, {
+            withCredentials: true,
+          });
+
+          const [profileResponse, metricsResponse] = await Promise.all([
+            profilePromise,
+            metricsPromise,
+          ]);
+          
+          setUserProfile(profileResponse.data);
+          setUserMetrics(metricsResponse.data);
         } catch (err) {
-          console.error("프로필 불러오기 실패", err);
+          console.error("초기 사용자 정보 로딩 실패:", err);
+          setError("사용자 정보를 불러오는 데 실패했습니다.");
+        } finally {
+          setLoading(false);
         }
       };
-      fetchUserProfile();
+      fetchInitialData();
     }
   }, [me]);
 
-  // 목표가 선택되었을 때 실행될 함수
-  const handleSelectGoal = (goal) => {
-    if (!userProfile) {
-      alert("사용자 프로필 정보를 먼저 불러와야 합니다.");
-      return;
+  const handleSelectGoal = async (goal) => {
+    setLoading(true);
+    setError(null);
+    setPlanData(null);
+
+    try {
+      const res = await axios.get(`http://localhost:8080/api/plan/${goal.id}/summary`, {
+        withCredentials: true,
+      });
+      setPlanData(res.data);
+    } catch (err) {
+      console.error("플랜 데이터 불러오기 실패:", err);
+      setError("목표 계획을 불러오는 데 실패했습니다.");
+    } finally {
+      setLoading(false);
     }
-
-    const combinedData = {
-      ...userProfile,
-      ...goal,
-      nickname: me.nickname,
-      weight: goal.startWeightKg,
-      targetPeriod: `${goal.weeks}주 (${goal.startDate} ~ ${goal.endDate})`,
-
-      // ✅ 다른 컴포넌트와의 호환성을 위해 duration 객체를 다시 만들어주는 부분
-      duration: { weeks: goal.weeks },
-    };
-
-    setSelectedReport(combinedData);
   };
+  
+  const combinedDataForChat = (userProfile && planData) ? {
+      ...userProfile,
+      ...userMetrics,
+      ...planData,
+      nickname: me?.nickname,
+  } : null;
 
   return (
     <div className="ai-with-report">
@@ -65,22 +91,27 @@ export default function AIWithReportPage() {
         </div>
 
         <div className="panel-body">
-          {selectedReport && (
+          {loading && <div style={{padding: 20}}>데이터를 불러오는 중입니다...</div>}
+          {error && <div style={{padding: 20, color: 'red'}}>오류: {error}</div>}
+          
+          {!loading && !error && userProfile && userMetrics && planData && (
             <div style={{ marginTop: 16 }}>
-              <UserInfoPage report={selectedReport} />
+              <UserInfoPage 
+                userProfile={userProfile} 
+                userMetrics={userMetrics}
+                planData={planData} 
+              />
             </div>
           )}
         </div>
       </div>
 
       <div className="right-panel">
-        <div className="panel-header" aria-hidden="true" />
         <div className="panel-body chat-body">
-          <AIChatPage selectedReport={selectedReport} />
+         <AIChatPage selectedReport={combinedDataForChat} />
         </div>
       </div>
 
-      {/* 모달 컴포넌트 렌더링 */}
       <GoalSelectModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

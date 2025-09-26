@@ -1,7 +1,7 @@
 .bmiChartContainer {
   width: 100%;
- margin-top: 70px;     /* 너무 큰 마진 대신 */
-  padding-top: 48px;
+ margin-top: 120px;     /* 너무 큰 마진 대신 */
+  padding-top:0px;
   position: relative;
 }
 
@@ -28,26 +28,26 @@
   box-shadow: -1px 0 0 rgba(255,255,255,0.6) inset;
 }
 .bmiSegmentLabel {
-  font-size: 11px;
-  line-height: 1.1;
+  font-size: 12px;
+  line-height: 1.5;
   text-align: center;
   color: #fff;
   text-shadow: 0 1px 1px rgba(0,0,0,0.25);
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: 4px;
+  padding: 2px;
 }
 
 /* 화살표 래퍼: 막대 위에만 오게, 내부는 기본 스택킹 컨텍스트 그대로 */
 .bmiArrowWrap { 
   position: absolute; 
-  top: -110px; 
+  top: -100px; 
   transform: translateX(-50%); 
   display: flex; 
   flex-direction: column; 
   align-items: center; 
-  gap: 6px;
+  gap: 4px;
   pointer-events: none; 
   z-index: 5;            /* 막대 위에만 오도록 */
   /* isolation: isolate;  // ← 필요 없음. 지우세요. */
