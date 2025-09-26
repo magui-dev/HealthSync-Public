@@ -49,4 +49,5 @@ pnpm-debug.log*
 
 # React build outputs
 frontend/build/
-frontend/dist/
+frontend/dist/backend.zip
+*.zip

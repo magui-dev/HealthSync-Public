@@ -12,12 +12,14 @@ import com.healthsync.project.plan.repository.GoalRepository;
 import com.healthsync.project.plan.support.CurrentUserIdResolver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 import com.healthsync.project.plan.service.PlanService;
+import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
 @Service
@@ -112,6 +114,20 @@ public class GoalService {
         var result = new ArrayList<GoalDto>(list.size());
         for (var g : list) result.add(GoalDto.from(g));
         return result;
+    }
+
+    public void deleteGoal(Long goalId, Long userId) {
+        Goal goal = goalRepository.findByIdAndUserId(goalId, userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Goal not found"));
+
+        // 진행 중인 목표 삭제 제한 등을 하고 싶으면 여기서 검증
+        // if (goal.getStatus() == GoalStatus.ACTIVE) {
+        //     throw new ResponseStatusException(HttpStatus.CONFLICT, "Active goal cannot be deleted");
+        // }
+
+        goalRepository.delete(goal);
+        // Goal -> GoalMetrics 등 연관관계가 있으면
+        // 엔티티에 cascade = CascadeType.REMOVE 또는 orphanRemoval = true 설정 필요
     }
 }
 
