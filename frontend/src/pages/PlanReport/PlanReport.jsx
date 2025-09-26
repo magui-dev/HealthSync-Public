@@ -7,6 +7,7 @@ import { getMetrics } from "../../api/calc";
 import FoodSearchPanel from "./FoodSearchPanel";
 import FoodGraph from "./FoodGraph";
 import SavedMealsStrip from "./SavedMealsStrip"; // 공용 컴포넌트
+import axios from "axios";
 
 /* ===== 전역 UI ===== */
 const UI = {
@@ -333,10 +334,12 @@ export default function PlanReport() {
   }
 
   // 저장 버튼: 현재 우측 슬롯 스냅샷을 “나의 식단”으로 저장
+  // 서버 저장 추가
   async function handleSaveMyFoods() {
     const items = ["carb","protein","fat","custom"].map(k => summarizeSlot(slots[k])).filter(Boolean);
     if (items.length === 0) { alert("저장할 항목이 없습니다."); return; }
 
+    // 1. 로컬에 저장
     const snapshot = {
       id: crypto.randomUUID?.() ?? String(Date.now()),
       createdAt: new Date().toISOString(),
@@ -349,7 +352,48 @@ export default function PlanReport() {
     setSavedCompositions(next);
     localStorage.setItem("savedMeals", JSON.stringify(next));
     alert("현재 구성이 ‘나의 식단’으로 저장되었습니다.");
+
+    const savedMeals = JSON.parse(localStorage.getItem("savedMeals") || "[]");
+    const latest = savedMeals[0];
+    console.log(latest);
+
+    // 2. 서버에 저장 (SaveFoodSelectionReq에 맞게 변환)
+    if (!goalId) { alert("goalId가 없습니다."); return; }
+
+    // 각 macro별로 서버에 개별 저장 요청
+    for (const it of items) {
+      // macro가 CUSTOM이면 category/label/source를 적절히 변환
+      const macro = (it.macro || "CUSTOM").toUpperCase();
+      if (macro === "CUSTOM") continue; // CUSTOM은 저장하지 않거나, 필요시 별도 처리
+
+      const req = {
+        goalId: Number(goalId),
+        category: macro, // "CARB" | "PROTEIN" | "FAT"
+        label: `${it.name} ${it.grams}g`,
+        servingG: Number(it.grams),
+        kcal: Number(it.kcal),
+        carbsG: Number(it.carb),
+        proteinG: Number(it.protein),
+        fatG: Number(it.fat),
+        source: it.iconUrl?.includes("custom") ? "custom" : "Nutri_api",
+        externalId: it.id ? String(it.id) : null
+      };
+
+      try {
+        await axios.post(
+          "/api/plan/food-selections",
+          req,
+          { withCredentials: true }
+        );
+        // 성공 알림은 마지막에 한 번만
+      } catch {
+        alert(`[${macro}] 서버 저장 중 오류가 발생했습니다.`);
+        return;
+      }
   }
+  alert("서버 저장 완료!"); 
+}
+
 
   // Metrics
   useEffect(() => {

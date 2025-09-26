@@ -30,6 +30,9 @@ public class Goal {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @OneToOne(mappedBy = "goal", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    private GoalMetrics goalMetrics;
+
     @Column(name = "user_id", nullable = false)
     private Long userId;
 

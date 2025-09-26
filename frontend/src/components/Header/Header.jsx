@@ -1,75 +1,64 @@
 import { Link } from "react-router-dom";
-import { useState, useRef, useEffect } from "react";
 import "./Header.css";
-import AiDietIcon from "../icons/AIDietIcon";
+import AiCounselIcon from "../icons/AiCounselIcon";
 import ReportIcon from "../icons/ReportIcon";
 import CommunityIcon from "../icons/CommunityIcon";
+import GoalAddIcon from "../icons/GoalAddIcon";
+import DropdownMenu from "../common/DropdownMenu";
 
 export default function Header({ me, onLoginClick, onLogoutClick, onAccountClick }) {
   
   const label = me?.nickname ? `${me.nickname}님` : "Login";
   const click = me ? onAccountClick : onLoginClick;
 
-  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
-  const dropdownRef = useRef(null);
-
-  // 회원 닉네임(label) 버튼 클릭 시, 드롭다운 열기/닫기 
-  const handleProfileClick = () => {
-   setIsDropdownVisible(!isDropdownVisible);
-  };
-
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setIsDropdownVisible(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
   return (
-    <header style={styles.wrap}>
-      <div style={styles.brand}>
-        <Link to="/" style={styles.link}>Health&Lean</Link>
+    <header>
+      <div className="header-brand">
+        <Link to="/" className="header-link">Health&Lean</Link>
       </div>
-      <nav style={styles.nav}>
-        {me ? (
+
+      <nav className="header-nav">
+        {me && (
           <>
-            {/* AI 식단 추천 */}
-            <Link to="/me" style={styles.link}>
-            <AiDietIcon style={{marginRight: 4, verticalAlign: "middle"}} /> AI 식단 추천</Link>
-            {/* My Report */}
-            <Link to="/me" style={styles.link}>
-            <ReportIcon style={{marginRight: 4, verticalAlign: "middle"}} />My Report</Link>
-            {/* 커뮤니티 */}
-            <Link to="/me" style={styles.link}>
-            <CommunityIcon style={{marginRight: 4, verticalAlign: "middle"}} />커뮤니티</Link>
-            {/* Profile 설정 드롭다운 */}
-            <div style={{ position: 'relative' }} ref={dropdownRef}>
-              <button onClick={handleProfileClick} style={styles.btnLink}>{label}</button>
-              {isDropdownVisible && (
-                <div id="dropdownMenu">
-                  <Link to="/profile" className="dropdownItem" onClick={() => setIsDropdownVisible(false)}>프로필 설정</Link>
-                  <Link onClick={() => { onLogoutClick(); setIsDropdownVisible(false); }} className="dropdownItem">로그아웃</Link>
-                </div>
+            {/* 목표 관리(건강/다이어트) */}       
+            <DropdownMenu
+              button={
+                <button className="header-btn-link"> Plan </button>
+              }
+            >
+              {(close) => (
+                <>
+                  <Link to="/plan?type=health" className="dropdownItem" onClick={close}>건강</Link>
+                  <Link to="/plan?type=diet" className="dropdownItem" onClick={close}>다이어트</Link>
+                </> 
               )}
-            </div>
+            </DropdownMenu>
+            {/* AI chat */}
+            <Link to="/ai-with-report" className="header-link"> AI </Link>
+            {/* Report */}
+            <Link to="/my-report" className="header-link"> Report </Link>
+            {/* 커뮤니티 */}
+            <Link to="/community/posts" className="header-link"> Community </Link>
           </>
+        )}
+        {/* Profile 설정 드롭다운 */}
+        {me ? (
+          <DropdownMenu
+            button={
+              <button className="header-btn-link">{label}</button>
+            }
+          >
+            {(close) => (
+              <>
+                <Link to="/profile" className="dropdownItem" onClick={close}>프로필 설정</Link>
+                <Link onClick={() => { onLogoutClick(); close(); }} className="dropdownItem">로그아웃</Link>
+              </>
+            )}
+          </DropdownMenu>
         ) : (
-          <button onClick={click} style={styles.btnLink}>{label}</button>
+          <button onClick={click} className="header-btn-link">{label}</button>
         )}
       </nav>
     </header>
   );
 }
-
-const styles = {
-  wrap: { position:"fixed", top:0, left:0, right:0, height:64, display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 24px", background:"rgba(255,255,255)", zIndex:1000 },
-  brand: { fontWeight:800, fontSize:20 },
-  nav: { display:"flex", gap:16, alignItems:"center" },
-  link: { color:"#111", textDecoration:"none" },
-  btnLink: { background:"none", border:"none", cursor:"pointer", fontSize:16 }
-};
