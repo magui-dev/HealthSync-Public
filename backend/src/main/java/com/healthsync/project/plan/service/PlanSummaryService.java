@@ -100,7 +100,13 @@ public class PlanSummaryService {
         if (tdee == null && prof != null) {
             Integer age = (prof.getAge() > 0) ? prof.getAge() : null;
             Integer heightCm = (prof.getHeight() != null) ? Math.round(prof.getHeight().floatValue()) : null;
-            Integer weightKg = (prof.getWeight() != null) ? Math.round(prof.getWeight().floatValue()) : null;
+//            Integer weightKg = (prof.getWeight() != null) ? Math.round(prof.getWeight().floatValue()) : null;
+
+            // TEDD도 프로필 무게로 계산을 해서 계속 같은 값으로 저장이 되는 현상이 있어서
+            // 프로필 무게가 아닌 목표에서 현재 체중을 가져다 계산하는걸로 수정
+            Integer weightKg = (goal.getStartWeightKg() != null) ? Math.round(goal.getStartWeightKg().floatValue()) : null;
+
+
             Integer activity = (prof.getActivityLevel() >= 1 && prof.getActivityLevel() <= 4)
                     ? prof.getActivityLevel() : null;
             if (sex != null && age != null && heightCm != null && weightKg != null && activity != null) {

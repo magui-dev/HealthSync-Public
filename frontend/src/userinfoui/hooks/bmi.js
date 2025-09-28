@@ -91,6 +91,65 @@ export function buildSegments() {
   return segments;
 }
 
+/**
+ * 체중(kg)과 신장(cm)을 바탕으로 BMI를 계산합니다.
+ * 백엔드 로직: weightKg / (heightM * heightM)
+ * @param {number} weightKg - 체중 (kg)
+ * @param {number} heightCm - 신장 (cm)
+ * @returns {number|null} BMI 값 또는 계산 불가 시 null
+ */
+export function calculateBMI(weightKg, heightCm) {
+  const w = Number(weightKg);
+  const h = Number(heightCm);
+
+  if (!Number.isFinite(w) || !Number.isFinite(h) || w <= 0 || h <= 0) {
+    return null;
+  }
+  const heightM = h / 100;
+  // 소수점 둘째 자리까지 반올림 (백엔드와 동일하게)
+  const bmi = w / (heightM * heightM);
+  return bmi;
+}
+
+/**
+ * 미플린-세인트 조르 공식을 사용해 기초대사량(BMR)을 계산합니다.
+ * 백엔드 로직: calculateBMR
+ * @param {number} weightKg - 체중 (kg)
+ * @param {number} heightCm - 신장 (cm)
+ * @param {number} age - 나이
+ * @param {'MALE' | 'FEMALE'} gender - 성별
+ * @returns {number|null} BMR 값 또는 계산 불가 시 null
+ */
+export function calculateBMR(weightKg, heightCm, age, gender) {
+  const w = Number(weightKg);
+  const h = Number(heightCm);
+  const a = Number(age);
+
+  if (
+    !Number.isFinite(w) ||
+    !Number.isFinite(h) ||
+    !Number.isFinite(a) ||
+    w <= 0 || h <= 0 || a <= 0
+  ) {
+    return null;
+  }
+
+  // (10 * weightKg + 6.25 * heightCm - 5 * age)
+  let bmr = 10 * w + 6.25 * h - 5 * a;
+
+  if (gender === "MALE") {
+    bmr += 5;
+  } else if (gender === "FEMALE") {
+    bmr -= 161;
+  } else {
+    // 성별 정보가 없을 경우, 남성/여성 값의 평균에 가까운 남성 값을 기준으로 처리하거나 null 반환
+    // 여기서는 일단 남성 기준으로 처리합니다.
+    bmr += 5;
+  }
+
+  return bmr;
+}
+
 function dedupeSorted(nums, eps = 1e-6) {
   const out = [];
   for (const v of nums.sort((a, b) => a - b)) {

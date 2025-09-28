@@ -31,7 +31,7 @@ export default function GoalSelectModal({ isOpen, onClose, onSelectGoal, me }) {
   }, [isOpen, me]);
 
   const handleGoalClick = (goal) => {
-    onSelectGoal(goal.id); 
+    onSelectGoal(goal); 
     onClose();
   };
   

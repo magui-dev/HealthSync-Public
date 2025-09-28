@@ -5,6 +5,7 @@ import com.healthsync.project.openai.dto.ChatResponse;
 import com.healthsync.project.openai.service.ChatService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -13,6 +14,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/chat")
@@ -24,8 +26,27 @@ public class ChatController {
     public ResponseEntity<ChatResponse> chat(
             Authentication auth,
             @Valid @RequestBody ChatRequest chatRequest) {
+
+        // ✅ 데이터가 잘 들어오는지 확인하는 로그 추가
+        log.info("===== ChatController에 요청 진입 =====");
+        log.info("전달받은 메시지: {}", chatRequest.getMessage());
+
+        if (chatRequest.getReportContext() != null) {
+            log.info(">>> reportContext 객체가 존재합니다. <<<");
+            log.info("전달받은 컨텍스트 닉네임: {}", chatRequest.getReportContext().getNickname());
+            log.info("전달받은 컨텍스트 키: {}", chatRequest.getReportContext().getHeight());
+        } else {
+            log.error(">>> [문제 발생] 전달받은 reportContext가 null 입니다. <<<");
+        }
+        log.info("======================================");
+
+
         Long userId = getUserIdFromAuth(auth);
-        String answer = chatService.getAnswer(userId, chatRequest.getMessage());
+
+        String answer = chatService.getAnswer(userId, chatRequest);
+
+
+//        String answer = chatService.getAnswer(userId, chatRequest.getMessage());
         return ResponseEntity.ok(ChatResponse.of(answer));
     }
 
