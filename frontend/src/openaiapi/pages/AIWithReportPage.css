@@ -6,7 +6,7 @@
   display: flex;
   height: calc(100vh - 64px);
   justify-content: center;
-  gap: 10px;
+  /* gap: 10px; */
   padding: 0;             /* ✅ 오타 수정 (0 px -> 0) */
   box-sizing: border-box;
   background-color: #FFFFFF;
@@ -29,7 +29,7 @@
 
 .right-panel {
   width: 700px;
-  gap : 15px;
+  /* gap : 15px; */
 }
 
 /* 헤더: 두 패널 모두 같은 높이/스타일 */

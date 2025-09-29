@@ -79,18 +79,18 @@
 .activitySection {
   position: relative;
   /* ✅ 1. 이 구역을 기준점으로 설정 (매우 중요!) */
-  padding-top: 30px;
+  padding-top: 14px;
   /* ✅ 2. 차트 포인터가 올라올 공간을 미리 확보 */
-  margin-top: 2px;
+  /* margin-top: 2px; */
   /* 위쪽 BmiChart와의 간격 */
-  margin-bottom: 24px;
+  /* margin-bottom: 24px; */
   /* 아래쪽 목표 정보와의 간격 */
 }
 
 .activityListItem {
   display: flex;
   align-items: flex-start;
-  padding: 10px 0px;
+  padding: 5px 0px;
   font-size: 0.9em;
   color: #6c757d;
   position: relative;
@@ -155,7 +155,7 @@
   border-radius: 16px;
   border: 1px solid #e9ecef;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  padding: 24px;
+  padding: 20px 24px;
   display: flex;
   gap: 24px;
   align-items: stretch; 
