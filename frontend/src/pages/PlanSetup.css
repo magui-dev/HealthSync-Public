@@ -8,7 +8,7 @@
   --btn: #6e757d;       /* 회색 버튼 */
   --btn-active: #aab2bd;/* 활성 버튼 */
   --radius: 18px;
-  --header-h: 56px;     /* 페이지 헤더 높이를 쓰는 경우 대비 기본값 */
+  --header-h: 64px;     /* 페이지 헤더 높이를 쓰는 경우 대비 기본값 */
 }
 
 /* 레이아웃 */
@@ -16,19 +16,17 @@
   display: grid;
   grid-template-columns: 3fr 7fr;   /* 3:7 비율 */
   gap: 24px;
-  height: calc(100vh - var(--header-h));
+  height: 100%;
   padding: 20px;
-  padding-top: calc(20px + var(--header-h));
   background: var(--bg);
   color: var(--text);
+  position: relative;
 }
 
 /* Left */
 .plan-left {
   position: relative;
-  border-radius: var(--radius);
   overflow: hidden;
-  height: 100%;
 }
 .bg-img {
   width: 100%;
@@ -36,6 +34,8 @@
   object-fit: cover;
   object-position: center;
   filter: grayscale(100%) contrast(1.05);
+  border-radius: var(--radius);
+  display: block;
 }
 .overlay-title {
   position: absolute;
