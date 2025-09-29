@@ -101,10 +101,3 @@ export async function saveFoodSelection(/* payload */) {
 export async function deleteFoodSelection(/* id */) {
   return { ok: true };
 }
-
-
-export async function deleteGoal(goalId, opts = {}) {
-  const params = opts.userId ? { userId: opts.userId } : undefined;
-  await api.delete(`/api/plan/goals/${goalId}`, { params });
-  return { ok: true };
-}
