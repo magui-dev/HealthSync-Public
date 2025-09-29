@@ -9,7 +9,6 @@ import "./PlanSetup.css";
 import leanImg from "../assets/lean.png";
 import healthImg from "../assets/health.png";
 import { listGoals, savePlan, deleteGoal } from "../api/plan";
-// import axios from "axios";
 
 const WEEK_OPTIONS = [2, 4, 6, 8, 10, 12, 14, 16];
 const VISUALS = {
@@ -115,6 +114,39 @@ function GoalPickerModal({ open, goals, onApply, onGo, onDelete, onClose }) {
   );
 }
 
+/* --------------- 첫 진입 선택 모달: 새 리포트 vs 기존 불러오기 --------------- */
+function FirstChoiceModal({ open, hasGoals, onNew, onPick, onClose }) {
+  if (!open) return null;
+  return (
+    <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,.55)", display:"grid", placeItems:"center", zIndex:10000 }}>
+      <div style={{ width:420, maxWidth:"92vw", background:"#0b1220", color:"#e6edf3",
+                    border:"1px solid #243244", borderRadius:16, padding:18 }}>
+        <h3 style={{ margin:"6px 0 12px 0", fontSize:18 }}>무엇을 할까요?</h3>
+        <p style={{ opacity:.85, marginTop:0 }}>새 리포트를 오늘 날짜로 시작하거나, 저장된 목표에서 불러올 수 있어요.</p>
+        <div style={{ display:"grid", gap:8, marginTop:8 }}>
+          <button onClick={onNew}
+            style={{ padding:"10px 12px", borderRadius:10, border:"1px solid #111827",
+                     background:"#111827", color:"#fff", fontWeight:700, cursor:"pointer" }}>
+            새 리포트(오늘로 시작)
+          </button>
+          <button onClick={onPick} disabled={!hasGoals}
+            style={{ padding:"10px 12px", borderRadius:10, border:"1px solid #334155",
+                     background:"#0b1220", color: hasGoals ? "#e2e8f0" : "#64748b", cursor: hasGoals ? "pointer" : "not-allowed" }}>
+            기존 목표 불러오기
+          </button>
+        </div>
+        <div style={{ display:"flex", justifyContent:"flex-end", marginTop:12 }}>
+          <button onClick={onClose}
+            style={{ padding:"6px 10px", borderRadius:8, border:"1px solid #334155",
+                     background:"transparent", color:"#e2e8f0", cursor:"pointer" }}>
+            닫기
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ---------------------------- 페이지 ---------------------------- */
 export default function PlanSetup() {
   const [sp] = useSearchParams();
@@ -127,7 +159,10 @@ export default function PlanSetup() {
   const [goals, setGoals] = useState([]);
   const [pickerOpen, setPickerOpen] = useState(false);
 
-  // 입력 폼
+  // 첫 진입 선택 모달
+  const [firstOpen, setFirstOpen] = useState(false);
+
+  // 입력 폼 (기본은 오늘 날짜로 세팅)
   const [weeks, setWeeks] = useState(8);
   const [startDate, setStartDate] = useState(dayjs().format("YYYY-MM-DD"));
   const [current, setCurrent] = useState("");
@@ -137,7 +172,25 @@ export default function PlanSetup() {
   const [saving, setSaving] = useState(false);
   const [conflict, setConflict] = useState({ open: false, goals: [] });
 
-  // 기존 목표 로드 + 자동 프리필(비어있을 때만)
+  // 공통 유틸
+  function prefillFromGoal(g) {
+    setWeeks(g.weeks || 8);
+    setStartDate(g.startDate || dayjs().format("YYYY-MM-DD"));
+    setCurrent(g.startWeightKg != null ? String(g.startWeightKg) : "");
+    setTarget(g.targetWeightKg != null ? String(g.targetWeightKg) : "");
+    setPickerOpen(false);
+  }
+  function goReport(id) {
+    nav(`/plan/report?goalId=${id}`);
+  }
+  function resetAsNewReport() {
+    setWeeks(8);
+    setStartDate(dayjs().format("YYYY-MM-DD"));
+    setCurrent("");
+    setTarget("");
+  }
+
+  // 기존 목표 로드 (자동 프리필 제거! 사용자가 고를 때만 불러오게)
   useEffect(() => {
     (async () => {
       setGoalsLoading(true);
@@ -147,14 +200,12 @@ export default function PlanSetup() {
         const filtered = all.filter(g => g.type === planType)
                             .sort((a,b)=> new Date(b.startDate||0)-new Date(a.startDate||0));
         setGoals(filtered);
-        if (filtered[0] && !current && !target) {
-          prefillFromGoal(filtered[0]);
-        }
+        // 첫 진입 선택 모달 오픈(해당 타입의 목표가 있을 때만)
+        if (filtered.length > 0) setFirstOpen(true);
       } finally {
         setGoalsLoading(false);
       }
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [planType]);
 
   // 그래프 데이터
@@ -170,17 +221,6 @@ export default function PlanSetup() {
       return { name: `${week}주`, weight: val };
     });
   }, [current, target, weeks]);
-
-  function prefillFromGoal(g) {
-    setWeeks(g.weeks || 8);
-    setStartDate(g.startDate || dayjs().format("YYYY-MM-DD"));
-    setCurrent(g.startWeightKg != null ? String(g.startWeightKg) : "");
-    setTarget(g.targetWeightKg != null ? String(g.targetWeightKg) : "");
-    setPickerOpen(false);
-  }
-  function goReport(id) {
-    nav(`/plan/report?goalId=${id}`);
-  }
 
   async function removeGoal(id) {
     if (!window.confirm("정말로 이 목표를 삭제할까요?")) return;
@@ -237,10 +277,17 @@ export default function PlanSetup() {
       {/* 우측 카드 */}
       <div className="plan-right">
         <div className="card">
-          {/* 상단 유틸: 기존 목표 선택 버튼 */}
+          {/* 상단 유틸: 새 리포트(오늘), 기존 목표 선택 */}
           <div className="topbar">
             <div />
             <div style={{ display:"flex", gap:8 }}>
+              <button
+                className="btn-ghost"
+                onClick={() => { resetAsNewReport(); }}
+                title="폼을 오늘 날짜로 초기화"
+              >
+                새 리포트(오늘)
+              </button>
               <button
                 className="btn-ghost"
                 onClick={() => setPickerOpen(true)}
@@ -326,7 +373,16 @@ export default function PlanSetup() {
         onClose={() => setPickerOpen(false)}
       />
 
-      {/* (기존) 충돌 모달 유지 */}
+      {/* 첫 진입 선택 모달 */}
+      <FirstChoiceModal
+        open={firstOpen}
+        hasGoals={goals.length > 0}
+        onNew={() => { resetAsNewReport(); setFirstOpen(false); }}
+        onPick={() => { setFirstOpen(false); setPickerOpen(true); }}
+        onClose={() => setFirstOpen(false)}
+      />
+
+      {/* 충돌 모달(기존 유지) */}
       {conflict.open && (
         <GoalConflictModal
           goals={conflict.goals}

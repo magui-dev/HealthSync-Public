@@ -386,14 +386,14 @@ async function handleSaveMyFoods() {
     alert("저장할 항목이 없습니다.");
     return;
   }
-  
+
   if (!goalId) {
     alert("goalId가 없습니다. 먼저 목표를 생성하거나 선택해주세요.");
     return;
   }
 
   const savePromises = items.map(it => {
-    const macro = it.macro.toUpperCase(); 
+    const macro = it.macro.toUpperCase();
 
     const req = {
       goalId: Number(goalId),
@@ -413,7 +413,7 @@ async function handleSaveMyFoods() {
 
   try {
     await Promise.all(savePromises);
-    
+
     // 로컬 스토리지 저장은 서버 저장이 성공한 후에만 실행
     const snapshot = {
       id: crypto.randomUUID?.() ?? String(Date.now()),

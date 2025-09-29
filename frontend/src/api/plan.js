@@ -101,4 +101,3 @@ export async function saveFoodSelection(/* payload */) {
 export async function deleteFoodSelection(/* id */) {
   return { ok: true };
 }
-
