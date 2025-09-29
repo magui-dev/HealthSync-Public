@@ -231,14 +231,35 @@
 }
 .weightChange {
   display: flex;
-  align-items: baseline;
+  align-items: flex-end;      /* 줄 전체 아래 기준 정렬 */
   gap: 12px;
   margin-bottom: 8px;
 }
+.weightChange .start {
+  display: inline-flex;
+  align-items: baseline;      /* 숫자와 단위 baseline 맞춤 */
+  font-size: 1.8em;
+  font-weight: 500;
+  color: #495057;
+  line-height: 1;
+}
 .weightChange span { font-size: 1.8em; font-weight: 500; color: #495057; }
 .arrowIcon { font-size: 1.4em; color: #adb5bd; }
-.weightChange strong { font-size: 2.2em; font-weight: 700; color: #4C6EF5; }
-.weightChange small { font-size: 0.5em; color: #adb5bd; margin-left: 4px; }
+.weightChange .target {
+  display: inline-flex;
+  align-items: baseline;      /* 숫자와 단위 baseline 맞춤 */
+  font-size: 2.2em;
+  font-weight: 700;
+  color: #4C6EF5;
+  line-height: 1;
+}
+.weightChange small {
+  font-size: 0.5em;
+  color: #adb5bd;
+  margin-left: 4px;
+  line-height: 1;
+  transform: translateY(-0.08em); /* 단위 살짝 올려 광학 정렬 */
+}
 .goalPeriod { font-size: 0.85em; color: #868e96; }
 
 /* BMI & BMR이 있는 위쪽 행 */
@@ -290,4 +311,33 @@
 .metricItemHighlight .metricValue {
   color: #1c7ed6;
   font-weight: 700;
+}
+
+.goalTitleRow {
+  display: flex;
+  align-items: center;       /* ⬅︎ 세로 가운데 정렬 */
+  gap: 8px;
+  min-height: 32px;          /* 뱃지 높이와 동일하게 지정 */
+}
+
+.goalTypeBadge {
+  display: inline-flex;
+  align-items: center;       /* 내부 텍스트 세로 중앙 */
+  justify-content: center;
+
+  font-size: 12px;           /* 텍스트 크기 */
+  font-weight: 600;
+
+  padding: 0 12px;           /* 좌우 패딩만 주고, 세로는 height로 고정 */
+  height: 28px;              /* ✅ 원하는 높이 지정 (예: 32px, 36px 등) */
+
+  border-radius: 999px;      /* pill 모양 유지 */
+  line-height: 1;
+  box-sizing: border-box;    /* padding 포함한 높이 계산 */
+}
+
+.goalTypeBadge {
+  height: 28px;
+  font-size: 11px;
+  padding: 0 10px;
 }

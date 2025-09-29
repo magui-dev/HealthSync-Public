@@ -172,6 +172,18 @@ const MyReportPage = () => {
           userProfile.height
         );
 
+
+                // ✅ goalType 정규화 (없으면 체중 증감으로 추론)
+        const rawType =
+          selectedGoal.type ??
+          summaryData?.type ??
+          summaryData?.goalType ??
+          null;
+        const goalType = rawType
+          ? String(rawType).toUpperCase()
+          : (selectedGoal.targetWeightKg < selectedGoal.startWeightKg ? "LEAN" : "HEALTH");
+
+
         // 3. 모든 데이터 소스를 조합하여 최종 reportData 생성
         const combinedData = {
           goalPeriod: {
@@ -187,6 +199,7 @@ const MyReportPage = () => {
             gender: userProfile.gender?.toUpperCase(),
           },
           bmi: bmiValue,
+          goalType, // 🔥 추가
 
           dailyCalories: summaryData.targetDailyCalories, // '일 섭취 권장 칼로리'
           mealCalories: summaryData.perMealKcal, // '1회 식사 권장 칼로리'
@@ -245,6 +258,15 @@ savedMeal: savedMealForStrip,
         />
         {" "}
         <div className="report-section progress-bmi-section">
+   {/* 좌측 상단: 목표 타입 뱃지 (오버레이) */}
+  {reportData?.goalType && (
+    <div className="progress-floating-badge">
+      <span className={`goal-type-badge ${reportData.goalType.toLowerCase()}`}>
+        {reportData.goalType === "LEAN" ? "체중 감량" : "건강 관리"}
+      </span>
+    </div>
+  )}
+
           {" "}
           <ProgressBar
             startDate={reportData.goalPeriod.start}
