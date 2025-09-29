@@ -9,14 +9,14 @@ import FoodGraph from "./FoodGraph";
 import SavedMealsStrip from "./SavedMealsStrip"; // 공용 컴포넌트
 import axios from "axios";
 
-/* ===== 전역 UI ===== */
+/* ===== 전역 UI (기본값) ===== */
 const UI = {
   presetTitleSize: 16,
   blockGap: 12,
-  innerGap: 10,
+  innerGap: 8,
   iconImg: 40,
-  iconCardPadding: 10,
-  iconCardMinH: 112,
+  iconCardPadding: 8,
+  iconCardMinH: 100,
   slotsColWidth: 280,
 };
 
@@ -78,8 +78,23 @@ const PRESETS = {
   ],
 };
 
+/* ===== 반응형: 간단한 미디어쿼리 훅 ===== */
+function useMediaQuery(query) {
+  const [matches, setMatches] = useState(
+    typeof window !== "undefined" ? window.matchMedia(query).matches : false
+  );
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const mql = window.matchMedia(query);
+    const handler = (e) => setMatches(e.matches);
+    mql.addEventListener?.("change", handler);
+    return () => mql.removeEventListener?.("change", handler);
+  }, [query]);
+  return matches;
+}
+
 /* ===== 좌측 세로 4칸 슬롯 ===== */
-function SlotsColumn({ slots, setSlot, onSave }) {
+function SlotsColumn({ slots, setSlot, onSave, rui }) {
   const box = {
     background:"#fff", border:"1px solid #e5e7eb", borderRadius:12,
     padding:10, boxShadow:"0 1px 2px rgba(0,0,0,0.03)",
@@ -101,7 +116,7 @@ function SlotsColumn({ slots, setSlot, onSave }) {
     return (
       <div style={box}>
         <div style={{ display:"flex", alignItems:"center", gap:10, minWidth:0 }}>
-          <img src={s.iconUrl} alt={s.name} style={{ width:40, height:40, objectFit:"contain" }}/>
+          <img src={s.iconUrl} alt={s.name} style={{ width:rui.iconImg, height:rui.iconImg, objectFit:"contain" }}/>
           <div style={{ minWidth:0 }}>
             <div style={{ fontWeight:700, marginBottom:2 }}>{title}</div>
             <div style={{ fontWeight:600, fontSize:13, maxWidth:"100%", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis" }}>{s.name}</div>
@@ -147,7 +162,7 @@ function SlotsColumn({ slots, setSlot, onSave }) {
   };
 
   return (
-    <div style={{ display:"grid", gap:10, width:UI.slotsColWidth }}>
+    <div style={{ display:"grid", gap:10, width:rui.slotsColWidth }}>
       {slotCard("탄수화물", "carb")}
       {slotCard("단백질",   "protein")}
       {slotCard("지방",     "fat")}
@@ -220,7 +235,7 @@ function SlotsColumn({ slots, setSlot, onSave }) {
 }
 
 /* ===== 프리셋 카드 ===== */
-function PresetBlock({ title, items, macro, onAdd }) {
+function PresetBlock({ title, items, macro, onAdd, rui }) {
   const macroKcal = (m) => {
     const c = (m?.carb_g ?? 0) * 4;
     const p = (m?.protein_g ?? 0) * 4;
@@ -232,21 +247,33 @@ function PresetBlock({ title, items, macro, onAdd }) {
       background:"#ffffff", color:"#111827",
       borderRadius:12, padding:14, border:"1px solid #e5e7eb", boxShadow:"0 1px 2px rgba(0,0,0,0.03)"
     }}>
-      <h3 style={{ marginTop:0, marginBottom:8, fontSize:UI.presetTitleSize }}>{title}</h3>
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(3, 1fr)", gap:UI.innerGap }}>
+      <h3 style={{ marginTop:0, marginBottom:8, fontSize:rui.presetTitleSize }}>{title}</h3>
+
+      {/* ✅ 반응형 프리셋 카드 그리드 */}
+      <div style={{
+        display:"grid",
+        gridTemplateColumns:"repeat(auto-fit, minmax(200px, 1fr))",
+        gap:rui.innerGap
+      }}>
         {items?.map((it) => {
           const m = it.macrosPer100g || {};
           const mk = macroKcal(m);
           return (
             <div key={it.key}
               style={{
-                background:"#fafafa", border:"1px solid #e5e7eb", borderRadius:10, padding:UI.iconCardPadding,
-                display:"flex", flexDirection:"column", gap:8, minHeight:UI.iconCardMinH
+                background:"#fafafa", border:"1px solid #e5e7eb", borderRadius:10, padding:rui.iconCardPadding,
+                display:"flex", flexDirection:"column", gap:6, minHeight:rui.iconCardMinH
               }}>
-              <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                <img alt={it.name} src={`/icons/${it.icon}.png`} style={{ width:UI.iconImg, height:UI.iconImg, objectFit:"contain" }}/>
-                <div style={{ fontSize:14, fontWeight:600 }}>{it.name}</div>
+
+              {/* ✅ 아이콘 오른쪽 빈칸 최소화: 아이콘 고정폭 + 텍스트 가변 */}
+              <div style={{ display:"grid", gridTemplateColumns:"48px 1fr", alignItems:"center", gap:10 }}>
+                <img alt={it.name} src={`/icons/${it.icon}.png`}
+                     style={{ width:rui.iconImg, height:rui.iconImg, objectFit:"contain" }}/>
+                <div style={{ fontSize:14, fontWeight:600, lineHeight:1.2, wordBreak:"keep-all" }}>
+                  {it.name}
+                </div>
               </div>
+
               <div style={{ fontSize:12, opacity:.9, lineHeight:1.25 }}>
                 <div>탄: {mk.carbK} kcal · 단: {mk.protK} kcal · 지: {mk.fatK} kcal</div>
                 <div>총 칼로리: <b>{it.kcalPer100g}</b> kcal</div>
@@ -270,6 +297,21 @@ export default function PlanReport() {
   const [sp] = useSearchParams();
   const goalId = sp.get("goalId");
   const { me } = useMe();
+
+  // 반응형 브레이크포인트
+  const isLG = useMediaQuery("(min-width: 1200px)");
+  const isMD = useMediaQuery("(min-width: 900px)");
+  const isSM = !isMD; // < 900px
+
+  // 파생 UI(화면폭에 따라 값 조절)
+  const rui = {
+    innerGap: isSM ? 8 : UI.innerGap,
+    iconImg: isSM ? 32 : UI.iconImg,
+    iconCardPadding: isSM ? 6 : UI.iconCardPadding,
+    iconCardMinH: isSM ? 90 : UI.iconCardMinH,
+    slotsColWidth: isSM ? "100%" : UI.slotsColWidth,
+    presetTitleSize: isSM ? 14 : UI.presetTitleSize
+  };
 
   const [metrics, setMetrics] = useState(null);
   const [summary, setSummary] = useState(null);
@@ -333,8 +375,7 @@ export default function PlanReport() {
     setSlots(next);
   }
 
-  // 저장 버튼: 현재 우측 슬롯 스냅샷을 “나의 식단”으로 저장
-  // 서버 저장 추가
+  // 저장 버튼: 현재 우측 슬롯 스냅샷을 “나의 식단”으로 저장 + 서버 저장
   async function handleSaveMyFoods() {
     const items = ["carb","protein","fat","custom"].map(k => summarizeSlot(slots[k])).filter(Boolean);
     if (items.length === 0) { alert("저장할 항목이 없습니다."); return; }
@@ -357,14 +398,12 @@ export default function PlanReport() {
     const latest = savedMeals[0];
     console.log(latest);
 
-    // 2. 서버에 저장 (SaveFoodSelectionReq에 맞게 변환)
+    // 2. 서버에 저장
     if (!goalId) { alert("goalId가 없습니다."); return; }
 
-    // 각 macro별로 서버에 개별 저장 요청
     for (const it of items) {
-      // macro가 CUSTOM이면 category/label/source를 적절히 변환
       const macro = (it.macro || "CUSTOM").toUpperCase();
-      if (macro === "CUSTOM") continue; // CUSTOM은 저장하지 않거나, 필요시 별도 처리
+      if (macro === "CUSTOM") continue;
 
       const req = {
         goalId: Number(goalId),
@@ -380,20 +419,14 @@ export default function PlanReport() {
       };
 
       try {
-        await axios.post(
-          "/api/plan/food-selections",
-          req,
-          { withCredentials: true }
-        );
-        // 성공 알림은 마지막에 한 번만
+        await axios.post("/api/plan/food-selections", req, { withCredentials: true });
       } catch {
         alert(`[${macro}] 서버 저장 중 오류가 발생했습니다.`);
         return;
       }
+    }
+    alert("서버 저장 완료!");
   }
-  alert("서버 저장 완료!"); 
-}
-
 
   // Metrics
   useEffect(() => {
@@ -457,7 +490,9 @@ export default function PlanReport() {
 
   return (
     <div style={{
-      display:"grid", gridTemplateColumns:"1.2fr 0.8fr", gap:24, padding:24, alignItems:"start", background:"#fafafa"
+      display:"grid",
+      gridTemplateColumns: isLG ? "1.2fr 0.8fr" : (isMD ? "1fr 1fr" : "1fr"),
+      gap:24, padding:24, alignItems:"start", background:"#fafafa"
     }}>
       {/* ===== 왼쪽 영역 ===== */}
       <div style={{ display:"grid", gap:UI.blockGap }}>
@@ -466,7 +501,7 @@ export default function PlanReport() {
           background:"#fff", color:"#111827", borderRadius:16, padding:20,
           border:"1px solid #e5e7eb", boxShadow:"0 1px 2px rgba(0,0,0,0.04)"
         }}>
-          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:UI.innerGap, alignItems:"start" }}>
+          <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:rui.innerGap, alignItems:"start" }}>
             <div>
               <h2 style={{ margin: 0 }}>1회 식사 권장량 : {perMealKcal ? `${perMealKcal} kcal` : "-"}</h2>
               <div style={{ display:"flex", gap:10, flexWrap:"wrap", marginTop:8, marginBottom:6 }}>
@@ -500,12 +535,18 @@ export default function PlanReport() {
         </div>
 
         {/* 프리셋(좌) + 슬롯(우) + 나의 식단 */}
-        <div style={{ display:"grid", gridTemplateColumns:`1fr ${UI.slotsColWidth}px`, gap:UI.innerGap, alignItems:"start" }}>
+        <div
+          style={{
+            display:"grid",
+            gridTemplateColumns: isSM ? "1fr" : `1fr ${rui.slotsColWidth}px`,
+            gap:rui.innerGap, alignItems:"start"
+          }}
+        >
           {/* 좌 프리셋 */}
-          <div style={{ display:"grid", gap:UI.innerGap }}>
-            <PresetBlock title="Carb 탄수화물" items={PRESETS.carb} macro="carb" onAdd={handleAddFromPreset}/>
-            <PresetBlock title="Protein 단백질" items={PRESETS.protein} macro="protein" onAdd={handleAddFromPreset}/>
-            <PresetBlock title="지방" items={PRESETS.fat} macro="fat" onAdd={handleAddFromPreset}/>
+          <div style={{ display:"grid", gap:rui.innerGap }}>
+            <PresetBlock title="Carb 탄수화물" items={PRESETS.carb} macro="carb" onAdd={handleAddFromPreset} rui={rui}/>
+            <PresetBlock title="Protein 단백질" items={PRESETS.protein} macro="protein" onAdd={handleAddFromPreset} rui={rui}/>
+            <PresetBlock title="지방" items={PRESETS.fat} macro="fat" onAdd={handleAddFromPreset} rui={rui}/>
 
             {/* ✅ 나의 식단(최근 저장) — 제목은 SavedMealsStrip 내부에서만 렌더 */}
             <div style={{ background:"#fff", border:"1px solid #e5e7eb", borderRadius:12, padding:14, color:"#111827", boxShadow:"0 1px 2px rgba(0,0,0,0.03)" }}>
@@ -517,12 +558,12 @@ export default function PlanReport() {
           </div>
 
           {/* 우 슬롯 */}
-          <SlotsColumn slots={slots} setSlot={setSlot} onSave={handleSaveMyFoods}/>
+          <SlotsColumn slots={slots} setSlot={setSlot} onSave={handleSaveMyFoods} rui={rui}/>
         </div>
       </div>
 
       {/* ===== 오른쪽 영역 ===== */}
-      <div style={{ display:"grid", gap:UI.innerGap }}>
+      <div style={{ display:"grid", gap:rui.innerGap }}>
         <FoodSearchPanel />
       </div>
     </div>
