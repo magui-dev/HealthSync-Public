@@ -7,7 +7,7 @@ const ProgressBar = ({ startDate, endDate }) => {
   useEffect(() => {
     const start = new Date(startDate);
     const end = new Date(endDate);
-    const current = new Date('2025-09-05'); // 예시를 위해 날짜 고정
+const current = new Date(); // 항상 현재 날짜를 사용
 
     const totalDuration = end.getTime() - start.getTime();
     const elapsedTime = current.getTime() - start.getTime();

@@ -1,98 +1,188 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { useMe } from '../../hooks/useMe'; 
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useMe } from "../../hooks/useMe";
+import { calculateBMI } from "../lib/bmi"; // bmi.js의 경로 확인 필요
+import GoalSelectModal from "../../openaiapi/components/GoalSelectModal";
 
-import GoalList from '../components/GoalList';
-import ReportHeader from '../components/ReportHeader';
-import ProgressBar from '../components/ProgressBar';
-import BmiDisplay from '../components/BmiDisplay';
-import CalorieReport from '../components/CalorieReport';
-import '../myreport.css';
+import ReportHeader from "../components/ReportHeader";
+import ProgressBar from "../components/ProgressBar";
+import BmiDisplay from "../components/BmiDisplay";
+import CalorieReport from "../components/CalorieReport";
+import "../myreport.css";
 
 const MyReportPage = () => {
   const { me, loading: meLoading } = useMe();
+  const [userProfile, setUserProfile] = useState(null);
+  const [selectedGoal, setSelectedGoal] = useState(null); // ID 대신 객체 전체를 저장
   const [reportData, setReportData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // 로딩 상태 통합
+  const [error, setError] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // ✨ useEffect 1: 페이지 진입 시 사용자 프로필 정보를 미리 가져옴
   useEffect(() => {
-    if (!meLoading && me) {
-      const fetchReportData = async () => {
+    if (me && !userProfile) {
+      const fetchProfile = async () => {
         try {
-          // 1. 실제로 존재하는 /profile API만 호출합니다.
-          const profileRes = await axios.get("http://localhost:8080/profile", { withCredentials: true });
-          const profile = profileRes.data;
-
-          // 2. 아직 백엔드에 없는 리포트 상세 정보는 임시 데이터(mock)로 만듭니다.
-          //    나중에 실제 API가 생기면 이 부분을 API 호출로 바꾸면 됩니다.
-          const mockReportDetails = {
-            goals: [
-              { id: 1, text: '지난 목표 ∙ 이미 종료된 목표', isCurrent: false },
-              { id: 2, text: '지난 목표 ∙ 이미 종료된 목표', isCurrent: false },
-              { id: 3, text: '현재 진행 중인 목표', isCurrent: true },
-            ],
-            startDate: '2025.08.30',
-            endDate: '2025.09.26',
-            targetWeight: 88,
-            dailyCalories: 1580,
-            mealCalories: 526,
-            mealPlan: {
-              carbs: { name: '쌀밥', amount: '120g', kcal: 156 },
-              protein: { name: '닭가슴살', amount: '160g', kcal: 264 },
-              fat: { name: '올리브오일', amount: '2 tsp (10ml)', kcal: 80 },
-              vegetables: { name: '야채', amount: '100g', kcal: 25 },
-              totalKcal: 525,
-            },
-          };
-          
-          // 3. 실제 데이터(profile)와 임시 데이터(mock)를 합쳐서 최종 데이터를 만듭니다.
-          const combinedData = {
-            goals: mockReportDetails.goals,
-            goalPeriod: { start: mockReportDetails.startDate, end: mockReportDetails.endDate },
-            weights: { start: profile.weight, target: mockReportDetails.targetWeight },
-            user: { height: profile.height, gender: profile.gender?.toUpperCase() },
-            dailyCalories: mockReportDetails.dailyCalories,
-            mealCalories: mockReportDetails.mealCalories,
-            mealPlan: mockReportDetails.mealPlan,
-          };
-          
-          setReportData(combinedData);
-
-        } catch (error) {
-          console.error("프로필 데이터를 불러오는 데 실패했습니다.", error);
-        } finally {
-          setLoading(false);
+          const res = await axios.get("http://localhost:8080/profile", {
+            withCredentials: true,
+          });
+          setUserProfile(res.data);
+        } catch (err) {
+          console.error("프로필 정보를 불러오는 데 실패했습니다.", err);
+          setError("프로필 정보를 불러올 수 없습니다.");
         }
       };
-
-      fetchReportData();
-    } else if (!meLoading && !me) {
-      setLoading(false);
+      fetchProfile();
     }
-  }, [me, meLoading]);
+  }, [me, userProfile]);
 
-  // --- 렌더링 로직 (이전과 동일) ---
+  // ✨ useEffect 2: selectedGoal이 바뀔 때마다 상세 데이터를 가져와 최종 reportData를 조합 (핵심 로직)
+  useEffect(() => {
+    // 계산에 필요한 userProfile과 selectedGoal 데이터가 준비되기 전에는 실행하지 않음
+    if (!selectedGoal || !userProfile) {
+      setReportData(null);
+      return;
+    }
 
-  if (loading) {
-    return <div className="report-loading">리포트 데이터를 불러오는 중입니다...</div>;
-  }
+    const fetchDetailsAndCombine = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        // 1. 존재하는 API인 'summary' API를 호출
+        const [summaryRes, foodSelectionsRes] = await Promise.all([
+          axios.get(
+            `http://localhost:8080/api/plan/${selectedGoal.id}/summary`,
+            { withCredentials: true }
+          ),
+          // ✅ goalId를 쿼리 파라미터로 전달합니다.
+          axios.get(
+            `http://localhost:8080/api/plan/food-selections?goalId=${selectedGoal.id}`,
+            { withCredentials: true }
+          ),
+        ]);
 
-  if (!reportData) {
-    return <div className="report-error">리포트 데이터가 없거나 불러올 수 없습니다.</div>;
-  }
+        const summaryData = summaryRes.data;
+        const foodSelectionsArray = foodSelectionsRes.data; // 배열 형태의 식단 데이터
 
-  const heightInMeters = reportData.user.height / 100;
-  const bmiValue = (reportData.weights.start / (heightInMeters * heightInMeters)).toFixed(1);
+        const mealPlanObject = foodSelectionsArray.reduce((acc, item) => {
+          let key;
+          // 백엔드 카테고리 이름에 따라 프론트엔드 키를 명시적으로 매핑합니다.
+          switch (item.category) {
+            case "CARB":
+              key = "carbs"; // 'carb'가 아닌 'carbs'로
+              break;
+            case "PROTEIN":
+              key = "protein"; // 'protein'은 그대로
+              break;
+            case "FAT":
+              key = "fat"; // 'fat'은 그대로
+              break;
+            case "CUSTOM":
+              key = "custom";
+              break;
+            default:
+              // 혹시 모를 다른 카테고리는 무시
+              return acc;
+          }
 
-  return (
-    <div className="my-report-container">
-      <GoalList goals={reportData.goals} />
-      <main className="report-content">
-        <ReportHeader period={reportData.goalPeriod} weights={reportData.weights} />
+          acc[key] = {
+            name: item.label,
+            amount: item.servingG ? `${item.servingG}g` : "", // servingG가 null일 경우 대비
+            kcal: item.kcal,
+          };
+          return acc;
+        }, {});
+
+        mealPlanObject.totalKcal = Object.values(mealPlanObject).reduce(
+          (sum, item) => sum + (item.kcal || 0),
+          0
+        );
+
+        // 2. 프론트엔드에서 BMI 계산
+        const bmiValue = calculateBMI(
+          selectedGoal.startWeightKg,
+          userProfile.height
+        );
+
+        // 3. 모든 데이터 소스를 조합하여 최종 reportData 생성
+        const combinedData = {
+          goalPeriod: {
+            start: selectedGoal.startDate,
+            end: selectedGoal.endDate,
+          },
+          weights: {
+            start: selectedGoal.startWeightKg,
+            target: selectedGoal.targetWeightKg,
+          },
+          user: {
+            height: userProfile.height,
+            gender: userProfile.gender?.toUpperCase(),
+          },
+          bmi: bmiValue,
+
+          dailyCalories: summaryData.targetDailyCalories, // '일 섭취 권장 칼로리'
+          mealCalories: summaryData.perMealKcal, // '1회 식사 권장 칼로리'
+
+          // (임시 데이터) 백엔드 summary 응답에 mealPlan이 추가되면 이 부분을 교체
+          mealPlan: mealPlanObject,
+        };
+        setReportData(combinedData);
+      } catch (err) {
+        console.error("리포트 상세 정보를 불러오는 데 실패했습니다.", err);
+        setError("리포트 상세 정보를 불러올 수 없습니다.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDetailsAndCombine();
+  }, [selectedGoal, userProfile]); // selectedGoal 또는 userProfile이 변경될 때 실행
+
+  // ✅ [수정] 목표 선택 핸들러: goal 객체 전체를 저장
+  const handleSelectGoal = (goal) => {
+    setSelectedGoal(goal);
+    setIsModalOpen(false); // 선택 후 모달 닫기
+  };
+
+  // --- 렌더링 로직 ---
+  const renderReportContent = () => {
+    if (!selectedGoal) {
+      return (
+        <div className="report-placeholder">분석할 목표를 선택해주세요.</div>
+      );
+    }
+    if (loading) {
+      return (
+        <div className="report-loading">
+          리포트 데이터를 불러오는 중입니다...
+        </div>
+      );
+    }
+    if (error) {
+      return <div className="report-error">{error}</div>;
+    }
+    if (!reportData) {
+      return null;
+    }
+
+    // ✅ [수정] 이제 reportData에서 직접 bmi 값을 가져와 사용
+    const bmiValue = reportData.bmi;
+
+    return (
+      <>
+        <ReportHeader
+          period={reportData.goalPeriod}
+          weights={reportData.weights}
+        />
         <div className="report-section progress-bmi-section">
-          <ProgressBar startDate={reportData.goalPeriod.start} endDate={reportData.goalPeriod.end} />
-          <BmiDisplay 
-            bmiValue={bmiValue} 
-            gender={reportData.user.gender === 'FEMALE' ? 'female' : 'man'}
+          <ProgressBar
+            startDate={reportData.goalPeriod.start}
+            endDate={reportData.goalPeriod.end}
+          />
+          <BmiDisplay
+            bmiValue={bmiValue?.toFixed(1)}
+            gender={reportData.user.gender === "FEMALE" ? "female" : "man"}
           />
         </div>
         <CalorieReport
@@ -100,7 +190,31 @@ const MyReportPage = () => {
           mealCalories={reportData.mealCalories}
           mealPlan={reportData.mealPlan}
         />
-      </main>
+      </>
+    );
+  };
+
+  return (
+    <div className="my-report-container">
+      <aside className="report-sidebar">
+        <div className="sidebar-header">
+          <h4>내 목표 리포트</h4>
+          <button
+            className="select-goal-button"
+            onClick={() => setIsModalOpen(true)}
+            disabled={meLoading || !me}
+          >
+            {me ? "분석할 목표 선택" : "사용자 정보 로딩 중..."}
+          </button>
+        </div>
+      </aside>
+      <main className="report-content">{renderReportContent()}</main>
+      <GoalSelectModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSelectGoal={handleSelectGoal}
+        me={me}
+      />
     </div>
   );
 };

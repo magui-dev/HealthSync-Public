@@ -7,7 +7,7 @@ const ReportHeader = ({ period, weights }) => {
         <p>목표 기간 : {period.start} ~ {period.end}</p>
       </div>
       <div className="info-box">
-        <p>목표 체중 / 시작 체중 : {weights.target} kg / {weights.start} kg</p>
+        <p>시작 체중 / 목표 체중 : {weights.start} kg / {weights.target} kg</p>
       </div>
     </div>
   );
