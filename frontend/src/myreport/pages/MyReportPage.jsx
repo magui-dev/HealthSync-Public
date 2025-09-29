@@ -308,32 +308,34 @@ savedMeal: savedMealForStrip,
   };
 
   return (
-    <div className="my-report-container">
-      <aside className="report-sidebar">
-        <div className="sidebar-header">
+    <div style={{ padding: "14px" }}>
+      <div className="my-report-container">
+        <aside className="report-sidebar">
+          <div className="sidebar-header">
 
-          <div className="main-content-header">
-          <h4>나의 리포트</h4>
-        </div>
-          <button
-            className="select-goal-button"
-            onClick={() => setIsModalOpen(true)}
-            disabled={meLoading || !me}
-          >
-            {me ? "분석할 목표 선택" : "사용자 정보 로딩 중..."}
-          </button>
-        </div>
-      </aside>
-      <main className="report-content">
-        
-        {renderReportContent()}
-      </main>{" "}
-      <GoalSelectModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSelectGoal={handleSelectGoal}
-        me={me}
-      />
+            <div className="main-content-header">
+            <h4>나의 리포트</h4>
+          </div>
+            <button
+              className="select-goal-button"
+              onClick={() => setIsModalOpen(true)}
+              disabled={meLoading || !me}
+            >
+              {me ? "분석할 목표 선택" : "사용자 정보 로딩 중..."}
+            </button>
+          </div>
+        </aside>
+        <main className="report-content">
+          
+          {renderReportContent()}
+        </main>{" "}
+        <GoalSelectModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSelectGoal={handleSelectGoal}
+          me={me}
+        />
+      </div>
     </div>
   );
 };

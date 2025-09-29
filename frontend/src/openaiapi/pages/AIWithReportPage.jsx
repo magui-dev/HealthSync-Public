@@ -131,7 +131,7 @@ export default function AIWithReportPage() {
           {loading && !reportDataForUIandAI && <div style={{ padding: 20 }}>데이터를 불러오는 중입니다...</div>}
           {error && <div style={{ padding: 20, color: "red" }}>오류: {error}</div>}
           {reportDataForUIandAI && (
-            <div style={{ marginTop: 16 }}>
+            <div>
               {/* ✅ UserInfoPage에는 완성된 데이터 객체 하나만 전달합니다. */}
               <UserInfoPage reportData={reportDataForUIandAI} />
             </div>

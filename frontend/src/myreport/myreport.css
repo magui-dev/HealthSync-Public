@@ -8,7 +8,8 @@
   gap: 2rem;
   max-width: 1300px;
   margin: auto;
- 
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
 }
 
 /* main 태그 안에 새로 추가된 제목 영역의 스타일을 정의합니다. */
