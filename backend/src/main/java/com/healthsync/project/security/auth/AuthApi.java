@@ -1,10 +1,9 @@
 package com.healthsync.project.security.auth;
 
+import com.healthsync.project.account.user.domain.User;
+import com.healthsync.project.account.user.domain.UserService;
 import com.healthsync.project.security.jwt.CookieUtil;
 import com.healthsync.project.security.jwt.JwtService;
-import com.healthsync.project.security.jwt.RefreshTokenStore;
-import com.healthsync.project.account.user.domain.User;
-import com.healthsync.project.account.user.domain.UserService; // ✅ 추가
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -21,29 +20,31 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuthApi {
     private final JwtService jwtService;
-    private final UserService userService; // ✅ 주입
+    private final UserService userService;
     private final CookieUtil cookieUtil;
 
     @GetMapping("/me")
-    public Map<String, Object> me(Authentication auth) {
-        Long userId = getUserIdFromAuth(auth);
+    public ResponseEntity<?> me(Authentication auth) {
+        if (auth == null || !auth.isAuthenticated()) {
+            return ResponseEntity.status(401).body(Map.of("message", "Unauthenticated"));
+        }
+        Long userId = parseUserId(auth.getName());
         User u = userService.getById(userId);
-
-        return Map.of(
+        return ResponseEntity.ok(Map.of(
                 "userId", u.getId(),
                 "login", "jwt",
-                "subject", u.getId().toString(), // subject는 이제 userId입니다.
+                "subject", u.getId().toString(),
                 "email", u.getEmail(),
                 "name", u.getName(),
                 "nickname", u.getNickname(),
                 "nicknameSet", u.isNicknameSet(),
                 "provider", u.getProvider()
-        );
+        ));
     }
 
     @PatchMapping("/nickname")
     public Map<String, String> changeNickname(Authentication auth, @RequestBody Map<String, String> body) {
-        Long userId = getUserIdFromAuth(auth);
+        Long userId = parseUserId(auth.getName());
         String nickname = body.getOrDefault("nickname", "").trim();
         userService.updateNicknameById(userId, nickname);
         return Map.of("status", "ok");
@@ -55,7 +56,7 @@ public class AuthApi {
         if (!jwtService.isValidRefresh(refresh)) {
             return ResponseEntity.status(401).build();
         }
-        String subject = jwtService.getSubjectFromRefresh(refresh); // 또는 parseClaims(refresh).getSubject()
+        String subject = jwtService.getSubjectFromRefresh(refresh); // userId 문자열
         String newAccess = jwtService.createAccessToken(subject);
 
         res.addHeader(HttpHeaders.SET_COOKIE,
@@ -72,15 +73,11 @@ public class AuthApi {
         return ResponseEntity.noContent().build();
     }
 
-    public Long getUserIdFromAuth(Authentication auth) {
-        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal() == null) {
-            throw new IllegalStateException("인증 정보를 찾을 수 없습니다.");
-        }
-        String userIdStr = auth.getName();
+    private Long parseUserId(String subject) {
         try {
-            return Long.parseLong(userIdStr);
+            return Long.parseLong(subject);
         } catch (NumberFormatException e) {
-            throw new IllegalStateException("인증 정보가 올바르지 않습니다 (ID가 숫자가 아님).");
+            throw new IllegalStateException("인증 정보(subject)가 숫자 ID가 아닙니다.");
         }
     }
 }
