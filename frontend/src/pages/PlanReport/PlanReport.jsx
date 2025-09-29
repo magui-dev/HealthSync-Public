@@ -321,10 +321,94 @@ export default function PlanReport() {
   const [slots, setSlots] = useState({ carb:null, protein:null, fat:null, custom:null });
   const setSlot = (macro, slotOrNull) => setSlots(prev => ({ ...prev, [macro]: slotOrNull }));
 
+    const [goalSpecificMeal, setGoalSpecificMeal] = useState(null);
+
+
   // 저장된 “나의 식단” 목록 (최신이 0번)
   const [savedCompositions, setSavedCompositions] = useState(() => {
     try { return JSON.parse(localStorage.getItem("savedMeals") || "[]"); } catch { return []; }
   });
+
+
+
+   useEffect(() => {
+    if (!goalId) return;
+
+    // 다른 목표로 이동 시 이전 데이터를 초기화합니다.
+    setSlots({ carb: null, protein: null, fat: null, custom: null });
+    setGoalSpecificMeal(null);
+
+    const fetchSavedFoodSelections = async () => {
+      try {
+        const response = await axios.get(
+          `/api/plan/food-selections?goalId=${goalId}`,
+          { withCredentials: true }
+        );
+        const foodItems = response.data; // 서버에서 받은 FoodSelectionDto 배열
+
+        if (foodItems && foodItems.length > 0) {
+          const nextSlots = { carb: null, protein: null, fat: null, custom: null };
+          const mealItemsForStrip = [];
+
+          foodItems.forEach(item => { // item 하나가 FoodSelectionDto 객체입니다.
+            const macroKey = item.category.toLowerCase();
+
+            if (nextSlots[macroKey] !== undefined) {
+              const grams = Number(item.servingG) || 0;
+              const carbG = Number(item.carbsG) || 0;
+              const proteinG = Number(item.proteinG) || 0;
+              const fatG = Number(item.fatG) || 0;
+              const kcal = Number(item.kcal) || 0;
+
+              const carbPer100 = grams ? (carbG / grams) * 100 : 0;
+              const proteinPer100 = grams ? (proteinG / grams) * 100 : 0;
+              const fatPer100 = grams ? (fatG / grams) * 100 : 0;
+              const id = item.externalId || crypto.randomUUID();
+              
+              // [핵심 로직] DTO의 'label' 필드에서 순수 음식 이름을 추출합니다.
+              const name = item.label.replace(/\s*\d+g$/, '').trim();
+              let iconUrl = "/icons/custom.png"; 
+
+              // DTO의 'source' 필드가 "PRESET"일 경우
+              if (item.source === "PRESET") {
+                  // 추출한 이름으로 PRESETS 객체에서 아이콘 정보를 찾습니다.
+                  const presetItem = PRESETS[macroKey]?.find(p => p.name === name);
+                  if (presetItem) {
+                      iconUrl = `/icons/${presetItem.icon}.png`;
+                  }
+              }
+              
+              nextSlots[macroKey] = {
+                id, macro: item.category, name, iconUrl, grams,
+                per100: {
+                  carb: +carbPer100.toFixed(2),
+                  protein: +proteinPer100.toFixed(2),
+                  fat: +fatPer100.toFixed(2),
+                }
+              };
+
+              mealItemsForStrip.push({
+                id, macro: item.category, name, iconUrl, grams,
+                carb: carbG, protein: proteinG, fat: fatG, kcal
+              });
+            }
+          });
+          
+          setSlots(nextSlots);
+          setGoalSpecificMeal({
+            id: `goal-${goalId}`,
+            createdAt: new Date().toISOString(), 
+            items: mealItemsForStrip
+          });
+        }
+      } catch (error) {
+        console.error("저장된 식단 정보를 불러오는 데 실패했습니다.", error);
+      }
+    };
+
+    fetchSavedFoodSelections();
+}, [goalId]);
+
 
   // 프리셋에서 담기
   function handleAddFromPreset(macro, presetItem) {
@@ -426,6 +510,24 @@ async function handleSaveMyFoods() {
     const next = [snapshot, ...savedCompositions].slice(0, 10);
     setSavedCompositions(next);
     localStorage.setItem("savedMeals", JSON.stringify(next));
+
+    // 저장 성공 후, 현재 데이터를 goalSpecificMeal 상태에 즉시 반영하여
+    // 새로고침 없이도 '나의 식단' 스트립이 갱신되도록 합니다.
+    setGoalSpecificMeal({
+        id: `goal-${goalId}`,
+        createdAt: new Date().toISOString(),
+        items: items.map(it => ({
+            id: it.id,
+            macro: it.macro,
+            name: it.name,
+            iconUrl: it.iconUrl,
+            grams: it.grams,
+            carb: it.carb,
+            protein: it.protein,
+            fat: it.fat,
+            kcal: it.kcal,
+        })),
+    });
 
     alert("나의 식단이 서버에 성공적으로 저장되었습니다.");
 
@@ -612,8 +714,9 @@ async function handleSaveMyFoods() {
             {/* ✅ 나의 식단(최근 저장) — 제목은 SavedMealsStrip 내부에서만 렌더 */}
             <div style={{ background:"#fff", border:"1px solid #e5e7eb", borderRadius:12, padding:14, color:"#111827", boxShadow:"0 1px 2px rgba(0,0,0,0.03)" }}>
               <SavedMealsStrip
-                saved={savedCompositions[0] || null}
-                onApply={handleApplySavedToSlots}
+    // ✨ savedCompositions[0]가 아닌 goalSpecificMeal이어야 합니다.
+    saved={goalSpecificMeal} 
+    onApply={handleApplySavedToSlots}
               />
             </div>
           </div>

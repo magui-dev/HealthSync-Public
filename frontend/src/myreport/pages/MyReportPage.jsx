@@ -7,8 +7,81 @@ import GoalSelectModal from "../../openaiapi/components/GoalSelectModal";
 import ReportHeader from "../components/ReportHeader";
 import ProgressBar from "../components/ProgressBar";
 import BmiDisplay from "../components/BmiDisplay";
-import CalorieReport from "../components/CalorieReport";
+import SavedMealsStrip from "../../pages/PlanReport/SavedMealsStrip";
+
 import "../myreport.css";
+
+const PRESETS = {
+  carb: [
+    {
+      key: "brown-rice",
+      name: "현미밥",
+      icon: "brown-rice",
+      kcalPer100g: 172,
+      macrosPer100g: { carb_g: 38.9, protein_g: 3.1, fat_g: 0.47 },
+    },
+    {
+      key: "sweet-potato",
+      name: "고구마",
+      icon: "sweet-potato",
+      kcalPer100g: 86,
+      macrosPer100g: { carb_g: 20.1, protein_g: 1.6, fat_g: 0.1 },
+    },
+    {
+      key: "oatmeal",
+      name: "오트밀",
+      icon: "oatmeal",
+      kcalPer100g: 389,
+      macrosPer100g: { carb_g: 66, protein_g: 17, fat_g: 7 },
+    },
+  ],
+  protein: [
+    {
+      key: "chicken-breast",
+      name: "닭가슴살",
+      icon: "chicken-breast",
+      kcalPer100g: 165,
+      macrosPer100g: { carb_g: 0, protein_g: 31, fat_g: 3.6 },
+    },
+    {
+      key: "tofu",
+      name: "두부",
+      icon: "tofu",
+      kcalPer100g: 76,
+      macrosPer100g: { carb_g: 1.9, protein_g: 8, fat_g: 4.8 },
+    },
+    {
+      key: "eggs",
+      name: "계란",
+      icon: "eggs",
+      kcalPer100g: 143,
+      macrosPer100g: { carb_g: 1.1, protein_g: 13, fat_g: 10 },
+    },
+  ],
+  fat: [
+    {
+      key: "olive-oil",
+      name: "올리브유",
+      icon: "olive-oil",
+      kcalPer100g: 884,
+      macrosPer100g: { carb_g: 0, protein_g: 0, fat_g: 100 },
+    },
+    {
+      key: "avocado",
+      name: "아보카도",
+      icon: "avocado",
+      kcalPer100g: 160,
+      macrosPer100g: { carb_g: 9, protein_g: 2, fat_g: 15 },
+    },
+    {
+      key: "almond",
+      name: "아몬드",
+      icon: "almond",
+      kcalPer100g: 579,
+      macrosPer100g: { carb_g: 22, protein_g: 21, fat_g: 50 },
+    },
+  ],
+};
 
 const MyReportPage = () => {
   const { me, loading: meLoading } = useMe();
@@ -39,7 +112,6 @@ const MyReportPage = () => {
 
   // ✨ useEffect 2: selectedGoal이 바뀔 때마다 상세 데이터를 가져와 최종 reportData를 조합 (핵심 로직)
   useEffect(() => {
-    // 계산에 필요한 userProfile과 selectedGoal 데이터가 준비되기 전에는 실행하지 않음
     if (!selectedGoal || !userProfile) {
       setReportData(null);
       return;
@@ -49,13 +121,11 @@ const MyReportPage = () => {
       setLoading(true);
       setError(null);
       try {
-        // 1. 존재하는 API인 'summary' API를 호출
         const [summaryRes, foodSelectionsRes] = await Promise.all([
           axios.get(
             `http://localhost:8080/api/plan/${selectedGoal.id}/summary`,
             { withCredentials: true }
           ),
-          // ✅ goalId를 쿼리 파라미터로 전달합니다.
           axios.get(
             `http://localhost:8080/api/plan/food-selections?goalId=${selectedGoal.id}`,
             { withCredentials: true }
@@ -65,39 +135,36 @@ const MyReportPage = () => {
         const summaryData = summaryRes.data;
         const foodSelectionsArray = foodSelectionsRes.data; // 배열 형태의 식단 데이터
 
-        const mealPlanObject = foodSelectionsArray.reduce((acc, item) => {
-          let key;
-          // 백엔드 카테고리 이름에 따라 프론트엔드 키를 명시적으로 매핑합니다.
-          switch (item.category) {
-            case "CARB":
-              key = "carbs"; // 'carb'가 아닌 'carbs'로
-              break;
-            case "PROTEIN":
-              key = "protein"; // 'protein'은 그대로
-              break;
-            case "FAT":
-              key = "fat"; // 'fat'은 그대로
-              break;
-            case "CUSTOM":
-              key = "custom";
-              break;
-            default:
-              // 혹시 모를 다른 카테고리는 무시
-              return acc;
+        const mealItemsForStrip = foodSelectionsArray.map((item) => {
+          const macroKey = item.category.toLowerCase();
+          const name = item.label.replace(/\s*\d+g$/, "").trim();
+          let iconUrl = "/icons/custom.png";
+
+          if (item.source === "PRESET") {
+            const presetItem = PRESETS[macroKey]?.find((p) => p.name === name);
+            if (presetItem) {
+              iconUrl = `/icons/${presetItem.icon}.png`;
+            }
           }
 
-          acc[key] = {
-            name: item.label,
-            amount: item.servingG ? `${item.servingG}g` : "", // servingG가 null일 경우 대비
+          return {
+            id: item.id,
+            macro: item.category,
+            name: name,
+            iconUrl: iconUrl,
+            grams: item.servingG,
+            carb: item.carbsG,
+            protein: item.proteinG,
+            fat: item.fatG,
             kcal: item.kcal,
           };
-          return acc;
-        }, {});
+        });
 
-        mealPlanObject.totalKcal = Object.values(mealPlanObject).reduce(
-          (sum, item) => sum + (item.kcal || 0),
-          0
-        );
+        const savedMealForStrip = {
+          id: `goal-report-${selectedGoal.id}`,
+          createdAt: new Date().toISOString(),
+          items: mealItemsForStrip,
+        };
 
         // 2. 프론트엔드에서 BMI 계산
         const bmiValue = calculateBMI(
@@ -125,7 +192,7 @@ const MyReportPage = () => {
           mealCalories: summaryData.perMealKcal, // '1회 식사 권장 칼로리'
 
           // (임시 데이터) 백엔드 summary 응답에 mealPlan이 추가되면 이 부분을 교체
-          mealPlan: mealPlanObject,
+savedMeal: savedMealForStrip,
         };
         setReportData(combinedData);
       } catch (err) {
@@ -171,25 +238,49 @@ const MyReportPage = () => {
 
     return (
       <>
+        {" "}
         <ReportHeader
           period={reportData.goalPeriod}
           weights={reportData.weights}
         />
+        {" "}
         <div className="report-section progress-bmi-section">
+          {" "}
           <ProgressBar
             startDate={reportData.goalPeriod.start}
             endDate={reportData.goalPeriod.end}
           />
+         {" "}
           <BmiDisplay
             bmiValue={bmiValue?.toFixed(1)}
             gender={reportData.user.gender === "FEMALE" ? "female" : "man"}
           />
+          {" "}
         </div>
-        <CalorieReport
-          dailyCalories={reportData.dailyCalories}
-          mealCalories={reportData.mealCalories}
-          mealPlan={reportData.mealPlan}
-        />
+        <div className="report-section">
+          <div className="info-box">
+            <p>
+              일 섭취 필요칼로리 :{" "}
+              {(reportData.dailyCalories ?? 0).toLocaleString()} kcal
+            </p>
+          </div>
+          <div className="info-box">
+            <p>
+              1회 식사 권장량 :{" "}
+              {(reportData.mealCalories ?? 0).toLocaleString()} kcal
+            </p>
+          </div>
+           <div 
+              className="report-meal-strip-container" // ✨ className 추가
+              style={{ marginTop: '16px', background:"#fff", border:"1px solid #e5e7eb", borderRadius:12, padding:14, color:"#111827", boxShadow:"0 1px 2px rgba(0,0,0,0.03)" }}
+            >
+                <SavedMealsStrip
+                saved={reportData.savedMeal}
+                onApply={null}
+                />
+            </div>
+        </div>
+        {" "}
       </>
     );
   };
@@ -198,6 +289,10 @@ const MyReportPage = () => {
     <div className="my-report-container">
       <aside className="report-sidebar">
         <div className="sidebar-header">
+
+          <div className="main-content-header">
+          <h4>나의 리포트</h4>
+        </div>
           <button
             className="select-goal-button"
             onClick={() => setIsModalOpen(true)}
@@ -207,12 +302,11 @@ const MyReportPage = () => {
           </button>
         </div>
       </aside>
- <main className="report-content">
-        <div className="main-content-header">
-          <h4>내 목표 리포트</h4>
-        </div>
+      <main className="report-content">
+        
         {renderReportContent()}
-      </main>      <GoalSelectModal
+      </main>{" "}
+      <GoalSelectModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSelectGoal={handleSelectGoal}

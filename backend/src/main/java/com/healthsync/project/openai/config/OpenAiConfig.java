@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.Duration;
+
 //@Configuration
 //public class OpenAIConfig {
 //
@@ -40,6 +42,11 @@ public class OpenAiConfig {
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder restTemplateBuilder) {
         return restTemplateBuilder
+
+                .setConnectTimeout(Duration.ofSeconds(30)) // 서버와 연결을 맺는 시간: 10초
+                .setReadTimeout(Duration.ofSeconds(30))    // 연결 후 응답을 기다리는 시간: 60초
+
+
                 .additionalInterceptors(((request, body, execution) -> {
                     // step 1. Authorization 헤더 추가 (Bearer + API KEY)
                     request.getHeaders().add("Authorization", "Bearer " + apiKey);

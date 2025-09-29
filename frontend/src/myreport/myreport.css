@@ -1,27 +1,33 @@
-
 /* 전체 컨테이너 레이아웃 */
 .my-report-container {
   display: flex;
   font-family: 'Pretendard', sans-serif;
   color: #333;
   background-color: #f4f6f8;
-  padding: 2rem;
+  padding: 1.5rem;
   gap: 2rem;
-  max-width: 1200px;
+  max-width: 1300px;
   margin: auto;
+ 
 }
 
 /* main 태그 안에 새로 추가된 제목 영역의 스타일을 정의합니다. */
 .main-content-header {
-  padding-bottom: 1rem; /* 제목과 아래 컨텐츠 사이의 간격 */
-  border-bottom: 1px solid #e0e0e0; /* 시각적인 구분선 */
-  margin-bottom: 0.5rem; /* 구분선과 아래 컨텐츠 사이의 추가 간격 */
+  padding-bottom: 0.3rem;
+  /* 제목과 아래 컨텐츠 사이의 간격 */
+  border-bottom: 1px solid #e0e0e0;
+  /* 시각적인 구분선 */
+  margin-bottom: 0.5rem;
+  /* 구분선과 아래 컨텐츠 사이의 추가 간격 */
 }
 
 .main-content-header h4 {
-  margin: 0; /* h4 태그의 기본 마진 제거 */
-  font-size: 1.8rem; /* 제목 폰트 크기를 키워 강조 */
-  font-weight: 700; /* 폰트 두께를 굵게 설정 */
+  margin: 0;
+  /* h4 태그의 기본 마진 제거 */
+  font-size: 1.8rem;
+  /* 제목 폰트 크기를 키워 강조 */
+  font-weight: 700;
+  /* 폰트 두께를 굵게 설정 */
 }
 
 
@@ -54,12 +60,12 @@
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 0.5rem;
 }
 
 .report-section {
   background-color: #ffffff;
-  padding: 1.5rem;
+  padding: 1rem;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
@@ -70,9 +76,9 @@
 /* 정보 박스: ReportHeader, CalorieReport 컴포넌트 */
 .info-box {
   background-color: #e9ecef;
-  padding: 0.8rem 1.2rem;
+  padding: 0.5rem 1.2rem;
   border-radius: 8px;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   font-weight: 500;
 }
 
@@ -217,4 +223,8 @@
   font-size: 1.1rem;
   font-weight: bold;
   margin: 0;
+}
+
+.report-meal-strip-container button {
+  display: none;
 }
