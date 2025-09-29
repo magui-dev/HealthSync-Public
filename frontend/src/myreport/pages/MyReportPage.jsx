@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useMe } from "../../hooks/useMe";
-import { calculateBMI } from "../lib/bmi"; // bmi.js의 경로 확인 필요
+import { calculateBMI } from "../lib/bmi";
 import GoalSelectModal from "../../openaiapi/components/GoalSelectModal";
 
 import ReportHeader from "../components/ReportHeader";
@@ -198,7 +198,6 @@ const MyReportPage = () => {
     <div className="my-report-container">
       <aside className="report-sidebar">
         <div className="sidebar-header">
-          <h4>내 목표 리포트</h4>
           <button
             className="select-goal-button"
             onClick={() => setIsModalOpen(true)}
@@ -208,8 +207,12 @@ const MyReportPage = () => {
           </button>
         </div>
       </aside>
-      <main className="report-content">{renderReportContent()}</main>
-      <GoalSelectModal
+ <main className="report-content">
+        <div className="main-content-header">
+          <h4>내 목표 리포트</h4>
+        </div>
+        {renderReportContent()}
+      </main>      <GoalSelectModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSelectGoal={handleSelectGoal}

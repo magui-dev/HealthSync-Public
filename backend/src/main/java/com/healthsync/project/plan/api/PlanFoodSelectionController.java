@@ -30,7 +30,7 @@ public class PlanFoodSelectionController {
         return service.saveOrReplace(userId, req);
     }
 
-    /** 내 픽 목록(최대 3개: CARB/PROTEIN/FAT) */
+    /** 내 픽 목록(최대 3개: CARB/PROTEIN/FAT/CUSTOM) */
     @GetMapping("/food-selections")
     public List<FoodSelectionDto> list(@RequestParam Long goalId){
         Long userId = currentUser.requireCurrentUserId();

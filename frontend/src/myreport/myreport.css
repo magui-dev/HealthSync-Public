@@ -1,105 +1,220 @@
+
 /* 전체 컨테이너 레이아웃 */
-.my-report-container { display: flex; font-family: 'Pretendard', sans-serif; color: #333; background-color: #f4f6f8; padding: 2rem; gap: 2rem; max-width: 1200px; margin: auto; }
-
-/* 왼쪽 사이드바: GoalList 컴포넌트 */
-.report-sidebar { display: flex; flex-direction: column; gap: 1rem; flex-basis: 220px; }
-.goal-button { border: 1px solid #ddd; background-color: #fff; padding: 1rem; border-radius: 8px; text-align: left; cursor: pointer; font-size: 0.9rem; color: #555; transition: background-color 0.2s; }
-.goal-button:hover { background-color: #f0f0f0; }
-.goal-button.current-goal { background-color: #555; color: white; border-color: #555; font-weight: bold; }
-
-/* 오른쪽 메인 컨텐츠 */
-.report-content { flex-grow: 1; display: flex; flex-direction: column; gap: 1.5rem; }
-.report-section { background-color: #ffffff; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-
-/* 정보 박스: ReportHeader, CalorieReport 컴포넌트 */
-.info-box { background-color: #e9ecef; padding: 0.8rem 1.2rem; border-radius: 8px; margin-bottom: 1rem; font-weight: 500; }
-.info-box p { margin: 0; }
-.info-box:last-child { margin-bottom: 0; }
-
-/* 진행도 및 BMI 섹션 */
-.progress-bmi-section { display: flex; align-items: center; gap: 2rem; }
-
-/* ProgressBar 컴포넌트 */
-.progress-container { 
-  flex-grow: 1; 
-  padding: 10px 0; /* 아이콘이 잘 보이도록 상하 여백 추가 */
+.my-report-container {
+  display: flex;
+  font-family: 'Pretendard', sans-serif;
+  color: #333;
+  background-color: #f4f6f8;
+  padding: 2rem;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: auto;
 }
 
-.progress-bar-wrapper { 
-  display: flex; 
-  align-items: center; 
-  gap: 1rem; 
+/* main 태그 안에 새로 추가된 제목 영역의 스타일을 정의합니다. */
+.main-content-header {
+  padding-bottom: 1rem; /* 제목과 아래 컨텐츠 사이의 간격 */
+  border-bottom: 1px solid #e0e0e0; /* 시각적인 구분선 */
+  margin-bottom: 0.5rem; /* 구분선과 아래 컨텐츠 사이의 추가 간격 */
+}
+
+.main-content-header h4 {
+  margin: 0; /* h4 태그의 기본 마진 제거 */
+  font-size: 1.8rem; /* 제목 폰트 크기를 키워 강조 */
+  font-weight: 700; /* 폰트 두께를 굵게 설정 */
+}
+
+
+
+.goal-button {
+  border: 1px solid #ddd;
+  background-color: #fff;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #555;
+  transition: background-color 0.2s;
+}
+
+.goal-button:hover {
+  background-color: #f0f0f0;
+}
+
+.goal-button.current-goal {
+  background-color: #555;
+  color: white;
+  border-color: #555;
+  font-weight: bold;
+}
+
+/* 오른쪽 메인 컨텐츠 */
+.report-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.report-section {
+  background-color: #ffffff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+
+
+
+/* 정보 박스: ReportHeader, CalorieReport 컴포넌트 */
+.info-box {
+  background-color: #e9ecef;
+  padding: 0.8rem 1.2rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.info-box p {
+  margin: 0;
+}
+
+.info-box:last-child {
+  margin-bottom: 0;
+}
+
+/* 진행도 및 BMI 섹션 */
+.progress-bmi-section {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+/* ProgressBar 컴포넌트 */
+.progress-container {
+  flex-grow: 1;
+  padding: 10px 0;
+  /* 아이콘이 잘 보이도록 상하 여백 추가 */
+}
+
+.progress-bar-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
   width: 100%;
 }
 
-.progress-bar-wrapper > span { 
-  font-size: 0.9rem; 
-  color: #888; 
+.progress-bar-wrapper>span {
+  font-size: 0.9rem;
+  color: #888;
 }
 
 /* SVG와 아이콘을 함께 담는 컨테이너 */
 .arrow-svg-container {
-  position: relative; /* runner-icon의 기준점이 되도록 설정 (매우 중요!) */
+  position: relative;
+  /* runner-icon의 기준점이 되도록 설정 (매우 중요!) */
   width: 100%;
-  height: 20px; /* SVG 높이와 일치 */
+  height: 20px;
+  /* SVG 높이와 일치 */
 }
 
 /* 아이콘 스타일 - CSS 파일에서는 동적인 위치(left)를 지정하지 않습니다! */
-.runner-icon { 
-  position: absolute; 
+.runner-icon {
+  position: absolute;
   top: 50%;
-  width: 30px; 
-  transform: translateY(-50%); 
-  display: flex; 
-  flex-direction: column; 
-  align-items: center; 
+  width: 30px;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   z-index: 10;
 }
 
-.runner-icon > span { 
-  font-size: 1.8rem; 
+.runner-icon>span {
+  font-size: 1.8rem;
 }
 
 .runner-image {
-  position: absolute; 
-  width: 60px; /* 이미지 너비 (이 값을 조절하세요) */
-  height: 60px; /* 이미지 높이 (이 값을 조절하세요) */
-  top: -60px; 
+  position: absolute;
+  width: 60px;
+  /* 이미지 너비 (이 값을 조절하세요) */
+  height: 60px;
+  /* 이미지 높이 (이 값을 조절하세요) */
+  top: -60px;
 }
 
-.current-date-label { 
-  position: absolute; 
-  top: 5px; 
+.current-date-label {
+  position: absolute;
+  top: 5px;
   left: 50%;
   transform: translateX(-50%);
-  white-space: nowrap; 
-  font-size: 0.85rem; 
-  color: #555; 
-  font-weight: bold; 
-  background-color: rgba(255, 255, 255, 0.7); 
-  padding: 2px 6px; 
-  border-radius: 4px; 
+  white-space: nowrap;
+  font-size: 0.85rem;
+  color: #555;
+  font-weight: bold;
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
 
 /* BmiDisplay 컴포넌트 */
-.bmi-container { display: flex; flex-direction: column; align-items: center; text-align: center; }
-.bmi-image { width: 80px; height: auto; margin-bottom: 0.5rem; }
-.bmi-label { 
-    display: flex; 
-    flex-direction: column; 
-    /* background-color: #ffc974; <-- 이 줄을 제거합니다. */
-    color: white; /* <-- 배경색 위에 잘 보이도록 텍스트 색상을 흰색으로 추가합니다. */
-    padding: 0.5rem 1rem; 
-    border-radius: 8px; 
-    min-width: 110px; /* 텍스트가 길어질 수 있어 너비를 약간 늘립니다. */
-    text-align: center;
+.bmi-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
-.bmi-label span { font-size: 0.8rem; }
-.bmi-label strong { font-size: 0.9rem; }
+
+.bmi-image {
+  width: 80px;
+  height: auto;
+  margin-bottom: 0.5rem;
+}
+
+.bmi-label {
+  display: flex;
+  flex-direction: column;
+  /* background-color: #ffc974; <-- 이 줄을 제거합니다. */
+  color: white;
+  /* <-- 배경색 위에 잘 보이도록 텍스트 색상을 흰색으로 추가합니다. */
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  min-width: 110px;
+  /* 텍스트가 길어질 수 있어 너비를 약간 늘립니다. */
+  text-align: center;
+}
+
+.bmi-label span {
+  font-size: 0.8rem;
+}
+
+.bmi-label strong {
+  font-size: 0.9rem;
+}
 
 /* CalorieReport 컴포넌트 */
-.info-box-detail { border: 1px solid #e0e0e0; padding: 1.5rem; border-radius: 8px; }
-.info-box-detail ul { list-style: none; padding: 0; margin: 0; margin-bottom: 1rem; }
-.info-box-detail li { margin-bottom: 0.5rem; }
-.total-kcal { text-align: right; font-size: 1.1rem; font-weight: bold; margin: 0; }
+.info-box-detail {
+  border: 1px solid #e0e0e0;
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+.info-box-detail ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  margin-bottom: 1rem;
+}
+
+.info-box-detail li {
+  margin-bottom: 0.5rem;
+}
+
+.total-kcal {
+  text-align: right;
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin: 0;
+}
