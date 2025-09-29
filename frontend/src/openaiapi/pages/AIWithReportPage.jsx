@@ -257,7 +257,9 @@ export default function AIWithReportPage() {
       basalMetabolism: calculatedBmr,
 
       // --- userMetrics API ---
-      dailyCalories: userMetrics.dailyCalories, // TDEE
+      // dailyCalories: userMetrics.dailyCalories, // TDEE
+      dailyCalories: planData.tdee, // TDEE
+
 
       // --- selectedGoal (기본 목표 정보) ---
       startWeightKg: selectedGoal.startWeightKg,
