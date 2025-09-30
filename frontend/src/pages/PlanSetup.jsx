@@ -9,10 +9,11 @@ import "./PlanSetup.css";
 import leanImg from "../assets/lean.png";
 import healthImg from "../assets/health.png";
 import { listGoals, savePlan, deleteGoal } from "../api/plan";
+import { getMyProfile } from "../api/profile";
 
 const WEEK_OPTIONS = [2, 4, 6, 8, 10, 12, 14, 16];
 const VISUALS = {
-  LEAN:   { img: leanImg,   line1: "Lean",   line2: "다이어트" },
+  LEAN: { img: leanImg, line1: "Lean", line2: "다이어트" },
   HEALTH: { img: healthImg, line1: "Health", line2: "건강/근력" },
 };
 
@@ -45,59 +46,67 @@ function GoalPickerModal({ open, goals, onApply, onGo, onDelete, onClose }) {
 
   return (
     <div style={{
-      position:"fixed", inset:0, background:"rgba(0,0,0,0.55)",
-      display:"grid", placeItems:"center", zIndex:10000
+      position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)",
+      display: "grid", placeItems: "center", zIndex: 10000
     }}>
       <div style={{
-        width:560, maxWidth:"92vw", background:"#0b1220", color:"#e6edf3",
-        border:"1px solid #243244", borderRadius:16, padding:18, boxShadow:"0 12px 40px rgba(0,0,0,.4)"
+        width: 560, maxWidth: "92vw", background: "#0b1220", color: "#e6edf3",
+        border: "1px solid #243244", borderRadius: 16, padding: 18, boxShadow: "0 12px 40px rgba(0,0,0,.4)"
       }}>
-        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-          <h3 style={{ margin:"6px 0 12px 0", fontSize:18 }}>기존 목표 불러오기</h3>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <h3 style={{ margin: "6px 0 12px 0", fontSize: 18 }}>기존 목표 불러오기</h3>
           <button onClick={onClose}
-            style={{ border:"1px solid #334155", background:"transparent", color:"#e2e8f0",
-                     borderRadius:8, padding:"6px 10px", cursor:"pointer" }}>
+            style={{
+              border: "1px solid #334155", background: "transparent", color: "#e2e8f0",
+              borderRadius: 8, padding: "6px 10px", cursor: "pointer"
+            }}>
             닫기
           </button>
         </div>
 
         {!goals?.length ? (
-          <div style={{ fontSize:13, opacity:.75 }}>저장된 목표가 없습니다.</div>
+          <div style={{ fontSize: 13, opacity: .75 }}>저장된 목표가 없습니다.</div>
         ) : (
-          <div style={{ display:"grid", gap:8, marginBottom:12, maxHeight:"50vh", overflowY:"auto" }}>
+          <div style={{ display: "grid", gap: 8, marginBottom: 12, maxHeight: "50vh", overflowY: "auto" }}>
             {goals.map(g => (
               <label key={g.id}
-                     style={{
-                       display:"grid",
-                       gridTemplateColumns:"18px 1fr auto",
-                       alignItems:"center", gap:10,
-                       padding:"10px 12px", border:"1px solid #243244",
-                       background:"#0f172a", borderRadius:10
-                     }}>
-                <input type="radio" name="goalPick" checked={picked===g.id} onChange={()=>setPicked(g.id)} />
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "18px 1fr auto",
+                  alignItems: "center", gap: 10,
+                  padding: "10px 12px", border: "1px solid #243244",
+                  background: "#0f172a", borderRadius: 10
+                }}>
+                <input type="radio" name="goalPick" checked={picked === g.id} onChange={() => setPicked(g.id)} />
                 <div>
-                  <div style={{ fontWeight:700 }}>
+                  <div style={{ fontWeight: 700 }}>
                     {g.type} • {g.weeks}주 • 시작 {g.startDate}
                   </div>
-                  <div style={{ fontSize:12, opacity:.85 }}>
+                  <div style={{ fontSize: 12, opacity: .85 }}>
                     현재 {g.startWeightKg ?? "-"} kg → 목표 {g.targetWeightKg ?? "-"} kg
                   </div>
                 </div>
-                <div style={{ display:"flex", gap:8 }}>
+                <div style={{ display: "flex", gap: 8 }}>
                   <button onClick={() => onGo(g.id)}
-                          style={{ padding:"6px 10px", borderRadius:8, border:"1px solid #334155",
-                                   background:"#0b1220", color:"#e2e8f0", cursor:"pointer" }}>
+                    style={{
+                      padding: "6px 10px", borderRadius: 8, border: "1px solid #334155",
+                      background: "#0b1220", color: "#e2e8f0", cursor: "pointer"
+                    }}>
                     바로 보기
                   </button>
                   <button onClick={() => onApply(g)}
-                          style={{ padding:"6px 10px", borderRadius:8, border:"1px solid #111827",
-                                   background:"#111827", color:"#fff", cursor:"pointer" }}>
+                    style={{
+                      padding: "6px 10px", borderRadius: 8, border: "1px solid #111827",
+                      background: "#111827", color: "#fff", cursor: "pointer"
+                    }}>
                     값 불러오기
                   </button>
                   <button
                     onClick={() => onDelete(g.id)}
-                    style={{ padding:"6px 10px", borderRadius:8, border:"1px solid #7f1d1d",
-                             background:"#7f1d1d", color:"#fff", cursor:"pointer" }}>
+                    style={{
+                      padding: "6px 10px", borderRadius: 8, border: "1px solid #7f1d1d",
+                      background: "#7f1d1d", color: "#fff", cursor: "pointer"
+                    }}>
                     삭제
                   </button>
                 </div>
@@ -106,7 +115,7 @@ function GoalPickerModal({ open, goals, onApply, onGo, onDelete, onClose }) {
           </div>
         )}
 
-        <div style={{ fontSize:12, opacity:.65 }}>
+        <div style={{ fontSize: 12, opacity: .65 }}>
           • “값 불러오기”는 입력칸만 채우고 저장은 따로 눌러야 합니다.
         </div>
       </div>
@@ -118,27 +127,35 @@ function GoalPickerModal({ open, goals, onApply, onGo, onDelete, onClose }) {
 function FirstChoiceModal({ open, hasGoals, onNew, onPick, onClose }) {
   if (!open) return null;
   return (
-    <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,.55)", display:"grid", placeItems:"center", zIndex:10000 }}>
-      <div style={{ width:420, maxWidth:"92vw", background:"#0b1220", color:"#e6edf3",
-                    border:"1px solid #243244", borderRadius:16, padding:18 }}>
-        <h3 style={{ margin:"6px 0 12px 0", fontSize:18 }}>무엇을 할까요?</h3>
-        <p style={{ opacity:.85, marginTop:0 }}>새 리포트를 오늘 날짜로 시작하거나, 저장된 목표에서 불러올 수 있어요.</p>
-        <div style={{ display:"grid", gap:8, marginTop:8 }}>
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.55)", display: "grid", placeItems: "center", zIndex: 10000 }}>
+      <div style={{
+        width: 420, maxWidth: "92vw", background: "#0b1220", color: "#e6edf3",
+        border: "1px solid #243244", borderRadius: 16, padding: 18
+      }}>
+        <h3 style={{ margin: "6px 0 12px 0", fontSize: 18 }}>무엇을 할까요?</h3>
+        <p style={{ opacity: .85, marginTop: 0 }}>새 리포트를 오늘 날짜로 시작하거나, 저장된 목표에서 불러올 수 있어요.</p>
+        <div style={{ display: "grid", gap: 8, marginTop: 8 }}>
           <button onClick={onNew}
-            style={{ padding:"10px 12px", borderRadius:10, border:"1px solid #111827",
-                     background:"#111827", color:"#fff", fontWeight:700, cursor:"pointer" }}>
+            style={{
+              padding: "10px 12px", borderRadius: 10, border: "1px solid #111827",
+              background: "#111827", color: "#fff", fontWeight: 700, cursor: "pointer"
+            }}>
             새 리포트(오늘로 시작)
           </button>
           <button onClick={onPick} disabled={!hasGoals}
-            style={{ padding:"10px 12px", borderRadius:10, border:"1px solid #334155",
-                     background:"#0b1220", color: hasGoals ? "#e2e8f0" : "#64748b", cursor: hasGoals ? "pointer" : "not-allowed" }}>
+            style={{
+              padding: "10px 12px", borderRadius: 10, border: "1px solid #334155",
+              background: "#0b1220", color: hasGoals ? "#e2e8f0" : "#64748b", cursor: hasGoals ? "pointer" : "not-allowed"
+            }}>
             기존 목표 불러오기
           </button>
         </div>
-        <div style={{ display:"flex", justifyContent:"flex-end", marginTop:12 }}>
+        <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12 }}>
           <button onClick={onClose}
-            style={{ padding:"6px 10px", borderRadius:8, border:"1px solid #334155",
-                     background:"transparent", color:"#e2e8f0", cursor:"pointer" }}>
+            style={{
+              padding: "6px 10px", borderRadius: 8, border: "1px solid #334155",
+              background: "transparent", color: "#e2e8f0", cursor: "pointer"
+            }}>
             닫기
           </button>
         </div>
@@ -167,6 +184,7 @@ export default function PlanSetup() {
   const [startDate, setStartDate] = useState(dayjs().format("YYYY-MM-DD"));
   const [current, setCurrent] = useState("");
   const [target, setTarget] = useState("");
+  const [profileWeight, setProfileWeight] = useState(null); // 프로필 체중 저장
 
   // 저장/충돌
   const [saving, setSaving] = useState(false);
@@ -198,7 +216,7 @@ export default function PlanSetup() {
         const raw = await listGoals().catch(() => []);
         const all = (Array.isArray(raw) ? raw : []).map(normalizeGoal).filter(Boolean);
         const filtered = all.filter(g => g.type === planType)
-                            .sort((a,b)=> new Date(b.startDate||0)-new Date(a.startDate||0));
+          .sort((a, b) => new Date(b.startDate || 0) - new Date(a.startDate || 0));
         setGoals(filtered);
         // 첫 진입 선택 모달 오픈(해당 타입의 목표가 있을 때만)
         if (filtered.length > 0) setFirstOpen(true);
@@ -207,6 +225,23 @@ export default function PlanSetup() {
       }
     })();
   }, [planType]);
+
+// ✅ 프로필 체중 불러오고 placeholder로만 사용 (입력값 자동 주입 X)
+useEffect(() => {
+  (async () => {
+    try {
+      const p = await getMyProfile();  // GET /api/profile
+      const w = p?.weight;
+      if (w != null && !Number.isNaN(Number(w))) {
+        setProfileWeight(Number(w));
+        // setCurrent(String(w)); // 자동 입력하고 싶으면 이 줄만 주석 해제
+      }
+    } catch (e) {
+      console.warn("[PlanSetup] 프로필 조회 실패", e);
+    }
+  })();
+}, []);
+
 
   // 그래프 데이터
   const chartData = useMemo(() => {
@@ -255,7 +290,7 @@ export default function PlanSetup() {
           nav(`/plan/report?goalId=${exist[0].id}`);
           return;
         }
-      } catch (_) {}
+      } catch (_) { }
       console.error(e);
       alert(e?.response?.data?.message ?? "저장 실패. 콘솔을 확인하세요.");
     } finally {
@@ -280,7 +315,7 @@ export default function PlanSetup() {
           {/* 상단 유틸: 새 리포트(오늘), 기존 목표 선택 */}
           <div className="topbar">
             <div />
-            <div style={{ display:"flex", gap:8 }}>
+            <div style={{ display: "flex", gap: 8 }}>
               <button
                 className="btn-ghost"
                 onClick={() => { resetAsNewReport(); }}
@@ -319,9 +354,10 @@ export default function PlanSetup() {
 
           <div className="row two">
             <div className="box">
-              <div className="label">현재 체중(kg)</div>
+            <div className="label">현재 체중(kg)</div>
+
               <input
-                placeholder="예: 93"
+                placeholder={profileWeight != null ? `현재 체중 : ${profileWeight} kg` : "현재 체중을 입력하세요."}
                 value={current}
                 onChange={(e) => setCurrent(e.target.value.replace(/[^\d.]/g, ""))}
                 className="input"
@@ -331,7 +367,7 @@ export default function PlanSetup() {
             <div className="box">
               <div className="label">목표 체중(kg)</div>
               <input
-                placeholder="예: 88"
+                placeholder="목표 체중을 입력하세요."
                 value={target}
                 onChange={(e) => setTarget(e.target.value.replace(/[^\d.]/g, ""))}
                 className="input"
