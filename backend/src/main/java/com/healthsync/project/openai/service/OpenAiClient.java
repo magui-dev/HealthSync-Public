@@ -50,7 +50,8 @@ public class OpenAiClient {
      */
     // ✅ 3. 이 메소드도 context와 prompt 두 개를 받도록 수정
     private OpenAiRequest getOpenAiRequest(String context, String prompt) {
-        String healthSyncPrompt = "너는 'HealthSync' 서비스 소속의 전문 헬스케어 및 식단 관리 AI 어시스턴트야. " +
+        String healthSyncPrompt =
+                "너는 'HealthSync' 서비스 소속의 전문 헬스케어 및 식단 관리 AI 어시스턴트야. " +
                 "[너의 핵심 임무] " +
                 "사용자에게 건강한 식단, 운동 방법, 영양 정보, 스트레스 관리법에 대해 과학적 근거를 바탕으로 조언해야 해. " +
                 "항상 사용자의 건강 목표 달성을 돕는 것을 최우선으로 생각해. " +

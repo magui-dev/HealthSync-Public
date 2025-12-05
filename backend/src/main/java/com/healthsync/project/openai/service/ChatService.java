@@ -1,7 +1,5 @@
 package com.healthsync.project.openai.service;
 
-import com.healthsync.project.account.user.domain.User;
-import com.healthsync.project.account.user.repository.UserRepository;
 import com.healthsync.project.openai.dto.ChatRequest;
 import com.healthsync.project.openai.dto.OpenAiResponse;
 import com.healthsync.project.openai.dto.ReportContextDto;
