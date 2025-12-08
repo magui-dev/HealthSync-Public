@@ -23,6 +23,9 @@ services:
       - .env
     environment:
         - SPRING_PROFILES_ACTIVE=prod
+        - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/healthsync?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+        - SPRING_DATASOURCE_USERNAME=root
+        - SPRING_DATASOURCE_PASSWORD=1234
     depends_on:
       - db
     restart: always
