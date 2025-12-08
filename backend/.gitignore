@@ -2,12 +2,12 @@
 # YAML 파일 무시
 # =====================
 # application.yml / application.yaml 무시
-src/main/resources/application.yml
-src/main/resources/application.yaml
-src/main/resources/application-dev.yaml
+#src/main/resources/application.yml
+#src/main/resources/application.yaml
+#src/main/resources/application-dev.yaml
 # src 전체의 yml/yaml 파일 무시 (src/main, src/test 코드 제외)
-src/**/*.yml
-src/**/*.yaml
+#src/**/*.yml
+#src/**/*.yaml
 
 # =====================
 # Java class files
@@ -75,3 +75,8 @@ build/
 # 기타 문서
 # =====================
 HELP.md
+
+# =====================
+# .env 무시
+# =====================
+.env
