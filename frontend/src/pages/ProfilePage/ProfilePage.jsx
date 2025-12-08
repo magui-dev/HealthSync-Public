@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import Loading from "../global/loading";
+import Loading from "../global/Loading";
 import "./ProfilePage.css";
 import ProfileImageEdit from "../../components/Profile/ProfileImageEdit";
 
