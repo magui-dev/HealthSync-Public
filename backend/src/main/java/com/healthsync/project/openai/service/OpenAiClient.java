@@ -20,9 +20,9 @@ public class OpenAiClient {
     @Qualifier("restTemplate")
     private final RestTemplate restTemplate;
 
-    @Value("${openai.api-url}")
+    @Value("${openai.api-url:https://api.openai.com/v1/chat/completions}")
     private String apiUrl;
-    @Value("${openai.model}")
+    @Value("${openai.model:gpt-4o-mini}")
     private String model;
 
     private static final String HEALTH_SYNC_PROMPT =

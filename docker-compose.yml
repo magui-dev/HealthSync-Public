@@ -25,6 +25,10 @@ services:
         - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/healthsync?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
         - SPRING_DATASOURCE_USERNAME=root
         - SPRING_DATASOURCE_PASSWORD=1234
+        - JWT_SECRET=${JWT_SECRET}
+        - OPENAI_API_KEY=${OPENAI_API_KEY}
+        - OPENAI_API_URL=https://api.openai.com/v1/chat/completions
+        - OPENAI_MODEL=gpt-4o-mini
     depends_on:
       - db
     restart: always
