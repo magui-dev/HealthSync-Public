@@ -4,6 +4,8 @@ import Loading from "../global/Loading";
 import "./ProfilePage.css";
 import ProfileImageEdit from "../../components/Profile/ProfileImageEdit";
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("view");
   const [profile, setProfile] = useState(null);
@@ -31,8 +33,8 @@ export default function ProfilePage() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const bodyRes = await axios.get("http://localhost:8080/profile", { withCredentials: true });
-        const accountRes = await axios.get("http://localhost:8080/api/auth/me", { withCredentials: true });
+        const bodyRes = await axios.get(`${API_BASE}/profile`, { withCredentials: true });
+        const accountRes = await axios.get(`${API_BASE}/api/auth/me`, { withCredentials: true });
         const combined = { ...bodyRes.data, ...accountRes.data };
 
         setProfile(combined);
@@ -63,14 +65,14 @@ export default function ProfilePage() {
 
       // 닉네임 저장
       await axios.patch(
-        "http://localhost:8080/api/auth/nickname",
+        `${API_BASE}/api/auth/nickname`,
         { nickname: nicknameInput },
         { withCredentials: true }
       );
 
       // 나머지 정보 저장
       await axios.put(
-        "http://localhost:8080/profile/edit",
+          `${API_BASE}/profile/edit`,
         {
           age: Number(age),
           height: Number(height).toFixed(1),
@@ -88,7 +90,7 @@ export default function ProfilePage() {
         Number(weight).toFixed(2) !== Number(profile.weight).toFixed(2)
       ) {
         await axios.post(
-          "http://localhost:8080/calc/bmi",
+            `${API_BASE}/calc/bmi`,
           null,
           { params: { userId: profile.userId }, withCredentials: true }
         );
