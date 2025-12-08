@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import { api } from "../../api/axios";
 import "./ProfileEditModal.css";
 
 export default function ProfileEditModal({ open, onClose }) {
@@ -22,7 +22,7 @@ export default function ProfileEditModal({ open, onClose }) {
     }
 
     try {
-      await axios.put("http://localhost:8080/profile",
+      await api.put("/profile",
       {
         age: Number(age),
         height: Number(height),
@@ -30,8 +30,7 @@ export default function ProfileEditModal({ open, onClose }) {
         gender: gender.toUpperCase(), // GenderType(enum) 맞추기 위해
         activityLevel: activityLevel,
       },
-      {withCredentials: true,}
-  );
+    );
 
       alert("프로필이 성공적으로 수정되었습니다.");
       onClose();

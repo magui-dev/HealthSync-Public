@@ -1,0 +1,15 @@
+# 빌드 결과물 (Docker 에서 새로 빌드함)
+build/
+.gradle/
+
+# IDE 설정
+.idea/
+*.iml
+
+# Git
+.git/
+.gitignore
+
+# 기타
+*.md
+*.log

@@ -1,7 +1,7 @@
 // AIWithReportPage.js
 
 import React, { useState, useEffect, useMemo } from "react";
-import axios from "axios";
+import { api } from "../../api/axios";
 import { useMe } from "../../hooks/useMe";
 import UserInfoPage from "../../userinfoui/pages/UserInfoPage";
 import AIChatPage from "../components/AIChatPage";
@@ -28,8 +28,8 @@ export default function AIWithReportPage() {
         setLoading(true);
         setError(null);
         try {
-          const profilePromise = axios.get("http://localhost:8080/profile", { withCredentials: true });
-          const metricsPromise = axios.get(`http://localhost:8080/calc/${me.userId}/latest`, { withCredentials: true });
+          const profilePromise = api.get("/profile");
+          const metricsPromise = api.get(`/calc/${me.userId}/latest`);
           const [profileResponse, metricsResponse] = await Promise.all([ profilePromise, metricsPromise ]);
           setUserProfile(profileResponse.data);
           setUserMetrics(metricsResponse.data);
@@ -49,7 +49,7 @@ export default function AIWithReportPage() {
     setSelectedGoal(goal);
     setPlanData(null);
     try {
-      const res = await axios.get(`http://localhost:8080/api/plan/${goal.id}/summary`, { withCredentials: true });
+      const res = await api.get(`/api/plan/${goal.id}/summary`);
       setPlanData(res.data);
     } catch (err) {
       console.error("플랜 데이터 불러오기 실패:", err);

@@ -1,0 +1,22 @@
+# 의존성 (Docker에서 새로 설치)
+node_modules/
+
+# 빌드 결과물
+dist/
+.vite/
+
+# IDE
+.idea/
+*.iml
+
+# Git
+.git/
+.gitignore
+
+# 환경변수 (compose에서 관리)
+.env
+.env.local
+
+# 기타
+*.md
+*.log

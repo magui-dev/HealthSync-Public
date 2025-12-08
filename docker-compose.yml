@@ -1,0 +1,22 @@
+services:
+  # 백엔드(Spring Boot)
+  backend:
+    build: ./backend
+    container_name: healthsync-backend
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+        - SPRING_PROFILES_ACTIVE=prod
+    restart: always
+
+  # 프론트엔드(Nginx)
+  frontend:
+    build: ./frontend
+    container_name: healthsync-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: always

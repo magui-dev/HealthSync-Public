@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { api } from "../../api/axios";
 import { useMe } from "../../hooks/useMe";
 import { calculateBMI } from "../lib/bmi";
 import GoalSelectModal from "../../openaiapi/components/GoalSelectModal";
@@ -97,9 +97,7 @@ const MyReportPage = () => {
     if (me && !userProfile) {
       const fetchProfile = async () => {
         try {
-          const res = await axios.get("http://localhost:8080/profile", {
-            withCredentials: true,
-          });
+          const res = await api.get("/profile");
           setUserProfile(res.data);
         } catch (err) {
           console.error("프로필 정보를 불러오는 데 실패했습니다.", err);
@@ -122,14 +120,10 @@ const MyReportPage = () => {
       setError(null);
       try {
         const [summaryRes, foodSelectionsRes] = await Promise.all([
-          axios.get(
-            `http://localhost:8080/api/plan/${selectedGoal.id}/summary`,
-            { withCredentials: true }
-          ),
-          axios.get(
-            `http://localhost:8080/api/plan/food-selections?goalId=${selectedGoal.id}`,
-            { withCredentials: true }
-          ),
+          api.get(
+            `/api/plan/${selectedGoal.id}/summary`),
+          api.get(
+            `/api/plan/food-selections?goalId=${selectedGoal.id}`),
         ]);
 
         const summaryData = summaryRes.data;

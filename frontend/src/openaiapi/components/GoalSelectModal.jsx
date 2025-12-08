@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { api } from '../../api/axios';
 import { useNavigate } from 'react-router-dom';
 import './GoalSelectModal.css';
 
@@ -15,9 +15,7 @@ export default function GoalSelectModal({ isOpen, onClose, onSelectGoal, me }) {
       const fetchGoals = async () => {
         setIsLoading(true);
         try {
-          const res = await axios.get('http://localhost:8080/api/plan/goals', {
-            withCredentials: true,
-          });
+          const res = await api.get('/api/plan/goals');
           setGoals(res.data);
         } catch (err) {
           console.error("목표 목록 불러오기 실패:", err);
