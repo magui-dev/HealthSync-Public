@@ -1,4 +1,18 @@
 services:
+    # MySQL
+  db:
+    image: mysql:8.0
+    container_name: healthsync-db
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: healthsync
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    restart: always
+
+
   # 백엔드(Spring Boot)
   backend:
     build: ./backend
@@ -9,6 +23,8 @@ services:
       - .env
     environment:
         - SPRING_PROFILES_ACTIVE=prod
+    depends_on:
+      - db
     restart: always
 
   # 프론트엔드(Nginx)
@@ -20,3 +36,7 @@ services:
     depends_on:
       - backend
     restart: always
+
+
+volumes:
+  mysql_data:
