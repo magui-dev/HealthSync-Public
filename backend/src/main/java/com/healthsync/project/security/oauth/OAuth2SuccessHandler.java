@@ -33,7 +33,7 @@ public class OAuth2SuccessHandler implements org.springframework.security.web.au
     @Value("${client.url:http://localhost:3000}")
     private String clientUrl;
 
-    @Value("${jwt.refresh-exp-seconds}")
+    @Value("${jwt.refresh-exp-seconds:1209600}")
     private long refreshExpSeconds;
 
     @Override
