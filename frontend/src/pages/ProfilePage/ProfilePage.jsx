@@ -33,7 +33,7 @@ export default function ProfilePage() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const bodyRes = await axios.get(`${API_BASE}/profile`, { withCredentials: true });
+        const bodyRes = await axios.get(`${API_BASE}/api/profile`, { withCredentials: true });
         const accountRes = await axios.get(`${API_BASE}/api/auth/me`, { withCredentials: true });
         const combined = { ...bodyRes.data, ...accountRes.data };
 
@@ -72,7 +72,7 @@ export default function ProfilePage() {
 
       // 나머지 정보 저장
       await axios.put(
-          `${API_BASE}/profile/edit`,
+          `${API_BASE}/api/profile/edit`,
         {
           age: Number(age),
           height: Number(height).toFixed(1),
@@ -90,7 +90,7 @@ export default function ProfilePage() {
         Number(weight).toFixed(2) !== Number(profile.weight).toFixed(2)
       ) {
         await axios.post(
-            `${API_BASE}/calc/bmi`,
+            `${API_BASE}/api/calc/bmi`,
           null,
           { params: { userId: profile.userId }, withCredentials: true }
         );
