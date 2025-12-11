@@ -114,12 +114,16 @@ export default function AIChatPage({ selectedReport }) {
     setIsLoading(true);
 
     try {
+      const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
       const token = localStorage.getItem("accessToken");
       const headers = {
         "Content-Type": "application/json",
         ...(token && { Authorization: `Bearer ${token}` }),
       };
-      const res = await fetch("/api/chat", {
+      
+      console.log("API 호출:", `${API_BASE}/api/chat`); // 디버깅용
+      
+      const res = await fetch(`${API_BASE}/api/chat`, {
         method: "POST",
         headers,
         credentials: "include",
@@ -129,12 +133,18 @@ export default function AIChatPage({ selectedReport }) {
         })
       });
 
+      console.log("응답 상태:", res.status); // 디버깅용
+
       if (!res.ok) {
+        const errorText = await res.text();
+        console.error("서버 응답 에러:", res.status, errorText);
+        
         if (res.status === 401 || res.status === 403) {
           throw new Error("로그인이 필요하거나 권한이 없습니다.");
         }
-        throw new Error("서버에서 오류가 발생했습니다.");
+        throw new Error(`서버 오류 (${res.status}): ${errorText || "알 수 없는 오류"}`);
       }
+      
       const data = await res.json();
       const aiResponse = { who: "ai", text: data.answer };
       setMessages((prev) => [...prev.slice(0, -1), aiResponse]);

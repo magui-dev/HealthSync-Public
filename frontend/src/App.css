@@ -18,7 +18,6 @@
 
 /* 메인 영역(페이지별로 바뀌는 부분)  */
 .mainArea {
-  margin-top: 64px;
   background-color: var(--color-bg);
   width: 100%;
   min-height: calc(100vh - var(--header-h));

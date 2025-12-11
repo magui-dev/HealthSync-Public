@@ -141,7 +141,9 @@ export default function ProfilePage() {
   return (
     <div className="profilePage">
       <main className="mainContent">
-        <h3 className="profileSectionTitle">프로필 설정</h3>
+        <div className="profileHeader">
+          <h3 className="profileSectionTitle">프로필 설정</h3>
+        </div>
 
         {/* 프로필 View */}
         {activeTab === "view" && (

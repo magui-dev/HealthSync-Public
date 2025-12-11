@@ -129,61 +129,45 @@ function Shell() {
         </div>
       )}
 
-      {/* 루트(메인) vs 내부 페이지 구조 */}
-      {isRootPath ? (
-        // 메인 페이지 (헤더 없이 랜딩)
-        <div style={{ paddingTop: mustLogin ? 48 : 0 }}>
-          {/* mustLogin이면 배너 높이만큼 padding 보정 */}
-          <MainPage
-            me={me}
-            onLoginClick={onLoginClick}
-            onAccountClick={onAccountClick}
-          />
-        </div>
-      ) : (
-        <>
-          {/* 상단 헤더 */}
-          <div style={{ paddingTop: mustLogin ? 48 : 0 }}>
-            {/* 배너가 있을 때 헤더가 가려지지 않도록 padding 보정 */}
-            <Header
-              me={me}
-              onLoginClick={onLoginClick}
-              onLogoutClick={logout}
-              onAccountClick={onAccountClick}
-            />
-          </div>
+      {/* 모든 페이지에 통일된 헤더 표시 */}
+      <div style={{ paddingTop: mustLogin ? 48 : 0 }}>
+        <Header
+          me={me}
+          onLoginClick={onLoginClick}
+          onLogoutClick={logout}
+          onAccountClick={onAccountClick}
+        />
+      </div>
 
-          {/* 메인 영역 */}
-          <div className="mainArea">
-            <Routes>
-              {/* OAuth 성공 후 me 갱신 */}
-              <Route path="/auth/success" element={<AuthSuccess onDone={refresh} />} />
+      {/* 메인 영역 */}
+      <div className={isRootPath ? "" : "mainArea"}>
+        <Routes>
+          {/* OAuth 성공 후 me 갱신 */}
+          <Route path="/auth/success" element={<AuthSuccess onDone={refresh} />} />
 
-              {/* 공개 라우트 (필요 시만 유지) */}
-              <Route
-                path="/"
-                element={
-                  <MainPage
-                    me={me}
-                    onLoginClick={onLoginClick}
-                    onAccountClick={onAccountClick}
-                  />
-                }
+          {/* 메인 페이지 */}
+          <Route
+            path="/"
+            element={
+              <MainPage
+                me={me}
+                onLoginClick={onLoginClick}
+                onAccountClick={onAccountClick}
               />
+            }
+          />
 
-              {/* ===== 보호 라우트 (RequireAuth로 감싸기) ===== */}
-              <Route path="/me" element={<RequireAuth><Me /></RequireAuth>} />
-              <Route path="/profile" element={<RequireAuth><ProfilePage /></RequireAuth>} />
-              <Route path="/community/posts/*" element={<RequireAuth><PostRoutes /></RequireAuth>} />
-              <Route path="/my-report" element={<RequireAuth><MyReportPage /></RequireAuth>} />
-              <Route path="/ai-with-report" element={<RequireAuth><AIWithReportPage /></RequireAuth>} />
-              <Route path="/plan" element={<RequireAuth><PlanSetup /></RequireAuth>} />
-              <Route path="/plan/foods" element={<RequireAuth><FoodSelectionPage /></RequireAuth>} />
-              <Route path="/plan/report" element={<RequireAuth><PlanReport /></RequireAuth>} />
-            </Routes>
-          </div>
-        </>
-      )}
+          {/* ===== 보호 라우트 (RequireAuth로 감싸기) ===== */}
+          <Route path="/me" element={<RequireAuth><Me /></RequireAuth>} />
+          <Route path="/profile" element={<RequireAuth><ProfilePage /></RequireAuth>} />
+          <Route path="/community/posts/*" element={<RequireAuth><PostRoutes /></RequireAuth>} />
+          <Route path="/my-report" element={<RequireAuth><MyReportPage /></RequireAuth>} />
+          <Route path="/ai-with-report" element={<RequireAuth><AIWithReportPage /></RequireAuth>} />
+          <Route path="/plan" element={<RequireAuth><PlanSetup /></RequireAuth>} />
+          <Route path="/plan/foods" element={<RequireAuth><FoodSelectionPage /></RequireAuth>} />
+          <Route path="/plan/report" element={<RequireAuth><PlanReport /></RequireAuth>} />
+        </Routes>
+      </div>
 
       {/* 로그인 모달 */}
       <LoginModal open={showLogin} onClose={() => setShowLogin(false)} />

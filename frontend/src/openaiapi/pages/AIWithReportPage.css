@@ -6,8 +6,7 @@
   display: flex;
   height: calc(100vh - 64px);
   justify-content: center;
-  /* gap: 10px; */
-  padding: 0;             /* ✅ 오타 수정 (0 px -> 0) */
+  padding: 0;
   box-sizing: border-box;
   background-color: #FFFFFF;
   align-items: stretch;  
@@ -17,19 +16,18 @@
 .right-panel {
   display: flex;
   flex-direction: column;
-  height: 100%;                  /* ← 핵심 */
+  height: 100%;
   min-height: 0; 
-  
 }
+
 .left-panel {
   width: 800px;
   border-right: 0px solid #ddd;
-  
+  position: relative; /* 버튼 absolute 위치를 위해 */
 }
 
 .right-panel {
-  width: 700px;
-  /* gap : 15px; */
+  width: 700px; /* 원래대로 */
 }
 
 /* 헤더: 두 패널 모두 같은 높이/스타일 */
@@ -37,17 +35,15 @@
   position: sticky;
   top: 0;
   z-index: 5;
-  height: var(--panel-header-h);        /* ✅ 고정 높이 */
+  height: var(--panel-header-h);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 10px 12px;
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: saturate(160%) blur(4px);
-  box-sizing: border-box;               /* ✅ 패딩 포함 */
+  box-sizing: border-box;
 }
-
-
 
 /* 본문 래퍼: 여백 일관화 */
 .panel-body {
@@ -56,21 +52,41 @@
 }
 
 .panel-body.chat-body {
-  flex: 1;                  /* ✅ 헤더 제외 남은 세로공간 모두 차지 */
-  min-height: 0;            /* ✅ 내부 스크롤 가능 */
-  display: flex;            /* ✅ 자식(.chat-shell)을 늘리기 위함 */
-  overflow: hidden;         /* 선택: 스크롤은 내부(chat-window)에서 처리 */
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  overflow: hidden;
 }
 
 .goal-button {
-  border: 1px solid #e0e0e0;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border: 2px solid #f5f5dc;
   background: #fff;
-  border-radius: 10px;
-  padding: 8px 12px;
-  font-weight: 600;
+  border-radius: 20px;
+  padding: 32px 48px;
+  font-weight: 700;
+  font-size: 2rem;
   cursor: pointer;
-  transition: box-shadow .15s ease, transform .05s ease;
+  transition: all .2s ease;
+  z-index: 10;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
-.goal-button:hover { box-shadow: 0 2px 10px rgba(0,0,0,.06); }
-.goal-button:active { transform: translateY(1px); }
-.goal-button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.goal-button:hover { 
+  background: #fffef8;
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.12);
+  transform: translate(-50%, -50%) scale(1.05);
+}
+
+.goal-button:active { 
+  transform: translate(-50%, -50%) scale(0.98);
+}
+
+.goal-button:disabled { 
+  opacity: 0.6; 
+  cursor: not-allowed;
+  transform: translate(-50%, -50%);
+}

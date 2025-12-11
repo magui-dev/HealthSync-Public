@@ -1,59 +1,50 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./Header.css";
 import DropdownMenu from "../common/DropdownMenu";
 
 export default function Header({ me, onLoginClick, onLogoutClick, onAccountClick }) {
+  const nav = useNavigate();
   
-  const label = me?.nickname ? `${me.nickname}님` : "Login";
-  const click = me ? onAccountClick : onLoginClick;
-
   return (
-    <header>
-      <div className="header-brand">
-        <Link to="/" className="header-link">Health&Lean</Link>
+    <header className="unified-header">
+      <div className="header-logo">
+        <Link to="/">HealthSync</Link>
       </div>
 
-      <nav className="header-nav">
-        {me && (
-          <>
-            {/* 목표 관리(건강/다이어트) */}       
-            <DropdownMenu
-              button={
-                <button className="header-btn-link"> Plan </button>
-              }
-            >
-              {(close) => (
-                <>
-                  <Link to="/plan?type=health" className="dropdownItem" onClick={close}>건강</Link>
-                  <Link to="/plan?type=diet" className="dropdownItem" onClick={close}>다이어트</Link>
-                </> 
-              )}
-            </DropdownMenu>
-            {/* AI chat */}
-            <Link to="/ai-with-report" className="header-link"> AI </Link>
-            {/* Report */}
-            <Link to="/my-report" className="header-link"> Report </Link>
-            {/* 커뮤니티 */}
-            <Link to="/community/posts" className="header-link"> Community </Link>
-          </>
-        )}
-        {/* Profile 설정 드롭다운 */}
+      <nav className="header-menu">
         {me ? (
           <DropdownMenu
             button={
-              <button className="header-btn-link">{label}</button>
+              <button className="header-menu-btn">
+                {me.nickname}님
+              </button>
             }
           >
             {(close) => (
-              <>
-                <Link to="/profile" className="dropdownItem" onClick={close}>프로필 설정</Link>
-                <Link onClick={() => { onLogoutClick(); close(); }} className="dropdownItem">로그아웃</Link>
-              </>
+              <div className="dropdown-content">
+                <button className="dropdown-item" onClick={() => { nav("/profile"); close(); }}>
+                  프로필 설정
+                </button>
+                <button className="dropdown-item" onClick={() => { onLogoutClick(); close(); }}>
+                  로그아웃
+                </button>
+              </div>
             )}
           </DropdownMenu>
         ) : (
-          <button onClick={click} className="header-btn-link">{label}</button>
+          <button className="header-menu-btn" onClick={onLoginClick}>
+            Login
+          </button>
         )}
+        <button className="header-menu-btn" onClick={() => nav("/ai-with-report")}>
+          AI 챗봇
+        </button>
+        <button className="header-menu-btn" onClick={() => nav("/my-report")}>
+          나의 리포트
+        </button>
+        <button className="header-menu-btn" onClick={() => nav("/community/posts")}>
+          커뮤니티
+        </button>
       </nav>
     </header>
   );

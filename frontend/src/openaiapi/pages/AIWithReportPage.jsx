@@ -122,10 +122,12 @@ export default function AIWithReportPage() {
   return (
     <div className="ai-with-report">
       <div className="left-panel">
-        <div className="panel-header">
+        {!reportDataForUIandAI && (
           <button className="goal-button" onClick={() => setIsModalOpen(true)} disabled={!me}>
             {me ? "내 목표 목록 보기" : "사용자 정보 로딩 중..."}
           </button>
+        )}
+        <div className="panel-header">
         </div>
         <div className="panel-body">
           {loading && !reportDataForUIandAI && <div style={{ padding: 20 }}>데이터를 불러오는 중입니다...</div>}

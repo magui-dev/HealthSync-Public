@@ -300,16 +300,7 @@ useEffect(() => {
 
   return (
     <div className="plan-wrap">
-      {/* 좌측 비주얼 */}
-      <div className="plan-left">
-        <img src={visual.img} alt={planType} className="bg-img" />
-        <div className="overlay-title">
-          <div>{visual.line1}</div>
-          <div>{visual.line2}</div>
-        </div>
-      </div>
-
-      {/* 우측 카드 */}
+      {/* 중앙 카드 */}
       <div className="plan-right">
         <div className="card">
           {/* 상단 유틸: 새 리포트(오늘), 기존 목표 선택 */}
@@ -334,7 +325,20 @@ useEffect(() => {
             </div>
           </div>
 
-          <h2 className="title">목표 기간</h2>
+          <h2 className="title">
+            목표 기간 
+            <span style={{ 
+              marginLeft: '12px', 
+              fontSize: '18px', 
+              fontWeight: '600',
+              color: '#10b981',
+              background: '#d1fae5',
+              padding: '4px 12px',
+              borderRadius: '8px'
+            }}>
+              {planType === 'HEALTH' ? 'Health' : 'Diet'}
+            </span>
+          </h2>
           <div className="weeks-grid">
             {WEEK_OPTIONS.map((w) => (
               <button
@@ -386,7 +390,7 @@ useEffect(() => {
                 <XAxis dataKey="name" />
                 <YAxis domain={["auto", "auto"]} />
                 <Tooltip />
-                <Line type="monotone" dataKey="weight" dot />
+                <Line type="monotone" dataKey="weight" stroke="#10b981" strokeWidth={2} dot={{ fill: '#10b981' }} />
               </LineChart>
             </ResponsiveContainer>
           </div>

@@ -1,50 +1,28 @@
-import leftImg from "../assets/leftbackground.png";
-import centerImg from "../assets/centerbackground.png";
-import rightImg from "../assets/rightbackground.png";
+import healthImg from "../assets/health.png";
+import dietImg from "../assets/diet.png";
 import "./MainPage.css";
 import { useNavigate } from "react-router-dom";
 
 export default function MainPage({ me, onLoginClick, onAccountClick }) {
-  // const go = (msg) => () => alert(msg);
   const nav = useNavigate();
-  // 목표설정 구간
   const goPlanSetup = (type) => nav(`/plan?type=${type}`);
 
   return (
     <div className="landing">
-      <aside className="side">
-        <img className="bg" src={leftImg} alt="left bg" />
-        <nav className="menu">
-          <button className="menuBtn" onClick={me ? onAccountClick : onLoginClick}>
-            {me?.nickname ? `${me.nickname}님` : "Login"}
-          </button>
-          <button className="menuBtn" onClick={() => nav("/ai-with-report")}>AI 식단 추천</button>
-          <button className="menuBtn" onClick={() => nav("/my-report")}>나의 리포트</button>
-          <button className="menuBtn" onClick={() => nav("/community/posts")}>커뮤니티</button>
-        </nav>
-      </aside>
-
-      <section className="hero">
-        <img src={centerImg} alt="health" />
-        <div className="overlay" />
-        <button className="heroBtn" onClick={() => goPlanSetup("HEALTH")}>
-          <div className="title">
-            <strong>Health</strong>
-            <span>건강</span>
+      {/* 메인 컨텐츠 영역 */}
+      <main className="mainContent">
+        <section className="hero health-hero" onClick={() => goPlanSetup("HEALTH")}>
+          <div className="heroCard">
+            <img src={healthImg} alt="건강" />
           </div>
-        </button>
-      </section>
+        </section>
 
-      <section className="hero">
-        <img src={rightImg} alt="lean" />
-        <div className="overlay" />
-        <button className="heroBtn" onClick={() => goPlanSetup("LEAN")}>
-          <div className="title">
-            <strong>Lean</strong>
-            <span>다이어트</span>
+        <section className="hero diet-hero" onClick={() => goPlanSetup("LEAN")}>
+          <div className="heroCard">
+            <img src={dietImg} alt="다이어트" />
           </div>
-        </button>
-      </section>
+        </section>
+      </main>
     </div>
   );
 }

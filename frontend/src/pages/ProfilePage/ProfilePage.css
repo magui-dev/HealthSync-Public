@@ -1,25 +1,32 @@
 .profilePage {
   display: flex;
-  justify-content: center; /* 전체 컨테이너를 화면 가로 중앙에 배치 */
-  padding: 32px 0 0 0;
-  width: 100%; /* 부모 전체 폭 */
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+  width: 100%;
   box-sizing: border-box;
 }
 
 /* 메인 영역 */
 .mainContent {
-  flex: 1; /* 남는 공간 모두 차지 */
-  max-width: 800px; /* 최대 폭 제한 */
-  padding: 5px;
+  flex: 1;
+  max-width: 800px;
+  padding: 24px 16px 0 16px;
+  width: 100%;
+}
+
+/* 프로필 헤더 (제목 영역) */
+.profileHeader {
+  width: 100%;
+  margin-bottom: 20px;
 }
 
 /* 프로필 섹션 제목 */
 .profileSectionTitle {
-  margin-top: 0;
-  margin-bottom: 24px;
-  padding-top: 0;
-  padding-bottom: 8px;
+  margin: 0;
+  padding-bottom: 6px;
   border-bottom: 1.5px solid var(--color-header-bottom);
+  font-size: 1.5rem;
 }
 
 /* selectBtn 버튼 */
