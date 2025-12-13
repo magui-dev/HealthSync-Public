@@ -80,3 +80,10 @@ HELP.md
 # .env 무시
 # =====================
 .env
+.env.local
+.env.*.local
+.env.homeserver
+.env.aws
+# .env.*.example 파일은 Git에 포함
+!.env.homeserver.example
+!.env.aws.example

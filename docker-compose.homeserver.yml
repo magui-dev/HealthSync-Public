@@ -1,0 +1,52 @@
+services:
+  # MySQL
+  db:
+    image: mysql:8.0
+    container_name: healthsync-db-homeserver
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: healthsync
+    ports:
+      - "3307:3306"  # 홈서버: 3307 (brainstorming은 3306 사용)
+    volumes:
+      - mysql_data_homeserver:/var/lib/mysql
+    restart: always
+
+  # 백엔드(Spring Boot)
+  backend:
+    build: ./backend
+    container_name: healthsync-backend-homeserver
+    ports:
+      - "8082:8080"  # 홈서버: 8082 (brainstorming은 8081 사용)
+    env_file:
+      - ./backend/.env.homeserver  # 홈서버용 환경변수 파일
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/healthsync?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=1234
+      - JWT_SECRET=${JWT_SECRET}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_API_URL=https://api.openai.com/v1/chat/completions
+      - OPENAI_MODEL=gpt-4o-mini
+      - CLIENT_URL=${CLIENT_URL}
+      - SERVER_URL=${SERVER_URL}
+    depends_on:
+      - db
+    restart: always
+
+  # 프론트엔드(Nginx)
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        - VITE_API_BASE_URL=https://healthsync.magui-dev.com
+        - VITE_API_ORIGIN=https://healthsync.magui-dev.com
+    container_name: healthsync-frontend-homeserver
+    ports:
+      - "3001:80"  # 홈서버: 3001 (Caddy가 프록시할 포트)
+    depends_on:
+      - backend
+    restart: always
+
+volumes:
+  mysql_data_homeserver:

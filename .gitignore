@@ -49,8 +49,8 @@ pnpm-debug.log*
 .env
 .env.*
 !.env.example
-
-
+!.env.homeserver.example    
+!.env.aws.example          
 
 # React build outputs
 frontend/build/

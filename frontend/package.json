@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:aws": "vite build --mode production",
+    "build:homeserver": "vite build --mode homeserver",
     "lint": "eslint .",
     "preview": "vite preview"
   },
