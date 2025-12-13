@@ -6,6 +6,7 @@ client:
 
 server:
   url: ${SERVER_URL:http://localhost:8080}
+  forward-headers-strategy: framework
   tomcat:
     uri-encoding: UTF-8
 
