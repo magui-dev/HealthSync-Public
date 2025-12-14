@@ -28,8 +28,8 @@ export default function AIWithReportPage() {
         setLoading(true);
         setError(null);
         try {
-          const profilePromise = api.get("/profile");
-          const metricsPromise = api.get(`/calc/${me.userId}/latest`);
+          const profilePromise = api.get("/api/profile");
+          const metricsPromise = api.get(`/api/calc/${me.userId}/latest`);
           const [profileResponse, metricsResponse] = await Promise.all([ profilePromise, metricsPromise ]);
           setUserProfile(profileResponse.data);
           setUserMetrics(metricsResponse.data);
