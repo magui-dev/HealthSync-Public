@@ -11,7 +11,7 @@ import java.util.NoSuchElementException;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/calc")
+@RequestMapping("/api/calc")
 public class MetricsController {
 
     private final MetricsService metricsService;

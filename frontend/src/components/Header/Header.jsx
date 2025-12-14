@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import "./Header.css";
 import DropdownMenu from "../common/DropdownMenu";
+import logoImg from "../../assets/logo.jpg";
 
 export default function Header({ me, onLoginClick, onLogoutClick, onAccountClick }) {
   const nav = useNavigate();
@@ -8,7 +9,9 @@ export default function Header({ me, onLoginClick, onLogoutClick, onAccountClick
   return (
     <header className="unified-header">
       <div className="header-logo">
-        <Link to="/">HealthSync</Link>
+        <Link to="/">
+          <img src={logoImg} alt="HealthSync" className="header-logo-img" />
+        </Link>
       </div>
 
       <nav className="header-menu">
