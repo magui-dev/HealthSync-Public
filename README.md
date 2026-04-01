@@ -2,7 +2,7 @@
 
 > AI 기반 개인 맞춤형 건강관리 플랫폼
 
-[![배포 사이트](https://img.shields.io/badge/🌐_배포_사이트-healthsync--dev.duckdns.org-blue?style=for-the-badge)](https://healthsync-dev.duckdns.org)
+[![배포 사이트](https://img.shields.io/badge/🌐_배포_사이트-healthsync--dev.duckdns.org-blue?style=for-the-badge)](https://healthsync.magui-dev.com)
 
 ---
 
