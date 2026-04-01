@@ -2,7 +2,7 @@
 
 > AI 기반 개인 맞춤형 건강관리 플랫폼
 
-[![배포 사이트](https://img.shields.io/badge/🌐_배포_사이트-healthsync--dev.duckdns.org-blue?style=for-the-badge)](https://healthsync.magui-dev.com)
+[![배포 사이트](https://img.shields.io/badge/🌐_배포_사이트-healthsync.magui-dev.com-blue?style=for-the-badge)](https://healthsync.magui-dev.com)
 
 ---
 
@@ -148,13 +148,12 @@ npm run dev
 
 - **GitHub**: [@jinmo-kim-korean](https://github.com/jinmo-kim-korean)
 - **Email**: jinmo.kim.korean@gmail.com
-- **배포 사이트**: https://healthsync-dev.duckdns.org
+- **배포 사이트**: https://healthsync.magui-dev.com
 
 ---
 
 <div align="center">
 
-### ⭐ 이 프로젝트가 도움이 되었다면 Star를 눌러주세요!
 
 **Made with ❤️ by JinMo Kim**
 
